@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
-import AdminModel from "./admin.js";
+import AdminModel from "./Admin.js";
 
 mongoose.connect("mongodb://localhost:27017/dbtagle")
   .then(() => console.log("✅ Connected to MongoDB"))
