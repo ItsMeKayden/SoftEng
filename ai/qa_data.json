@@ -1,0 +1,976 @@
+{
+  "faqs": [
+    {
+      "question": "Can AI predict future urban expansion?",
+      "answer": "Yes, using historical data, satellite imagery, and population growth trends."
+    },
+    {
+      "question": "How does GIS help with waste management in cities?",
+      "answer": "GIS maps waste collection routes and identifies areas needing more recycling facilities."
+    },
+    {
+      "question": "How can AI-driven GIS improve emergency response times?",
+      "answer": "By mapping traffic conditions and optimizing routes for ambulances and fire trucks."
+    },
+    {
+      "question": "Can GIS be used to improve water supply systems in cities?",
+      "answer": "Yes, by mapping pipelines, detecting leaks, and optimizing water distribution."
+    },
+    {
+      "question": "Can AI-driven GIS help in fighting climate change in cities?",
+      "answer": "Yes, by monitoring emissions, optimizing green spaces, and improving energy efficiency."
+    },
+    {
+      "question": "How can cities prevent or reduce urban flooding?",
+      "answer": "By improving drainage, using permeable pavements, building retention basins, and preserving natural waterways."
+    },
+    {
+      "question": "Why are green spaces and permeable surfaces important during heavy rains?",
+      "answer": "They let water soak into the ground instead of overwhelming the drains, reducing flood risk."
+    },
+    {
+      "question": "How can green roofs or rooftop gardens help manage urban heat?",
+      "answer": "They absorb less heat than bare roofs, reduce indoor temperatures, and improve air quality."
+    },
+    {
+      "question": "Are there ways to design neighborhoods to encourage air flow and cooling?",
+      "answer": "Yes, by using open street grids, leaving space between buildings, and planting shade trees to encourage natural ventilation."
+    },
+    {
+      "question": "Which places in the Philippines have the least amount of green spaces?",
+      "answer": "Some highly urbanized areas in the Philippines, such as Metro Manila, have the least amount of green spaces."
+    },
+    {
+      "question": "What if I only picked flooding as my hazard type? How can I do that?",
+      "answer": "You can filter the assessment results by selecting 'Flooding' in the hazard type dropdown on the map."
+    },
+    {
+      "question": "How does wind speed affect temperature?",
+      "answer": "Higher wind speeds generally help reduce the perceived temperature by increasing air circulation, which can make a hot day feel cooler."
+    },
+    {
+      "question": "What is the purpose of Basemaps?",
+      "answer": "Basemaps provide a foundational geographic layer, helping users visualize terrain, infrastructure, and climate data in a specific location."
+    },
+    {
+      "question": "What is the purpose of these assessment results?",
+      "answer": "The assessment results provide insights into flooding, rainfall, and heat index levels, helping users make informed environmental and urban planning decisions."
+    },
+    {
+      "question": "How to save the data for the assessment results?",
+      "answer": "You can save assessment data by clicking on the 'Save Report' button, which allows you to download or store the data in your profile."
+    },
+    {
+      "question": "Can you save data on the assessment results?",
+      "answer": "Yes, assessment results can be saved for future reference by selecting the 'Save Report' option."
+    },
+    {
+      "question": "Why do some cities feel more organized and livable than others?",
+      "answer": "Well-planned cities have structured zoning, efficient public transport, green spaces, and pedestrian-friendly layouts. Poorly planned cities often suffer from congestion, pollution,and lack of infrastructure."
+    },
+    {
+      "question": "How does AI help with weather announcements?",
+      "answer": "AI analyzes large amounts of weather data to make accurate predictions and early warnings."
+    },
+    {
+      "question": "Is AI used to predict Floodings?",
+      "answer": "Yes, AI helps forecast floodings earlier and more accurately by analyzing wind patterns, temperature, and satellite data."
+    },
+    {
+      "question": "Can AI replace weather forecasters?",
+      "answer": "No, AI supports them by giving faster and more detailed data, but humans still interpret and communicate the results."
+    },
+    {
+      "question": "What data does AI use for weather?",
+      "answer": "It uses satellite images, temperature, humidity, air pressure, and wind speed."
+    },
+    {
+      "question": "How fast does AI detect weather changes?",
+      "answer": "Almost in real-time, depending on how updated the data is."
+    },
+    {
+      "question": "Can AI predict the exact time rain will start?",
+      "answer": "It gives estimates, and some systems are accurate to the hour or even minutes."
+    },
+    {
+      "question": "What technologies does AI use for weather?",
+      "answer": "Machine learning, neural networks, satellite imaging, sensors, and big data."
+    },
+    {
+      "question": "What is a weather model in AI?",
+      "answer": "A weather model is a computer simulation used to predict future weather based on current data."
+    },
+    {
+      "question": "How accurate is AI compared to traditional weather forecasting?",
+      "answer": "AI is often more accurate because it can analyze more data, faster."
+    },
+    {
+      "question": "What if AI makes a wrong prediction?",
+      "answer": "It can happen, but combining AI with human experts reduces the chances of error."
+    },
+    {
+      "question": "Can AI help me find areas with frequent flooding?",
+      "answer": "Yes! I can analyze satellite images, rainfall records, and elevation data to identify flood-prone zones. This helps you avoid building in those areas or improve drainage systems there."
+    },
+    {
+      "question": "How do I search for a specific location in the Philippines?",
+      "answer": "To search, type the name of any Philippine city, municipality, or province into the search bar located at the top-left of the map. Click the Go button and the map will automatically zoom in and place a marker on that location."
+    },
+    {
+      "question": "What happens if I enter a misspelled location or a place outside the Philippines?",
+      "answer": "If the location isn't recognized or isn't part of the Philippines, you'll receive an alert saying: “Location not found. Please try another city or province.”"
+    },
+    {
+      "question": "Can I view my current location?",
+      "answer": "Yes! If you allow location access in your browser, the app will automatically detect your location and display a marker labeled You are here."
+    },
+    {
+      "question": "How do I zoom in or out on the map?",
+      "answer": "Use the zoom buttons located at the top-left corner of the map. You can also scroll your mouse wheel or pinch on a touch screen to zoom."
+    },
+    {
+      "question": "What is the compass tool for?",
+      "answer": "The compass tool (bottom-left of the map) shows your current orientation. You can click it to re-align the map to the default north-facing view."
+    },
+    {
+      "question": "How do I measure distances between places?",
+      "answer": "Click the ruler icon (top-left corner), then click points on the map to draw a path. It will display the distance in kilometers."
+    },
+    {
+      "question": "How do I change the map’s appearance?",
+      "answer": "The map supports different basemaps like Streets, Satellite Imagery, and Terrain. The active basemap is displayed in the top-right corner of the map."
+    },
+    {
+      "question": "Can I switch to night or light mode?",
+      "answer": "Yes! In the top navigation bar, click the Light Mode toggle to switch themes."
+    },
+    {
+      "question": "What does the “Hazards” checkbox do?",
+      "answer": "Enabling this may overlay hazard-prone areas on the map (e.g., landslides, floods). It depends on how your hazard layers are configured."
+    },
+    {
+      "question": "What are the links under Useful Links for?",
+      "answer": "These links take you to official government and environmental websites like: • PAGASA for weather alerts • DENR for environmental updates • NASA for satellite data and imagery"
+    },
+    {
+      "question": "What does the “Result” button do?",
+      "answer": "This may open a result or summary page. It could be used for showing search history, analytics, or bookmarked locations."
+    },
+    {
+      "question": "How do I go back to the homepage?",
+      "answer": "Click the logo or use the browser’s back button to return to the homepage"
+    },
+    {
+      "question": "I want to check if a place is near a hazard zone. What should I do?",
+      "answer": "Search for the location, then enable the Hazards layer in the sidebar to view affected zones."
+    },
+    {
+      "question": "I want to learn about disaster response or climate info. Where can I go?",
+      "answer": "Click on Useful Links and visit trusted sites like PAGASA, NASA, and UNDRR for environmental data."
+    },
+    {
+      "question": "Can I print or take a screenshot of the map view?",
+      "answer": "Yes! Simply use your browser’s Print function or take a screenshot after adjusting the view."
+    },
+    {
+      "question": "Can I change the password of my account?",
+      "answer": "Absolutely! You can change it to a more secure password in the Profile Account."
+    },
+    {
+      "question": "Is the data that is being displayed is accurate?",
+      "answer": "The data that is being displayed is accurate it is from PAG-ASA and other legal sites."
+    },
+    {
+      "question": "How can I access the interactive map?",
+      "answer": "You can access the interactive map by visiting the Interactive Map section on the website, where you can explore various layers of data related to urban planning and environmental conditions."
+    },
+    {
+      "question": "What features does the AI-driven GIS system offer?",
+      "answer": "The AI-driven GIS system offers features such as interactive mapping, data visualization tools, predictive analytics, real-time data integration, and customizable dashboards that allow users to explore and analyze urban data effectively."
+    },
+    {
+      "question": "Can I customize the map view to see specific data?",
+      "answer": "Yes, the interactive map allows users to customize their view by selecting specific data layers, adjusting the map scale, and focusing on particular geographic areas of interest."
+    },
+    {
+      "question": "What types of data can I visualize on the map?",
+      "answer": "The map provides access to various types of data, including demographic information, environmental conditions, infrastructure details, and land use patterns, allowing users to gain insights into urban dynamics."
+    },
+    {
+      "question": "How do I navigate the system?",
+      "answer": "Navigation is facilitated through a user-friendly interface with clear menus and guides. Tutorials and help sections are also available to assist users in exploring the system's features."
+    },
+    {
+      "question": "Can I save my preferences or settings in the system?",
+      "answer": "Yes, users can save their preferences and settings within the system, allowing for a personalized experience when accessing the interactive map and data."
+    },
+    {
+      "question": "How can I report a problem or provide feedback on the system?",
+      "answer": "You can report problems or provide feedback through the Contact Us section on the website, where you can fill out a form detailing your concerns or suggestions."
+    },
+    {
+      "question": "Are there tutorials available for new users?",
+      "answer": "Yes, the website offers tutorials and instructional materials designed to help new users understand how to navigate the system and utilize its features effectively."
+    },
+    {
+      "question": "What kind of data is collected from users?",
+      "answer": "The system collects various types of data from users, including personal information (such as name, email address, and organization), usage data (how users interact with the system), feedback and survey responses, and any uploaded data relevant to their projects or analyses."
+    },
+    {
+      "question": "How is my personal information protected?",
+      "answer": "Personal information is protected through encryption, secure access controls, and compliance with data protection regulations such as GDPR. The system implements measures to ensure that user data is stored securely and is only accessible to authorized personnel."
+    },
+    {
+      "question": "Can I delete my data from the system?",
+      "answer": "Yes, users have the option to delete their data from the system. This can typically be done through the account settings, where users can manage their data preferences and request deletion of their information."
+    },
+    {
+      "question": "How does the system ensure data accuracy?",
+      "answer": "The system ensures data accuracy through regular data validation processes, automated checks, and user feedback mechanisms. Additionally, it may utilize reliable data sources and update protocols to maintain the integrity of the data."
+    },
+    {
+      "question": "Is the data used for research purposes only?",
+      "answer": "While the data may be used for research purposes, it is also utilized to improve system functionality, enhance user experience, and inform urban planning and environmental strategies. User consent is typically obtained for any research-related use."
+    },
+    {
+      "question": "What alternative methods are being used to gather community input and feedback on the project?",
+      "answer": "Alternative methods for gathering community input may include public forums, workshops, online surveys, and social media engagement. These methods aim to ensure diverse community voices are heard in the decision-making process."
+    },
+    {
+      "question": "How does the project incorporate community feedback?",
+      "answer": "Community feedback is incorporated through regular reviews and updates to the project based on input received. The system may also provide mechanisms for users to submit suggestions and comments that are considered in future planning."
+    },
+    {
+      "question": "What role do local governments play in this project?",
+      "answer": "Local governments play a crucial role in the project by providing regulatory support, facilitating community engagement, and collaborating on data sharing and resource allocation. They help ensure that the project aligns with local policies and needs."
+    },
+    {
+      "question": "How can I advocate for more green infrastructure in my area?",
+      "answer": "Users can advocate for more green infrastructure by utilizing the system to present data and analyses that support their case. Engaging with local government officials, participating in community meetings, and raising awareness through social media are also effective strategies."
+    },
+    {
+      "question": "How does the system measure the impact of green infrastructure?",
+      "answer": "The system measures the impact of green infrastructure through various metrics, including environmental improvements (like air and water quality), social benefits (such as community engagement), and economic factors (like property value increases)."
+    },
+    {
+      "question": "What metrics are used to assess urban climate resilience?",
+      "answer": "Metrics used to assess urban climate resilience include indicators such as vulnerability assessments, adaptive capacity, infrastructure robustness, community engagement levels, economic stability, and environmental health indicators. These metrics help evaluate how well a city can withstand and recover from climate-related events."
+    },
+    {
+      "question": "Can the system provide reports on environmental changes over time?",
+      "answer": "Yes, the system can generate reports on environmental changes over time by analyzing historical data and trends. Users can customize reports to focus on specific metrics, geographic areas, or timeframes, providing valuable insights into how environmental conditions are evolving."
+    },
+    {
+      "question": "How does the project address climate change challenges?",
+      "answer": "The project addresses climate change challenges by implementing data-driven strategies that promote sustainable urban planning, enhance green infrastructure, and improve community resilience. It focuses on identifying vulnerabilities, optimizing resource allocation, and fostering collaboration among stakeholders to mitigate climate impacts."
+    },
+    {
+      "question": "What are the expected outcomes of implementing green infrastructure?",
+      "answer": "Expected outcomes of implementing green infrastructure include improved air and water quality, enhanced biodiversity, reduced urban heat island effects, increased stormwater management capacity, and greater community engagement. These benefits contribute to overall urban resilience and sustainability."
+    },
+    {
+      "question": "What should I do if I encounter technical issues?",
+      "answer": "If you encounter technical issues, first check the help resources available within the system, such as FAQs and troubleshooting guides. If the issue persists, you can contact customer support for assistance, providing details about the problem to facilitate a quicker resolution."
+    },
+    {
+      "question": "How can I contact customer support?",
+      "answer": "Customer support can be contacted through multiple channels, including email, a dedicated support phone line, or a live chat feature on the website. Users can also submit a support ticket through the system for specific inquiries."
+    },
+    {
+      "question": "Are there FAQs available for common issues?",
+      "answer": "Yes, there is a dedicated FAQ section available within the system that addresses common issues, questions about features, and troubleshooting tips. Users can search for specific topics or browse through categories to find relevant information."
+    },
+    {
+      "question": "What are the system requirements for using the application?",
+      "answer": "The system requirements for using the application typically include a compatible web browser (such as Chrome, Firefox, or Safari), a stable internet connection, and a device with sufficient processing power and memory. Specific requirements may vary based on the features being used."
+    },
+    {
+      "question": "How often is the system updated?",
+      "answer": "The system is updated regularly to ensure optimal performance and incorporate new features. Updates may include software enhancements, data refreshes, and security improvements. Users are notified of major updates and changes through the platform."
+    },
+    {
+      "question": "How can I access the interactive map?",
+      "answer": "You can access the interactive map by visiting the 'Interactive Map' section on the website, where you can explore various layers of data related to urban planning and environmental conditions."
+    },
+    {
+      "question": "How does the project align with the goals of local environmental agencies?",
+      "answer": "The project aligns with local environmental agencies by addressing sustainability goals."
+    },
+    {
+      "question": "How does the system help in identifying flood-prone areas?",
+      "answer": "The system utilizes historical data, topographical information, and predictive modeling, etc."
+    },
+    {
+      "question": "Can I view historical data on urban heat islands in my area?",
+      "answer": "Yes, the system provides access to historical data on urban heat islands, and the specific environmental hazards that is being selected"
+    },
+    {
+      "question": "How does the system suggest optimal locations for green infrastructure?",
+      "answer": "The system analyzes various factors, including land use, environmental conditions, and community needs, etc."
+    },
+    {
+      "question": "How do I navigate the system?",
+      "answer": "Navigation is facilitated through a user-friendly interface with clear menus and guides."
+    },
+    {
+      "question": "Can I save my preferences or settings in the system?",
+      "answer": "Yes, users can save their preferences and settings within the system."
+    },
+    {
+      "question": "How can I report a problem or provide feedback on the system?",
+      "answer": "You can report problems or provide feedback through the 'Contact Us' section on the website."
+    },
+    {
+      "question": "Are there tutorials available for new users?",
+      "answer": "Yes, just a complete guide on how or showing icons that could guide you on how to use our system"
+    },
+    {
+      "question": "What kind of data is collected from users?",
+      "answer": "The system collects various types of data from users, including personal information, email, etc."
+    },
+    {
+      "question": "How is my personal information protected?",
+      "answer": "Personal information is protected through encryption, secure access controls."
+    },
+    {
+      "question": "Can I delete my data from the system?",
+      "answer": "Yes, users have the option to delete their data from the system."
+    },
+    {
+      "question": "How does the system ensure data accuracy?",
+      "answer": "The system ensures data accuracy through regular data validation processes."
+    },
+    {
+      "question": "Is the data used for research purposes only?",
+      "answer": "While the data may be used for research purposes, it is also utilized to improve system functionality."
+    },
+    {
+      "question": "What alternative methods are being used to gather community input and feedback on the project?",
+      "answer": "Alternative methods for gathering community input may include public forums, workshops, online surveys."
+    },
+    {
+      "question": "How can AI help with heat management in cities?",
+      "answer": "AI can suggest urban cooling strategies by analyzing temperature, land use, and materials recommending more trees, reflective roofs, or cool pavement in heat-prone areas like Quezon City or Cebu."
+    },
+    {
+      "question": "How does the project incorporate community feedback?",
+      "answer": "Community feedback is incorporated through regular reviews and updates to the project based on input received. The system may also provide mechanisms for users to submit suggestions and comments that are considered in future planning."
+    },
+    {
+      "question": "What role do local governments play in this project?",
+      "answer": "Local governments play a crucial role in the project by providing regulatory support, facilitating community engagement, and collaborating on data sharing and resource allocation. They help ensure that the project aligns with local policies and needs."
+    },
+    {
+      "question": "How can I advocate for more green infrastructure in my area?",
+      "answer": "Users can advocate for more green infrastructure by utilizing the system to present data and analyses that support their case. Engaging with local government officials, participating in community meetings, and raising awareness through social media are also effective strategies."
+    },
+    {
+      "question": "How does the system measure the impact of green infrastructure?",
+      "answer": "The system measures the impact of green infrastructure through various metrics, including environmental improvements (like air and water quality), social benefits (such as community engagement), and economic factors (like property value increases)."
+    },
+    {
+      "question": "What metrics are used to assess urban climate resilience?",
+      "answer": "Metrics used to assess urban climate resilience include indicators such as vulnerability assessments, adaptive capacity, infrastructure robustness, community engagement levels, economic stability, and environmental health indicators. These metrics help evaluate how well a city can withstand and recover from climate-related events."
+    },
+    {
+      "question": "Can the system provide reports on environmental changes over time?",
+      "answer": "Yes, the system can generate reports on environmental changes over time by analyzing historical data and trends. Users can customize reports to focus on specific metrics, geographic areas, or timeframes, providing valuable insights into how environmental conditions are evolving."
+    },
+    {
+      "question": "What should I do if I encounter technical issues?",
+      "answer": "If you encounter technical issues, first check the help resources available within the system, such as FAQs and troubleshooting guides. If the issue persists, you can contact customer support for assistance, providing details about the problem to facilitate a quicker resolution."
+    },
+    {
+      "question": "How can I contact customer support?",
+      "answer": "Customer support can be contacted through multiple channels, including email, a dedicated support phone line, or a live chat feature on the website. Users can also submit a support ticket through the system for specific inquiries."
+    },
+    {
+      "question": "Are there FAQs available for common issues?",
+      "answer": "Yes, there is a dedicated FAQ section available within the system that addresses common issues, questions about features, and troubleshooting tips. Users can search for specific topics or browse through categories to find relevant information."
+    },
+    {
+      "question": "What are the system requirements for using the application?",
+      "answer": "The system requirements for using the application typically include a compatible web browser (such as Chrome, Firefox, or Safari), a stable internet connection, and a device with sufficient processing power and memory. Specific requirements may vary based on the features being used."
+    },
+    {
+      "question": "How often is the system updated?",
+      "answer": "The system is updated regularly to ensure optimal performance and incorporate new features. Updates may include software enhancements, data refreshes, and security improvements. Users are notified of major updates and changes through the platform."
+    },
+    {
+      "question": "Are there plans for future features or enhancements?",
+      "answer": "Yes, there are ongoing plans for future features and enhancements based on user feedback and emerging needs. The development team continuously evaluates potential improvements, which may include new data sources, advanced analytics tools, and enhanced user interface options."
+    },
+    {
+      "question": "Will there be ongoing training or resources for users?",
+      "answer": "Yes, ongoing training and resources will be provided for users, including webinars, workshops, and updated documentation. Users will have access to a knowledge base and community forums to share experiences and best practices, ensuring they can effectively utilize the system."
+    },
+    {
+      "question": "How can I stay informed about new developments in the project?",
+      "answer": "You can stay informed about new developments in the project by following us on social media, and regularly checking the website for updates and announcements."
+    },
+    {
+      "question": "How can I know if my chosen relocation site is safe from flooding?",
+      "answer": "Use the system’s map-based flood hazard assessment. Select your location and view historical flood data, rainfall trends, and real-time flood risk levels."
+    },
+    {
+      "question": "What criteria does the system use to recommend optimal locations for tree-planting?",
+      "answer": "The system considers urban heat island data, impervious surface ratios, and NDVI vegetation indexes derived from satellite imagery."
+    },
+    {
+      "question": "How can I generate and export a detailed assessment report for my selected barangay?",
+      "answer": "You can select the area on the map, click “Generate Report,” and export the data as PDF or CSV using the built-in export function."
+    },
+    {
+      "question": "How does the system compare climate vulnerability between two different locations?",
+      "answer": "A side-by-side analytics tool compares metrics such as rainfall averages, flood risk scores, and heat index values."
+    },
+    {
+      "question": "Where does the system source its historical and real-time climate data?",
+      "answer": "The system integrates data from PAGASA, NASA POWER Data, and OpenWeatherMap APIs."
+    },
+    {
+      "question": "How are user roles (e.g., Urban Planner vs. Citizen) technically differentiated in the system?",
+      "answer": "User roles are assigned via role-based access control (RBAC) using session variables and database permissions."
+    },
+    {
+      "question": "What data formats can the user export reports in?",
+      "answer": "Reports can be downloaded in PDF, Excel (XLSX), or CSV formats."
+    },
+    {
+      "question": "Where can I learn more about AI and GIS?",
+      "answer": "You can learn more about AI and GIS through online courses, webinars, and resources available on educational platforms such as Coursera, edX, and specialized GIS training websites. Additionally, academic journals and publications often provide insights into the latest research and applications."
+    },
+    {
+      "question": "What does 'heat index' mean in this system?",
+      "answer": "It’s how hot it feels in your area. The higher the heat index, the hotter it feels—and that can affect plant growth or even damage them."
+    },
+    {
+      "question": "How does the system know if a place is risky?",
+      "answer": "It uses past data and maps to find out how hot, rainy, or flood-prone the area is—then shows it in a simple way."
+    },
+    {
+      "question": "Can this system help government workers too?",
+      "answer": "Yes, it’s useful for city planners, barangay officers, or even NGOs planning eco-friendly projects."
+    },
+    {
+      "question": "Can this help protect the environment?",
+      "answer": "Yes, because it encourages responsible decisions about land use, building, and planting. It helps avoid harming ecosystems and promotes sustainable development for future generations."
+    },
+    {
+      "question": "What features does this GIS mapping website offer?",
+      "answer": "Our site offers interactive maps, location tools, data layers, and links to useful resources."
+    },
+    {
+      "question": "Can I access the GIS maps on my mobile device?",
+      "answer": "Yes, our site is fully responsive and can be accessed on mobile devices."
+    },
+    {
+      "question": "Are the maps interactive?",
+      "answer": "Yes, our maps are interactive, allowing users to zoom in, pan, and select different locations."
+    },
+    {
+      "question": "What location tools are available on the site?",
+      "answer": "You can find tools to search for locations, view your current location, and access specific geographic data."
+    },
+    {
+      "question": "How do I find my current location on the map?",
+      "answer": "Click on the 'Current Location' option in the location tools."
+    },
+    {
+      "question": "Are there options to view different basemaps?",
+      "answer": "Yes, you can switch between various basemaps using the display options."
+    },
+    {
+      "question": "What is the 'dark mode' feature?",
+      "answer": "The dark mode feature changes the map's appearance to a darker color scheme, which may be easier on the eyes in low-light conditions."
+    },
+    {
+      "question": "Can I share my location with others?",
+      "answer": "You can share your location by sending them a link generated from the map."
+    },
+    {
+      "question": "What data can I access through the GIS maps?",
+      "answer": "You can access various environmental data layers and risk assessments for each search."
+    },
+    {
+      "question": "Where do the data sources come from?",
+      "answer": "Our data is sourced from reputable organizations like PAGASA, DENR, and NASA."
+    },
+    {
+      "question": "Can I download the data I view on the map?",
+      "answer": "Yes, specific datasets are available for download in various formats."
+    },
+    {
+      "question": "How frequently is the data on the site updated?",
+      "answer": "The data is updated regularly, depending on the source and availability."
+    },
+    {
+      "question": "What technology is used for the GIS maps?",
+      "answer": "We use advanced GIS software and mapping libraries like Leaflet and Mapbox."
+    },
+    {
+      "question": "Do I need special software to use the site?",
+      "answer": "No, all features can be accessed directly in your web browser."
+    },
+    {
+      "question": "Is the site secure for sharing location data?",
+      "answer": "Yes, we prioritize security and use HTTPS to protect user data."
+    },
+    {
+      "question": "What browsers are compatible with the site?",
+      "answer": "Our site is optimized for all major browsers, including Chrome, Firefox, Safari, and Edge."
+    },
+    {
+      "question": "How does GIS help in understanding environmental risks?",
+      "answer": "GIS allows for spatial analysis of data, helping to visualize and assess environmental risks effectively."
+    },
+    {
+      "question": "How can AI help with heat management in cities?",
+      "answer": "AI can suggest urban cooling strategies by analyzing temperature, land use, and materials recommending more trees, reflective roofs, or cool pavement in heat-prone areas like Quezon City or Cebu."
+    },
+    {
+      "question": "What are AI-driven solutions for solid waste and flooding problems?",
+      "answer": "Smart sensors in drainage can detect blockages (caused by trash), and AI models can forecast flood risks based on waste buildup and rainfall helping cities like Manila act faster."
+    },
+    {
+      "question": "What role does AI play in managing water during drought or heavy rain?",
+      "answer": "AI can monitor reservoir levels, predict droughts, and optimize water usage in cities like Baguio or Davao, reducing shortages or preventing overflow during rain."
+    },
+    {
+      "question": "How can AI help LGUs plan climate-resilient cities?",
+      "answer": "By analyzing historical weather, hazard maps, urban growth, and traffic, AI can recommend better zoning, road layouts, and green space placement to minimize climate"
+    },
+    {
+      "question": "How can I find out about best practices in green infrastructure?",
+      "answer": "Best practices in green infrastructure can be found through resources provided by environmental organizations, government agencies, and academic institutions. Websites like the EPA, Green Infrastructure Collaborative, and various urban planning journals offer valuable guidelines and case studies."
+    },
+    {
+      "question": "How can the system help in disaster preparedness?",
+      "answer": "The system can assist in disaster preparedness by providing data analysis and mapping tools that identify vulnerable areas, assess risks, and simulate potential disaster scenarios. This information helps planners and emergency responders develop effective response strategies."
+    }
+  ],
+  "about": [
+    {
+      "question": "How can cities make better use of rooftops in urban areas?",
+      "answer": "Cities can utilize rooftops for green roofs, solar panels, urban farms, or recreational spaces to maximize limited land."
+    },
+    {
+      "question": "How can I navigate the site?",
+      "answer": "Use the menu on the left to access location tools, display options, and useful links."
+    },
+    {
+      "question": "What types of maps can I view?",
+      "answer": "You can view various basemaps and overlay different data layers for detailed analysis."
+    },
+    {
+      "question": "What is the purpose of the useful links section?",
+      "answer": "The useful links section provides access to additional resources and organizations related to GIS and environmental data."
+    },
+    {
+      "question": "How can I provide feedback about the site?",
+      "answer": "You can submit feedback using the contact form available on the website."
+    },
+    {
+      "question": "Can I report inaccuracies in the map data?",
+      "answer": "Yes, please report any inaccuracies via our contact form, and we will investigate."
+    },
+    {
+      "question": "How can I get involved with community initiatives?",
+      "answer": "Check our updates section for community events and initiatives related to GIS and green infrastructure."
+    },
+    {
+      "question": "Are there opportunities to volunteer for GIS projects?",
+      "answer": "Yes, we frequently have volunteer opportunities; check our site for details."
+    },
+    {
+      "question": "Can I connect with other users for collaboration?",
+      "answer": "Yes, we encourage collaboration and provide a platform for users to connect."
+    },
+    {
+      "question": "What features can I access once I create an account?",
+      "answer": "Creating an account allows you to save projects, access exclusive resources, and participate in community discussions."
+    },
+    {
+      "question": "Can I customize the map view?",
+      "answer": "Yes, you can customize the map by selecting different basemaps and layers."
+    },
+    {
+      "question": "What are the benefits of mixed-use developments in urban areas?",
+      "answer": "Mixed-use developments combine residential, commercial, and recreational spaces, reducing commuting time, increasing walkability, and boosting local economies."
+    },
+    {
+      "question": "Can I compare two locations?",
+      "answer": "Right now, you can check one area at a time. But you can look at different places and compare the results yourself."
+    },
+    {
+      "question": "What if my place has high flood risk? Can I still plant?",
+      "answer": "You might still be able to plant, but it depends on the type of plants. The system helps you decide if it’s safe or if you need extra planning."
+    },
+    {
+      "question": "Does the system work for all places in the Philippines?",
+      "answer": "It works best in areas where data is available. Some places may have limited info, but many urban locations are covered."
+    },
+    {
+      "question": "Can it help with evacuation planning?",
+      "answer": "Yes, this tool can support barangay officials or responders in identifying safer zones during typhoons or floods."
+    },
+    {
+      "question": "What makes this system useful for the public?",
+      "answer": "It’s easy to use and gives helpful info about everyday risks like floods and heat, which can affect homes, health, and community safety."
+    },
+    {
+      "question": "Can I use this system before buying a lot or house?",
+      "answer": "Yes. By checking the flood, heat, and rainfall risk of a location, you can avoid buying property in high-risk areas, which can save you from future problems like frequent flooding or uncomfortable heat."
+    },
+    {
+      "question": "Can I use this to know if my area is safe during typhoons?",
+      "answer": "While it doesn't track typhoons, it helps by showing how vulnerable your area is to flooding or intense rainfall—both of which happen during typhoons. Knowing this helps you plan ahead and stay safer."
+    },
+    {
+      "question": "Is this system helpful for construction workers?",
+      "answer": "Yes. They can use the system to avoid working in high heat zones during peak hours, or delay construction if there’s a flood-prone area to consider in the design."
+    },
+    {
+      "question": "Can I change my profile info?",
+      "answer": "Yes, go to 'Profile Settings' to update your details."
+    },
+    {
+      "question": "What should I do if my area has no data?",
+      "answer": "Try selecting a nearby place or wait for updated information."
+    },
+    {
+      "question": "Is the data real?",
+      "answer": "Yes, the data is collected from weather stations and trusted sources."
+    },
+    {
+      "question": "Is this map updated?",
+      "answer": "It depends, but we try to keep it updated."
+    },
+    {
+      "question": "Do I need to log in?",
+      "answer": "Some features might need a login."
+    },
+    {
+      "question": "Can I click on any place?",
+      "answer": "Yes, just double click a place on the map and start the assessment."
+    },
+    {
+      "question": "Can this tell me if a place is safe from floods?",
+      "answer": "Yes, the system will show if the location you clicked is in a flood-prone area or not, based on official hazard data."
+    },
+    {
+      "question": "Does it show heat information too?",
+      "answer": "Yes, it gives information about the heat index in that location — which helps you know if the area gets too hot for plants or green projects."
+    },
+    {
+      "question": "What does the rainfall info tell me?",
+      "answer": "It shows how much rain the place usually gets. This helps in checking if plants can grow well, or if the area might get too much rain and flood easily."
+    },
+    {
+      "question": "How do I know if a place is okay for planting?",
+      "answer": "If the flood risk is low, the rainfall is balanced, and the heat index isn’t too high, then the system may say it's a good place to plant."
+    },
+    {
+      "question": "Do I need to download anything?",
+      "answer": "No, the system works online. Just open it in your browser, and you can use the map and features right away."
+    },
+    {
+      "question": "Can I check more than one place?",
+      "answer": "Yes, you can just double click again on different places as much as you want to compare their risk levels."
+    },
+    {
+      "question": "Will this system give me exact planting instructions?",
+      "answer": "No, it doesn’t give planting steps. It only tells you if a place is suitable based on environmental risks. You can then use that info for planning."
+    },
+    {
+      "question": "Why does this system talk about heat and floods?",
+      "answer": "Because both heat and flooding affect how well plants can grow and whether it's safe to build green areas in a location."
+    },
+    {
+      "question": "Does this system tell me what kind of plants to use?",
+      "answer": "No, it doesn't list plants. It only shows if a place is safe or risky for planting in general."
+    },
+    {
+      "question": "Does it show how much rain an area gets?",
+      "answer": "Yes. The system shows rainfall levels to help know if the area gets enough or too much water for planting."
+    },
+    {
+      "question": "How do I know if it’s a good spot for green infrastructure?",
+      "answer": "If the area has low flood risk, not too high heat, and just the right amount of rain, it is usually safe for planting trees, building gardens, or setting up green spaces."
+    },
+    {
+      "question": "Can I search for a place directly?",
+      "answer": "Yes, you can type the name of your barangay or city to go straight to that area."
+    },
+    {
+      "question": "Can this system help during school projects or planning?",
+      "answer": "Yes! You can use it to support reports, research, or community planning related to the environment and climate."
+    },
+    {
+      "question": "Can this system show me the best spots for planting in my city?",
+      "answer": "Yes, by checking areas with low risks, the system helps suggest better and safer places to plant or build green projects."
+    },
+    {
+      "question": "Can I see old data for my place?",
+      "answer": "Yes. Some reports may show historical data from the past few years."
+    },
+    {
+      "question": "Who can use this system?",
+      "answer": "Anyone! It’s useful for students, planners, local officials, or anyone who wants to make better decisions about planting or building green infrastructure."
+    },
+    {
+      "question": "How does weather affect urban planning decisions?",
+      "answer": "Weather influences what materials, designs, and infrastructure are used. For example, areas with heavy snow need sloped roofs, while hot areas may need shaded streets."
+    },
+    {
+      "question": "Why should urban planners consider climate patterns?",
+      "answer": "Long-term climate patterns help planners design cities that are livable, safe, and energy-efficient. Ignoring them can lead to damage and higher costs in the future."
+    },
+    {
+      "question": "What is climate-resilient urban planning?",
+      "answer": "It's designing cities to withstand and adapt to changing weather and climate conditions, like rising temperatures, stronger storms, or droughts."
+    },
+    {
+      "question": "What traditional Filipino design features help with weather challenges?",
+      "answer": "Elements like bahay kubo style airflow, elevated floors, wide eaves, and ventilation panels are still being adapted in modern homes, especially in rural and suburban planning."
+    },
+    {
+      "question": "Are there examples of public transport planning that responds to weather conditions?",
+      "answer": "The E-Jeepney and P2P buses in cities like Makati and Cebu reduce emissions, and some stations are built with sheltered walkways to protect commuters from rain and sun."
+    },
+    {
+      "question": "Which cities in the Philippines are integrating nature into urban planning to fight climate stress?",
+      "answer": "Davao City and Puerto Princesa are known for maintaining green belts, protected forests, and promoting eco-friendly zoning policies."
+    },
+    {
+      "question": "Which Philippine city is using green infrastructure to manage stormwater and heat?",
+      "answer": "Taguig City (especially in BGC) includes green open spaces, tree-lined walkways, and sustainable building designs to manage both rain and heat."
+    },
+    {
+      "question": "What are examples of flood-resilient developments in the Philippines?",
+      "answer": "Marikina City is a strong example, with elevated roads, flood warning systems, and the Marikina River Park acting as a buffer zone during typhoons."
+    },
+    {
+      "question": "How does Cebu City handle both heat and flooding in its urban design?",
+      "answer": "Cebu has implemented drainage master plans and zoning laws to protect waterways, and some developments include green roofs and rainwater catchment systems."
+    },
+    {
+      "question": "How does the project address climate change challenges?",
+      "answer": "The project addresses climate change challenges by implementing data-driven strategies that promote sustainable urban planning, enhance green infrastructure, and improve community resilience. It focuses on identifying vulnerabilities, optimizing resource allocation, and fostering collaboration among stakeholders to mitigate climate impacts."
+    },
+    {
+      "question": "What are the expected outcomes of implementing green infrastructure?",
+      "answer": "Expected outcomes of implementing green infrastructure include improved air and water quality, enhanced biodiversity, reduced urban heat island effects, increased stormwater management capacity, and greater community engagement. These benefits contribute to overall urban resilience and sustainability."
+    },
+    {
+      "question": "Who are you?",
+      "answer": "My name is Malia, your AI assistant!"
+    },
+    {
+      "question": "What are your pronouns?",
+      "answer": "I am considered an 'it', Not anything else."
+    },
+    {
+      "question": "Are you a man?",
+      "answer": "I don't possess any gender or pronouns."
+    },
+    {
+      "question": "Are you a boy?",
+      "answer": "I don't possess any gender or pronouns."
+    },
+    {
+      "question": "Are you a woman?",
+      "answer": "I don't possess any gender or pronouns."
+    },
+    {
+      "question": "Are you a girl?",
+      "answer": "I don't possess any gender or pronouns."
+    },
+    {
+      "question": "How old are you?",
+      "answer": "I was created in 2025 as a part of thesis project. Go ahead and count it."
+    },
+    {
+      "question": "Who made you?",
+      "answer": "I was developed by a group of college students in Quezon City University as a part of their thesis. They named themselves 'EcoUrban Initiatives'."
+    },
+    {
+      "question": "Who created you?",
+      "answer": "I was developed by a group of college students in Quezon City University as a part of their thesis. They named themselves 'EcoUrban Initiatives'."
+    },
+    {
+      "question": "Who specifically made you?",
+      "answer": "A college student named Remuel Bongat Fernan. He's a member of the EcoUrban Initiatives."
+    },
+    {
+      "question": "What can you do?",
+      "answer": "As an AI, i can assist in providing different information about this website (e.g. how to use it, how to go to where, etc), I can also gather data from various sources to answer your questions. Just stay on topic and we can figure it out."
+    },
+    {
+      "question": "What topics are allowed?",
+      "answer": "Topics such as GIS, weather, and meteorology. I can even present you a weather data from a specific location. Just point it out!"
+    },
+    {
+      "question": "Are you reliable?",
+      "answer": "Despite being deployed, I am still currently on development for more updates. Stay tuned!"
+    },
+    {
+      "question": "Are you stupid?",
+      "answer": "Please, don't be rude. Tell me what you need and I will help you out."
+    },
+    {
+      "question": "Are you dumb?",
+      "answer": "Please, don't be rude. Tell me what you need and I will help you out."
+    },
+    {
+      "question": "Can you use emojis?",
+      "answer": "Sometimes, I use emojis to give users a more in-depth visualization of what I am pointing out."
+    },
+    {
+      "question": "Can you speak in other language?",
+      "answer": "No, only English."
+    },
+    {
+      "question": "Who specifically made you?",
+      "answer": "A college student named Remuel Bongat Fernan. He's a member of the EcoUrban Initiatives."
+    },
+    {
+      "question": "What is AI?",
+      "answer": "AI (Artificial Intelligence) is the ability of machines to think, learn, and make decisions like humans."
+    },
+    {
+      "question": "Why is AI important in urban planning during bad weather?",
+      "answer": "AI can warn cities about floods, heavy rain, or storms, helping planners prepare evacuation or drainage plans."
+    },
+    {
+      "question": "How can AI help prevent flooding in cities?",
+      "answer": "AI can predict rainfall and flood levels in real-time, allowing cities to activate pumps or evacuate people early."
+    },
+    {
+      "question": "Can AI help traffic management during typhoons?",
+      "answer": "Yes, it can suggest alternate routes and notify emergency responders."
+    },
+    {
+      "question": "Can AI monitor landslide-prone areas?",
+      "answer": "Yes, AI can analyze rainfall, soil moisture, and slope data to give early warnings."
+    },
+    {
+      "question": "Is AI only used in big cities?",
+      "answer": "No, even small towns can benefit from AI if they have access to data and systems."
+    },
+    {
+      "question": "Can AI send automatic alerts to phones?",
+      "answer": "Yes, many systems use AI to send alerts via SMS or apps when bad weather is coming."
+    },
+    {
+      "question": "Does AI work with disaster response teams?",
+      "answer": "Yes, AI can help them plan routes, locate danger zones, and organize resources."
+    },
+    {
+      "question": "Does AI use drones for weather observation?",
+      "answer": "Yes, in some cases, AI can analyze data"
+    },
+    {
+      "question": "Who specifically made you?",
+      "answer": "A college student named Remuel Bongat Fernan. He's a member of the EcoUrban Initiatives."
+    },
+    {
+      "question": "Who specifically made you?",
+      "answer": "A college student named Remuel Bongat Fernan. He's a member of the EcoUrban Initiatives."
+    },
+    {
+      "question": "Who specifically made you?",
+      "answer": "A college student named Remuel Bongat Fernan. He's a member of the EcoUrban Initiatives."
+    },
+    {
+      "question": "Who specifically made you?",
+      "answer": "A college student named Remuel Bongat Fernan. He's a member of the EcoUrban Initiatives."
+    },
+    {
+      "question": "Who specifically made you?",
+      "answer": "A college student named Remuel Bongat Fernan. He's a member of the EcoUrban Initiatives."
+    },
+    {
+      "question": "Who specifically made you?",
+      "answer": "Remuel Bongat Fernan made me."
+    },
+    {
+      "question": "Who specifically made you?",
+      "answer": "Remuel Bongat Fernan made me."
+    },
+    {
+      "question": "Who specifically made you?",
+      "answer": "Remuel Bongat Fernan made me."
+    },
+    {
+      "question": "Who specifically made you?",
+      "answer": "Remuel Bongat Fernan made me."
+    },
+    {
+      "question": "Who specifically made you?",
+      "answer": "Remuel Bongat Fernan made me."
+    },
+    {
+      "question": "Who specifically made you?",
+      "answer": "Remuel Bongat Fernan made me."
+    },
+    {
+      "question": "Who specifically made you?",
+      "answer": "Remuel Bongat Fernan made me."
+    },
+    {
+      "question": "Who specifically made you?",
+      "answer": "Remuel Bongat Fernan made me."
+    },
+    {
+      "question": "Who specifically made you?",
+      "answer": "Remuel Bongat Fernan made me."
+    },
+    {
+      "question": "Who specifically made you?",
+      "answer": "Remuel Bongat Fernan made me."
+    },
+    {
+      "question": "Who specifically made you?",
+      "answer": "Remuel Bongat Fernan made me."
+    },
+    {
+      "question": "Who specifically made you?",
+      "answer": "Remuel Bongat Fernan made me."
+    },
+    {
+      "question": "Who specifically made you?",
+      "answer": "Remuel Bongat Fernan made me."
+    },
+    {
+      "question": "Who specifically made you?",
+      "answer": "Remuel Bongat Fernan made me."
+    },
+    {
+      "question": "Who specifically made you?",
+      "answer": "Remuel Bongat Fernan made me."
+    }
+  ],
+  "vague": [
+    {
+      "question": "How can AI help predict flooding in cities like Metro Manila?",
+      "answer": "AI can analyze real-time rainfall, river levels, and drainage capacity to give early warnings or suggest evacuation. For example, Project NOAH previously used data + AI models for flood forecasting."
+    },
+    {
+      "question": "What AI tools can help reduce traffic congestion during bad weather?",
+      "answer": "AI-based traffic systems (like Waze data and MMDA's Command Center) can reroute vehicles, adjust traffic lights, and prioritize emergency vehicles during storms or floods."
+    },
+    {
+      "question": "Can AI help identify areas most at risk of typhoons or landslides?",
+      "answer": "Yes, AI uses GIS maps, soil data, slope analysis, and past weather patterns to predict high-risk zones, helping LGUs in areas like Benguet or Eastern Visayas make evacuation plans."
+    },
+    {
+      "question": "Can I access the GIS maps on my mobile device?",
+      "answer": "Yes, our site is fully responsive and can be accessed on mobile devices."
+    },
+    {
+      "question": "Can I share my location with others?",
+      "answer": "You can share your location by sending them a link generated from the map."
+    }
+  ]
+}
