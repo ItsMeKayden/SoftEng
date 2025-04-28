@@ -6,9 +6,9 @@ services:
     startCommand: python app.py
     plan: free
     autoDeploy: true
-
+    
   - type: web
-    name: eco-urban
+    name: ecourban
     env: node
     buildCommand: npm install --production=false && npm run build
     startCommand: node index.js
@@ -16,6 +16,6 @@ services:
     autoDeploy: true
     envVars:
       - key: MONGODB_URI
-        value: your-mongodb-uri-here
+        value: mongodb+srv://tagleseanandrei:QsIO8e1RvPqDDpwS@cluster0.tphbs0m.mongodb.net/test?retryWrites=true&w=majority
       - key: NODE_ENV
         value: production
