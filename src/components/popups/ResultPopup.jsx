@@ -8,26 +8,32 @@ import {
   StyleSheet,
   PDFDownloadLink,
 } from '@react-pdf/renderer';
-import { weatherDatasets, DEFAULT_WEATHER, cityMappings } from '../Datasets/Index.js';
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+import {
+  weatherDatasets,
+  DEFAULT_WEATHER,
+  cityMappings,
+} from '../Datasets/Index.js';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 const formatLocation = (location) => {
   if (!location) return 'No location selected';
-  
+
   // Handle array location format
   if (Array.isArray(location)) {
     return location.join(',').trim();
   }
-  
+
   // Handle string location
-  return typeof location === 'string' ? location.trim() : 'Invalid location format';
+  return typeof location === 'string'
+    ? location.trim()
+    : 'Invalid location format';
 };
 
 console.log('Available datasets:', {
   totalCities: Object.keys(weatherDatasets).length,
   sampleCities: Object.keys(weatherDatasets).slice(0, 5),
-  cityMappingsCount: Object.keys(cityMappings).length
+  cityMappingsCount: Object.keys(cityMappings).length,
 });
 
 const pdfStyles = StyleSheet.create({
@@ -112,15 +118,22 @@ const pdfStyles = StyleSheet.create({
     borderBottom: 1,
     borderBottomColor: '#ccc',
     paddingBottom: 5,
-  }
+  },
 });
 
-const MyDocument = ({ data = [], locationName = '', weatherData = {}, selectedDate }) => {
-  const formattedDate = selectedDate ? selectedDate.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  }) : 'N/A';
+const MyDocument = ({
+  data = [],
+  locationName = '',
+  weatherData = {},
+  selectedDate,
+}) => {
+  const formattedDate = selectedDate
+    ? selectedDate.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      })
+    : 'N/A';
 
   return (
     <Document>
@@ -135,7 +148,9 @@ const MyDocument = ({ data = [], locationName = '', weatherData = {}, selectedDa
           <View style={pdfStyles.table}>
             <View style={[pdfStyles.tableRow, pdfStyles.tableHeader]}>
               <Text style={pdfStyles.tableCell}>Metric</Text>
-              <Text style={[pdfStyles.tableCell, pdfStyles.lastCell]}>Value</Text>
+              <Text style={[pdfStyles.tableCell, pdfStyles.lastCell]}>
+                Value
+              </Text>
             </View>
             {weatherData.hasData && weatherData.days?.[0] && (
               <>
@@ -194,9 +209,7 @@ const MyDocument = ({ data = [], locationName = '', weatherData = {}, selectedDa
               </View>
               {data.map((hazard, index) => (
                 <View style={pdfStyles.tableRow} key={index}>
-                  <Text style={pdfStyles.tableCell}>
-                    {hazard.name}
-                  </Text>
+                  <Text style={pdfStyles.tableCell}>{hazard.name}</Text>
                   <Text style={pdfStyles.tableCell}>
                     {hazard.weather?.risk || 'N/A'}
                   </Text>
@@ -220,7 +233,7 @@ const MyDocument = ({ data = [], locationName = '', weatherData = {}, selectedDa
   );
 };
 
-  // Update the getWeatherData function
+// Update the getWeatherData function
 const getWeatherData = async (location, selectedDate) => {
   if (!location || location === 'No location selected') {
     console.log('No location provided');
@@ -233,25 +246,32 @@ const getWeatherData = async (location, selectedDate) => {
 
   try {
     const locationLower = location.toLowerCase();
-    
+
     // Format the selected date to match dataset format
     const formattedDate = selectedDate.toISOString().split('T')[0];
-    
+
     // Get the month and determine which dataset to use
     const month = selectedDate.getMonth() + 1;
-    const period = month <= 2 ? 'janfeb' : 
-                  month <= 4 ? 'marapril' :
-                  month <= 6 ? 'mayjune' :
-                  month <= 8 ? 'julyaug' :
-                  month <= 10 ? 'sepoct' : 'novdec';
-    
+    const period =
+      month <= 2
+        ? 'janfeb'
+        : month <= 4
+        ? 'marapril'
+        : month <= 6
+        ? 'mayjune'
+        : month <= 8
+        ? 'julyaug'
+        : month <= 10
+        ? 'sepoct'
+        : 'novdec';
+
     // Find matching city
     let matchedCity = null;
     let bestMatchScore = 0;
 
     for (const [city, variations] of Object.entries(cityMappings)) {
       if (!city.startsWith(period)) continue;
-      
+
       for (const variant of variations) {
         if (locationLower.includes(variant)) {
           const matchScore = variant.length;
@@ -273,11 +293,11 @@ const getWeatherData = async (location, selectedDate) => {
     }
 
     const weatherDataRaw = weatherDatasets[matchedCity];
-    
+
     // Find the specific day in the dataset that matches the selected date
-    const selectedDayData = weatherDataRaw.days.find(day => 
-      day.datetime === formattedDate
-    ) || weatherDataRaw.days[0];
+    const selectedDayData =
+      weatherDataRaw.days.find((day) => day.datetime === formattedDate) ||
+      weatherDataRaw.days[0];
 
     console.log('Found day data:', selectedDayData);
 
@@ -295,7 +315,7 @@ const getWeatherData = async (location, selectedDate) => {
           precipprob: selectedDayData.precipprob || 0,
           cloudcover: selectedDayData.cloudcover || 0,
           windspeed: selectedDayData.windspeed || 0,
-          datetime: selectedDayData.datetime
+          datetime: selectedDayData.datetime,
         },
       ],
     };
@@ -312,21 +332,21 @@ const getWeatherData = async (location, selectedDate) => {
 // Replace the existing getDateRange function
 const getDateRange = () => {
   const today = new Date();
-  
+
   // Calculate the start date (5 years back from today)
   const startDate = new Date();
   startDate.setFullYear(today.getFullYear() - 5);
-  
+
   // Calculate the end date (available dataset until 2025)
   const endDate = new Date('2025-12-31');
-  
+
   // If today is beyond our dataset's end date, use the last available date
   const defaultDate = today > endDate ? endDate : today;
-  
+
   return {
     minDate: startDate,
     maxDate: endDate,
-    defaultDate: defaultDate
+    defaultDate: defaultDate,
   };
 };
 
@@ -340,19 +360,21 @@ const ResultPopup = ({
   selectedHazards = [],
   selectedLocation,
 }) => {
-
   const [weatherData, setWeatherData] = React.useState({
     hasData: false,
     days: [DEFAULT_WEATHER],
-    resolvedAddress: formatLocation(selectedLocation)
+    resolvedAddress: formatLocation(selectedLocation),
   });
 
   const locationDetails = React.useMemo(() => {
     const name = formatLocation(selectedLocation);
-    const coordinates = weatherData?.latitude && weatherData?.longitude
-      ? `${weatherData.latitude.toFixed(4)}°N, ${weatherData.longitude.toFixed(4)}°E`
-      : '';
-    
+    const coordinates =
+      weatherData?.latitude && weatherData?.longitude
+        ? `${weatherData.latitude.toFixed(
+            4
+          )}°N, ${weatherData.longitude.toFixed(4)}°E`
+        : '';
+
     return { name, coordinates };
   }, [selectedLocation, weatherData]);
 
@@ -363,9 +385,9 @@ const ResultPopup = ({
     darkMode,
   });
 
-  const location = Array.isArray(selectedLocation) 
-  ? selectedLocation.join(',').trim()
-  : typeof selectedLocation === 'string'
+  const location = Array.isArray(selectedLocation)
+    ? selectedLocation.join(',').trim()
+    : typeof selectedLocation === 'string'
     ? selectedLocation.trim()
     : 'No location selected';
 
@@ -381,30 +403,35 @@ const ResultPopup = ({
   };
 
   // Load weather data when location changes
- React.useEffect(() => {
-  const loadWeatherData = async () => {
-    const formattedLocation = Array.isArray(selectedLocation) 
-      ? selectedLocation.join(',').trim()
-      : typeof selectedLocation === 'string'
+  React.useEffect(() => {
+    const loadWeatherData = async () => {
+      const formattedLocation = Array.isArray(selectedLocation)
+        ? selectedLocation.join(',').trim()
+        : typeof selectedLocation === 'string'
         ? selectedLocation.trim()
         : null;
 
-    if (formattedLocation) {
-      console.log('Loading weather data for:', formattedLocation, 'Date:', selectedDate);
-      const data = await getWeatherData(formattedLocation, selectedDate);
-      console.log('Loaded data:', data);
-      setWeatherData(data);
-    } else {
-      console.log('No valid location provided');
-      setWeatherData({
-        hasData: false,
-        days: [DEFAULT_WEATHER],
-        resolvedAddress: 'No location selected'
-      });
-    }
-  };
-  loadWeatherData();
-}, [selectedLocation, selectedDate]);
+      if (formattedLocation) {
+        console.log(
+          'Loading weather data for:',
+          formattedLocation,
+          'Date:',
+          selectedDate
+        );
+        const data = await getWeatherData(formattedLocation, selectedDate);
+        console.log('Loaded data:', data);
+        setWeatherData(data);
+      } else {
+        console.log('No valid location provided');
+        setWeatherData({
+          hasData: false,
+          days: [DEFAULT_WEATHER],
+          resolvedAddress: 'No location selected',
+        });
+      }
+    };
+    loadWeatherData();
+  }, [selectedLocation, selectedDate]);
 
   console.log('Selected Location:', location); // Debug log
   console.log('Weather Data:', weatherData); // Debug log
@@ -587,12 +614,12 @@ const ResultPopup = ({
         </div>
         {/* Content Panels */}
         <div className="result-content">
-        <div className="location-name">
-          <h2>{locationDetails.name}</h2>
-          {locationDetails.coordinates && (
-            <p>{locationDetails.coordinates}</p>
-          )}
-        </div>
+          <div className="location-name">
+            <h2>{locationDetails.name}</h2>
+            {locationDetails.coordinates && (
+              <p>{locationDetails.coordinates}</p>
+            )}
+          </div>
           {!weatherData.hasData ? (
             <div className="result-content-panel no-data">
               <h3>No Data Available</h3>
@@ -642,19 +669,18 @@ const ResultPopup = ({
         <div className="result-bottom-panel">
           {weatherData.hasData && dynamicHazards.length > 0 ? (
             <PDFDownloadLink
-            document={
-              <MyDocument
-                data={dynamicHazards}
-                locationName={locationDetails.name}
-                weatherData={weatherData}
-                selectedDate={selectedDate}
-              />
-            }
-            fileName="Assessment_Results.pdf"
-            className="view-report-button"
-            style={{ color: 'white' }}
-          >
-          
+              document={
+                <MyDocument
+                  data={dynamicHazards}
+                  locationName={locationDetails.name}
+                  weatherData={weatherData}
+                  selectedDate={selectedDate}
+                />
+              }
+              fileName="Assessment_Results.pdf"
+              className="view-report-button"
+              style={{ color: 'white' }}
+            >
               {({ blob, url, loading, error }) =>
                 loading
                   ? 'Generating PDF...'

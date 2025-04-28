@@ -8,7 +8,6 @@ import SubmissionHistoryPopup from '../popups/SubmissionHistoryPopup';
 import SearchBar from './SearchBar';
 import { useTheme } from '../../Context/ThemeContext';
 
-
 const allHazards = ['Flooding', 'Rainfall', 'Heat Index'];
 const Sidebar = ({
   onSearch,
@@ -37,7 +36,7 @@ const Sidebar = ({
   const { isDarkMode, toggleTheme } = useTheme(); // Get theme from context
   const [showLogoutPopup, setShowLogoutPopup] = useState(false);
   const [showLogoutSuccess, setShowLogoutSuccess] = useState(false);
-
+  const [selectedLocation, setSelectedLocation] = useState('');
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -82,23 +81,21 @@ const Sidebar = ({
   };
 
   const handleLogoutConfirm = () => {
-    localStorage.removeItem("user");
+    localStorage.removeItem('user');
     setProfileButtonLabel('Profile');
     setShowLogoutPopup(false);
     setShowLogoutSuccess(true);
-  
+
     setTimeout(() => {
       setShowLogoutSuccess(false);
       navigate('/'); // Go to login/home after popup disappears
     }, 2000);
   };
-  
+
   const handleLogoutCancel = () => {
     setShowLogoutPopup(false);
   };
-  
-  
-  
+
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
     updateSidebarState(!isCollapsed);
@@ -151,9 +148,7 @@ const Sidebar = ({
               alt="AI-Driven GIS Logo"
               className="sidebar-logo"
             />
-            {!isCollapsed && (
-              <span className="sidebar-title">EcoUrban</span>
-            )}
+            {!isCollapsed && <span className="sidebar-title">EcoUrban</span>}
           </div>
         </header>
         <ul>
@@ -273,18 +268,20 @@ const Sidebar = ({
           )}
 
           {/* Useful Links Section */}
-          {!isCollapsed && <h3 className="sidebar-section-label">USEFUL LINKS</h3>}
+          {!isCollapsed && (
+            <h3 className="sidebar-section-label">USEFUL LINKS</h3>
+          )}
 
           {/* Useful Links */}
           <li
             data-tooltip="QCU"
             onClick={() =>
               window.open(
-                "https://qcu.edu.ph/?fbclid=IwY2xjawJqGfhleHRuA2FlbQIxMAABHlQrpclt2omBojSeDImG_tAXeoX4643Oz8WlTt0C9kCvoCzi1SYwV5OgnRZx_aem_5l8tLSQIhv7rVRESot0QPQ",
-                "_blank"
+                'https://qcu.edu.ph/?fbclid=IwY2xjawJqGfhleHRuA2FlbQIxMAABHlQrpclt2omBojSeDImG_tAXeoX4643Oz8WlTt0C9kCvoCzi1SYwV5OgnRZx_aem_5l8tLSQIhv7rVRESot0QPQ',
+                '_blank'
               )
             }
-            style={{ cursor: "pointer" }}
+            style={{ cursor: 'pointer' }}
           >
             <img src="/icons/qcu.webp" alt="QCU" />
             {!isCollapsed && <span>QCU</span>}
@@ -294,11 +291,11 @@ const Sidebar = ({
             data-tooltip="PAGASA"
             onClick={() =>
               window.open(
-                "https://www.facebook.com/PAGASA.DOST.GOV.PH/",
-                "_blank"
+                'https://www.facebook.com/PAGASA.DOST.GOV.PH/',
+                '_blank'
               )
             }
-            style={{ cursor: "pointer" }}
+            style={{ cursor: 'pointer' }}
           >
             <img src="/icons/pagasa.png" alt="PAGASA" />
             {!isCollapsed && <span>PAGASA</span>}
@@ -352,7 +349,8 @@ const Sidebar = ({
           </button>
           <button className="profile-button" onClick={toggleProfileDropdown}>
             <img src="/icons/profile.png" alt="Profile" />
-            <span>{profileButtonLabel}</span> {/* Use the state for the label */}
+            <span>{profileButtonLabel}</span>{' '}
+            {/* Use the state for the label */}
             <img
               src="/icons/dropdown0.png"
               alt="Expand"
@@ -386,58 +384,93 @@ const Sidebar = ({
           )}
 
           {showLogoutPopup && (
-            <div className="modal-overlay" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-              <div className="modal-content" style={{ 
-                width: '370px', 
-                color: 'var(--text-primary)',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center'
-              }}>
-                <p style={{
-                  fontSize: '18px',
-                  textAlign: 'center',
-                  marginBottom: '10px' // Reduced from 20px to 10px for better fit
-                }}>Are you sure you want to logout?</p>
-                <div style={{ 
-                  display: 'flex', 
-                  justifyContent: 'space-around', 
-                  marginTop: '10px' // Reduced from 20px to 10px for better fit
-                }}>
-                  <button onClick={handleLogoutConfirm} style={{ 
-                    backgroundColor: '#d32f2f', 
-                    color: 'white', 
-                    border: 'none', 
-                    padding: '10px 20px', 
-                    borderRadius: '5px', 
-                    cursor: 'pointer' 
-                  }}>Yes, Logout</button>
-                  <button onClick={handleLogoutCancel} style={{ 
-                    backgroundColor: '#4caf50', 
-                    color: 'white', 
-                    border: 'none', 
-                    padding: '10px 20px', 
-                    borderRadius: '5px', 
-                    cursor: 'pointer' 
-                  }}>Cancel</button>
+            <div
+              className="modal-overlay"
+              style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
+            >
+              <div
+                className="modal-content"
+                style={{
+                  width: '370px',
+                  color: 'var(--text-primary)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                }}
+              >
+                <p
+                  style={{
+                    fontSize: '18px',
+                    textAlign: 'center',
+                    marginBottom: '10px', // Reduced from 20px to 10px for better fit
+                  }}
+                >
+                  Are you sure you want to logout?
+                </p>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-around',
+                    marginTop: '10px', // Reduced from 20px to 10px for better fit
+                  }}
+                >
+                  <button
+                    onClick={handleLogoutConfirm}
+                    style={{
+                      backgroundColor: '#d32f2f',
+                      color: 'white',
+                      border: 'none',
+                      padding: '10px 20px',
+                      borderRadius: '5px',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Yes, Logout
+                  </button>
+                  <button
+                    onClick={handleLogoutCancel}
+                    style={{
+                      backgroundColor: '#4caf50',
+                      color: 'white',
+                      border: 'none',
+                      padding: '10px 20px',
+                      borderRadius: '5px',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Cancel
+                  </button>
                 </div>
               </div>
             </div>
           )}
 
           {showLogoutSuccess && (
-            <div className="modal-overlay" style={{ backgroundColor: 'rgba(0, 0, 0, 0.4)' }}>
-              <div className="modal-content" style={{ 
-                width: '300px',
-                padding: '20px',
-                textAlign: 'center',
-                backgroundColor: 'white',
-                color: '#41AB5D',
-                borderRadius: '8px',
-                boxShadow: '0px 4px 10px rgba(0,0,0,0.3)'
-              }}>
-                <img src="/icons/logout.png" alt="Logout Success" className="logout-icon" style={{ width: '50px', height: '50px' }} />
-                <h2 style={{ fontSize: '20px', margin: '10px 0' }}>Logout Successful</h2>
+            <div
+              className="modal-overlay"
+              style={{ backgroundColor: 'rgba(0, 0, 0, 0.4)' }}
+            >
+              <div
+                className="modal-content"
+                style={{
+                  width: '300px',
+                  padding: '20px',
+                  textAlign: 'center',
+                  backgroundColor: 'white',
+                  color: '#41AB5D',
+                  borderRadius: '8px',
+                  boxShadow: '0px 4px 10px rgba(0,0,0,0.3)',
+                }}
+              >
+                <img
+                  src="/icons/logout.png"
+                  alt="Logout Success"
+                  className="logout-icon"
+                  style={{ width: '50px', height: '50px' }}
+                />
+                <h2 style={{ fontSize: '20px', margin: '10px 0' }}>
+                  Logout Successful
+                </h2>
                 <p>You have been logged out successfully.</p>
               </div>
             </div>
@@ -447,15 +480,15 @@ const Sidebar = ({
 
       {/* Popup Components */}
       {showSubmissionHistoryPopup && (
-  <SubmissionHistoryPopup
-    onClose={() => setShowSubmissionHistoryPopup(false)}
-    showProfilePopup={showProfilePopup}
-    setShowProfilePopup={setShowProfilePopup}
-    setShowSubmissionHistoryPopup={setShowSubmissionHistoryPopup}
-    selectedHazards={selectedHazards}
-    selectedLocation={selectedLocation} // Make sure this prop is passed
-  />
-)}
+        <SubmissionHistoryPopup
+          onClose={() => setShowSubmissionHistoryPopup(false)}
+          showProfilePopup={showProfilePopup}
+          setShowProfilePopup={setShowProfilePopup}
+          setShowSubmissionHistoryPopup={setShowSubmissionHistoryPopup}
+          selectedHazards={selectedHazards}
+          selectedLocation={selectedLocation} // Make sure this prop is passed
+        />
+      )}
 
       {showProfilePopup && (
         <ProfilePopup
