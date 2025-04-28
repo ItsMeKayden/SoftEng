@@ -37,7 +37,6 @@ const Sidebar = ({
   const [showLogoutPopup, setShowLogoutPopup] = useState(false);
   const [showLogoutSuccess, setShowLogoutSuccess] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState('');
-
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {

@@ -228,67 +228,39 @@ app.get('/users', async (req, res) => {
 
 // Save a new submission
 app.get('/submissions', async (req, res) => {
+  const { location, hazards } = req.query;
+
   try {
-    const { location, hazards } = req.query;
-    console.log('GET /submissions query:', { location, hazards });
+    const hazardArray = hazards ? hazards.split(',') : [];
 
-    if (!location) {
-      return res.status(400).json({ error: 'Location is required' });
-    }
+    const query = {
+      location: location,
+      hazards: { $in: hazardArray }
+    };
 
-    // Clean up location format
-    const cleanLocation = location.trim().replace(/,+$/, '');
-
-    // Build query
-    const query = { location: cleanLocation };
-
-    // Only add hazards filter if hazards are provided
-    if (hazards) {
-      const hazardArray = hazards.split(',').map(h => h.trim());
-      query.hazards = { $elemMatch: { $in: hazardArray } };
-    }
-
-    console.log('MongoDB query:', query);
-
-    const submissions = await SubmissionModel.find(query)
-      .sort({ timestamp: -1 });
-
-    console.log('Found submissions:', submissions);
-    res.json(submissions);
-
-  } catch (error) {
-    console.error('Error fetching submissions:', error);
-    res.status(500).json({ error: error.message });
+    const submissions = await SubmissionModel.find(query);
+    res.status(200).json(submissions);
+  } catch (err) {
+    console.error('Error fetching submissions:', err);
+    res.status(500).json({ message: 'Server error fetching submissions' });
   }
 });
 // POST submissions route
 app.post('/submissions', async (req, res) => {
+  const { location, hazards, timestamp } = req.body;
+
   try {
-    console.log('Received submission request:', req.body);
-    const { location, hazards } = req.body;
-
-    if (!location || !hazards || !Array.isArray(hazards)) {
-      return res.status(400).json({
-        error: 'Invalid submission data',
-        received: { location, hazards }
-      });
-    }
-
     const submission = new SubmissionModel({
-      location: location.trim(),
-      hazards: hazards
+      location,
+      hazards,
+      timestamp,
     });
 
     const savedSubmission = await submission.save();
-    console.log('Saved submission:', savedSubmission);
     res.status(201).json(savedSubmission);
-
-  } catch (error) {
-    console.error('Error saving submission:', error);
-    res.status(500).json({
-      error: 'Failed to save submission',
-      details: error.message
-    });
+  } catch (err) {
+    console.error('Error saving submission:', err);
+    res.status(500).json({ message: 'Server error saving submission' });
   }
 });
   

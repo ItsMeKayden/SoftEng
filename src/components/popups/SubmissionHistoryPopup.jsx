@@ -23,13 +23,24 @@ const SubmissionHistoryPopup = ({
     }
 
     try {
+      // ✨ Step 1: Get the location name from coordinates
+      const [lat, lon] = location; // unpack the location array
+      const getLocationName = async (lat, lon) => {
+        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`);
+        const data = await response.json();
+        return data.display_name;
+      };
+  
+      const locationName = await getLocationName(lat, lon);
+  
+      // ✨ Step 2: Submit the form with the location name
       const response = await fetch('http://localhost:5000/submissions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          location: location,
+          location: locationName, // now it is the human-readable location name
           hazards: hazards,
           timestamp: new Date().toISOString()
         })
