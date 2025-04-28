@@ -34,7 +34,7 @@ const SubmissionHistoryPopup = ({
       const locationName = await getLocationName(lat, lon);
   
       // ✨ Step 2: Submit the form with the location name
-      const response = await fetch('http://localhost:5000/submissions', {
+      const response = await fetch('https://ecourban.onrender.com/submissions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -87,7 +87,7 @@ const SubmissionHistoryPopup = ({
         console.log('Selected hazards:', selectedHazards);
   
         const response = await fetch(
-          `http://localhost:5000/submissions?location=${formattedLocation}&hazards=${selectedHazards.join(',')}`
+          `https://ecourban.onrender.com/submissions?location=${formattedLocation}&hazards=${selectedHazards.join(',')}`
         );
   
         if (!response.ok) {

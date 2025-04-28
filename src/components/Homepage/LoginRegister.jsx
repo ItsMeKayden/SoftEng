@@ -162,7 +162,7 @@ const LoginRegister = ({ closeModal }) => {
     setLoginError(''); // Clear previous errors
 
     try {
-      const res = await axios.post("http://localhost:5000/login", userCredentials);
+      const res = await axios.post("https://ecourban.onrender.com/login", userCredentials);
 
       if (res.data.success) {
         // Save user info (email, role, etc.)
@@ -221,7 +221,7 @@ const LoginRegister = ({ closeModal }) => {
     };
 
     try {
-      const result = await axios.post('http://localhost:5000/register', userData);
+      const result = await axios.post('https://ecourban.onrender.com/register', userData);
       console.log("Register result:", result.data);
 
       // Show success popup
@@ -250,7 +250,7 @@ const LoginRegister = ({ closeModal }) => {
     try {
       console.log("Admin credentials:", adminCredentials);
   
-      const res = await axios.post("http://localhost:5000/admin-login", adminCredentials);
+      const res = await axios.post("https://ecourban.onrender.com/admin-login", adminCredentials);
   
       if (res.data.success) {
         localStorage.setItem("admin", JSON.stringify({
@@ -348,7 +348,7 @@ const LoginRegister = ({ closeModal }) => {
   const handleGoogleSuccess = (credentialResponse) => {
     const credentialResponseDecoded = jwtDecode(credentialResponse.credential);
 
-    fetch("http://localhost:5000/auth/google", {
+    fetch("https://ecourban.onrender.com/auth/google", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
