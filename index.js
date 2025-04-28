@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import UserModel from './User.js';
 import bcrypt from 'bcryptjs';
-import AdminModel from './admin.js';
+import AdminModel from './Admin.js';
 import SubmissionModel from './Submission.js';
 
 const app = express();
