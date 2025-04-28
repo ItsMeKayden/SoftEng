@@ -1,7 +1,5 @@
 {
   "faqs": [
-<<<<<<< Updated upstream
-=======
     {
       "question": "Can AI predict future urban expansion?",
       "answer": "Yes, using historical data, satellite imagery, and population growth trends."
@@ -38,7 +36,6 @@
       "question": "Are there ways to design neighborhoods to encourage air flow and cooling?",
       "answer": "Yes, by using open street grids, leaving space between buildings, and planting shade trees to encourage natural ventilation."
     },
->>>>>>> Stashed changes
     {
       "question": "Which places in the Philippines have the least amount of green spaces?",
       "answer": "Some highly urbanized areas in the Philippines, such as Metro Manila, have the least amount of green spaces."
@@ -553,8 +550,6 @@
     }
   ],
   "about": [
-<<<<<<< Updated upstream
-=======
     {
       "question": "How can cities make better use of rooftops in urban areas?",
       "answer": "Cities can utilize rooftops for green roofs, solar panels, urban farms, or recreational spaces to maximize limited land."
@@ -767,7 +762,6 @@
       "question": "What are the expected outcomes of implementing green infrastructure?",
       "answer": "Expected outcomes of implementing green infrastructure include improved air and water quality, enhanced biodiversity, reduced urban heat island effects, increased stormwater management capacity, and greater community engagement. These benefits contribute to overall urban resilience and sustainability."
     },
->>>>>>> Stashed changes
     {
       "question": "Who are you?",
       "answer": "My name is Malia, your AI assistant!"
@@ -857,10 +851,6 @@
       "answer": "Yes, it can suggest alternate routes and notify emergency responders."
     },
     {
-<<<<<<< Updated upstream
-      "question": "",
-      "answer": ""
-=======
       "question": "Can AI monitor landslide-prone areas?",
       "answer": "Yes, AI can analyze rainfall, soil moisture, and slope data to give early warnings."
     },
@@ -951,7 +941,6 @@
     {
       "question": "Who specifically made you?",
       "answer": "Remuel Bongat Fernan made me."
->>>>>>> Stashed changes
     },
     {
       "question": "Who specifically made you?",
