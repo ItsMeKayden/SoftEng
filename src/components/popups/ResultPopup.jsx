@@ -234,6 +234,25 @@ const MyDocument = ({
 };
 
 // Update the getWeatherData function
+const getDateRange = () => {
+  const today = new Date();
+
+  // Set wide date range without restrictions
+  const startDate = new Date('2024-01-01');
+  const defaultDate = today;
+
+  return {
+    minDate: startDate,
+    defaultDate: defaultDate,
+    // Remove maxDate to allow all future dates
+    // Add filterDate to handle dataset availability checking
+    filterDate: (date) => {
+      const year = date.getFullYear();
+      return year === 2024 || year === 2025;
+    },
+  };
+};
+
 const getWeatherData = async (location, selectedDate) => {
   if (!location || location === 'No location selected') {
     console.log('No location provided');
@@ -246,34 +265,51 @@ const getWeatherData = async (location, selectedDate) => {
 
   try {
     const locationLower = location.toLowerCase();
-
-    // Format the selected date to match dataset format
     const formattedDate = selectedDate.toISOString().split('T')[0];
-
-    // Get the month and determine which dataset to use
+    const year = selectedDate.getFullYear();
     const month = selectedDate.getMonth() + 1;
-    const period =
-      month <= 2
-        ? 'janfeb'
-        : month <= 4
-        ? 'marapril'
-        : month <= 6
-        ? 'mayjune'
-        : month <= 8
-        ? 'julyaug'
-        : month <= 10
-        ? 'sepoct'
-        : 'novdec';
+
+    // Determine correct period prefix based on date
+    let period = '';
+    if (year === 2025) {
+      period = 'janapril'; // Only Jan-Apr data for 2025
+    } else {
+      // 2024 data uses different period prefixes
+      period =
+        month <= 2
+          ? 'janfeb'
+          : month <= 4
+          ? 'marapril'
+          : month <= 6
+          ? 'mayjune'
+          : month <= 8
+          ? 'julyaug'
+          : month <= 10
+          ? 'sepoct'
+          : 'novdec';
+    }
 
     // Find matching city
     let matchedCity = null;
     let bestMatchScore = 0;
 
+    console.log('Looking for datasets with:', {
+      year,
+      period,
+      location: locationLower,
+    });
+
     for (const [city, variations] of Object.entries(cityMappings)) {
-      if (!city.startsWith(period)) continue;
+      // For 2024, don't include the year in the check
+      if (year === 2024 && city.includes('2025')) continue;
+      // For 2025, only look at 2025 datasets
+      if (year === 2025 && !city.includes('2025')) continue;
+
+      // Check if city starts with the correct period
+      if (!city.toLowerCase().startsWith(period.toLowerCase())) continue;
 
       for (const variant of variations) {
-        if (locationLower.includes(variant)) {
+        if (locationLower.includes(variant.toLowerCase())) {
           const matchScore = variant.length;
           if (matchScore > bestMatchScore) {
             bestMatchScore = matchScore;
@@ -283,10 +319,15 @@ const getWeatherData = async (location, selectedDate) => {
       }
     }
 
-    console.log('Period:', period);
-    console.log('Location string:', locationLower);
-    console.log('Matched city:', matchedCity);
+    console.log('Search results:', {
+      period,
+      matchedCity,
+      date: formattedDate,
+    });
+
     console.log('Selected date:', formattedDate);
+    console.log('Period:', period);
+    console.log('Matched city:', matchedCity);
 
     if (!matchedCity || !weatherDatasets[matchedCity]) {
       throw new Error('No dataset available for this location and period');
@@ -294,12 +335,14 @@ const getWeatherData = async (location, selectedDate) => {
 
     const weatherDataRaw = weatherDatasets[matchedCity];
 
-    // Find the specific day in the dataset that matches the selected date
-    const selectedDayData =
-      weatherDataRaw.days.find((day) => day.datetime === formattedDate) ||
-      weatherDataRaw.days[0];
+    // Find the specific day in the dataset
+    const selectedDayData = weatherDataRaw.days.find(
+      (day) => day.datetime === formattedDate
+    );
 
-    console.log('Found day data:', selectedDayData);
+    if (!selectedDayData) {
+      throw new Error('No data available for selected date');
+    }
 
     return {
       hasData: true,
@@ -327,27 +370,6 @@ const getWeatherData = async (location, selectedDate) => {
       days: [DEFAULT_WEATHER],
     };
   }
-};
-
-// Replace the existing getDateRange function
-const getDateRange = () => {
-  const today = new Date();
-
-  // Calculate the start date (5 years back from today)
-  const startDate = new Date();
-  startDate.setFullYear(today.getFullYear() - 5);
-
-  // Calculate the end date (available dataset until 2025)
-  const endDate = new Date('2025-12-31');
-
-  // If today is beyond our dataset's end date, use the last available date
-  const defaultDate = today > endDate ? endDate : today;
-
-  return {
-    minDate: startDate,
-    maxDate: endDate,
-    defaultDate: defaultDate,
-  };
 };
 
 // 🔗 Main Popup
