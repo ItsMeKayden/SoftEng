@@ -6,7 +6,10 @@ services:
     startCommand: python app.py
     plan: free
     autoDeploy: true
-    
+    envVars:
+  - key: PORT
+    value: 10000
+
   - type: web
     name: ecourban
     env: node
