@@ -93,41 +93,6 @@ app.post('/login', async (req, res) => {
   }
 });
 
-// Route for handling weather requests
-app.get('/weather', async (req, res) => {
-  const location = req.query.location;  // Get the location from query params
-  
-  try {
-    // Assuming you're using an external weather API like Visual Crossing or OpenWeather
-    const weatherData = await axios.get(`https://api.weatherapi.com/v1/current.json?key=KWSMMFCN6WSP7JTU45KYV5BJV&q=${location}`);
-    const weather = weatherData.data;
-
-    res.json({
-      location: weather.location.name,
-      temperature: weather.current.temp_c,
-      conditions: weather.current.condition.text
-    });
-  } catch (error) {
-    console.error("Error fetching weather data:", error);
-    res.json({ error: "Could not retrieve weather data" });
-  }
-});
-
-// Route for handling chatbot messages
-app.post('/chat', async (req, res) => {
-  const userMessage = req.body.message;  // Get the user's message from the request body
-
-  // You could integrate an AI model here, for example
-  let botResponse = "I'm not sure how to respond to that.";
-  
-  if (userMessage.toLowerCase().includes("weather")) {
-    botResponse = "Sure! I can help you with weather info.";
-  }
-  // Add more rules or AI logic as needed
-
-  res.json({ response: botResponse });
-});
-
 app.post('/api/check-email', (req, res) => {
   const { email } = req.body;
   
