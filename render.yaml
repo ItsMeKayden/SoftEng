@@ -3,7 +3,7 @@ services:
     name: gis-chatbot-app
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: python app.py
+    startCommand: gunicorn app:app --bind 0.0.0.0:8000
     plan: free
     autoDeploy: true
 
