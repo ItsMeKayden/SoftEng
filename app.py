@@ -66,7 +66,7 @@ def embed_new_question():
 
     qa_data[category].append({'question': question, 'answer': answer})
 
-    with open(r'C:\Users\Princess\OneDrive\文件\GitHub\SoftEng-main (Orig)\SoftEng-main\qa_data.json', 'w', encoding='utf-8') as f:
+    with open('qa_data.json', 'w', encoding='utf-8') as f:
         json.dump(qa_data, f, indent=2, ensure_ascii=False)
 
     questions.append(question)
