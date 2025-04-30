@@ -77,7 +77,11 @@ const ChatbotPopup = ({ onClose, showResultPopup, setShowResultPopup, setShowCha
       const botMessage = response.data.response;
       setMessages(prevMessages => [...prevMessages, { sender: "bot", text: botMessage }]);
     } catch (error) {
-      console.error("Error sending message:", error);
+      console.error("Error details:", {
+        message: error.message,
+        response: error.response,
+        status: error?.response?.status
+      });
       setMessages(prevMessages => [...prevMessages, { sender: "bot", text: "Sorry, something went wrong." }]);
     } finally {
       setLoading(false);
