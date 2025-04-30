@@ -78,6 +78,39 @@ def embed_new_question():
 
     return jsonify({'message': f'New Q&A added to "{category}" and embedded.'})
 
+@app.route('/weather', methods=['GET'])
+def get_weather():
+    location = request.args.get('location')
+    if not location:
+        return jsonify({'error': 'Location parameter is required'}), 400
+
+    weather_url = f'https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/{location}'
+    params = {
+        'key': API_KEY,
+        'include': 'current'
+    }
+
+    try:
+        response = requests.get(weather_url, params=params)
+        response.raise_for_status()
+        data = response.json()
+
+        current = data.get('currentConditions', {})
+        temp_f = current.get('temp')
+        temp_c = (temp_f - 32) * 5 / 9 if temp_f is not None else None
+
+        weather_data = {
+            'temperature': temp_c,
+            'conditions': current.get('conditions'),
+            'location': data.get('resolvedAddress')
+        }
+
+        return jsonify(weather_data)
+
+    except requests.exceptions.RequestException as e:
+        logging.error(f"Weather API error: {str(e)}")
+        return jsonify({'error': 'Failed to fetch weather data'}), 500
+
 @app.route('/chat', methods=['POST'])
 def chat():
     user_input = request.json.get('message')
