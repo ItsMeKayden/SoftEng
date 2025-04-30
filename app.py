@@ -17,7 +17,7 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 
 logging.basicConfig(level=logging.INFO)
 
-API_KEY = 'KWSMMFCN6WSP7JTU45KYV5BJV'
+API_KEY = 'ZJUTSWL9XAJ8T5B8QEFD8D82A'
 
 with open('qa_data.json', 'r', encoding='utf-8') as f:
     qa_data = json.load(f)
