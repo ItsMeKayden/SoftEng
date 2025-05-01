@@ -11,6 +11,7 @@ import faiss
 import os
 import time
 from datetime import datetime
+from apscheduler.schedulers.background import BackgroundScheduler
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -18,6 +19,8 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 logging.basicConfig(level=logging.INFO)
 
 API_KEY = 'ZJUTSWL9XAJ8T5B8QEFD8D82A'
+
+scheduler = BackgroundScheduler()
 
 with open('qa_data.json', 'r', encoding='utf-8') as f:
     qa_data = json.load(f)
@@ -50,6 +53,24 @@ index.add(np.array(question_embeddings))
 @app.route('/')
 def home():
     return send_from_directory('.', 'index.html')
+
+@app.route('/health', methods=['GET'])
+def health_check():
+    return jsonify({'status': 'healthy', 'timestamp': datetime.now().isoformat()})
+
+# Add the keep-alive function
+def keep_alive():
+    try:
+        requests.get('https://gis-chatbot-app.onrender.com/health')
+        logging.info('Keep-alive ping successful')
+    except Exception as e:
+        logging.error(f'Keep-alive ping failed: {e}')
+
+# Add before if __name__ == '__main__':
+def init_scheduler():
+    scheduler.add_job(func=keep_alive, trigger="interval", minutes=10)
+    scheduler.start()
+    logging.info('Scheduler started')
 
 @app.route('/embed', methods=['POST'])
 def embed_new_question():
@@ -235,5 +256,6 @@ def chat():
         return jsonify({'error': 'AI response failed'}), 500
 
 if __name__ == '__main__':
+    init_scheduler()
     port = int(os.environ.get('PORT', 8000))
     app.run(host='0.0.0.0', port=port, debug=True)

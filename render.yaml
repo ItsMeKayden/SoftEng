@@ -6,6 +6,9 @@ services:
     startCommand: gunicorn app:app --bind 0.0.0.0:8000
     plan: free
     autoDeploy: true
+    scaling:
+      minInstances: 1
+      maxInstances: 1
 
   - type: web
     name: ecourban
