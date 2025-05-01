@@ -6,4 +6,4 @@ faiss-cpu
 ollama
 waitress
 gunicorn
-APScheduler
+psutil

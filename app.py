@@ -11,7 +11,7 @@ import faiss
 import os
 import time
 from datetime import datetime
-from apscheduler.schedulers.background import BackgroundScheduler
+import psutil
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -54,23 +54,43 @@ index.add(np.array(question_embeddings))
 def home():
     return send_from_directory('.', 'index.html')
 
-@app.route('/health', methods=['GET'])
+@app.route('/healthz', methods=['GET'])
 def health_check():
-    return jsonify({'status': 'healthy', 'timestamp': datetime.now().isoformat()})
-
-# Add the keep-alive function
+    """
+    Health check endpoint that returns service status and basic metrics
+    """
+    try:
+        memory_usage = psutil.Process().memory_info().rss / 1024 / 1024  # in MB
+        uptime = time.time() - psutil.Process().create_time()
+        
+        health_data = {
+            'status': 'healthy',
+            'timestamp': datetime.now().isoformat(),
+            'version': '1.0.0',
+            'metrics': {
+                'memory_usage_mb': round(memory_usage, 2),
+                'uptime_seconds': round(uptime, 2)
+            }
+        }
+        return jsonify(health_data), 200
+    except Exception as e:
+        logging.error(f"Health check failed: {str(e)}")
+        return jsonify({
+            'status': 'unhealthy',
+            'timestamp': datetime.now().isoformat(),
+            'error': str(e)
+        }), 500
+    
 def keep_alive():
     try:
-        requests.get('https://gis-chatbot-app.onrender.com/health')
-        logging.info('Keep-alive ping successful')
+        response = requests.get('https://gis-chatbot-app.onrender.com/healthz')
+        if response.status_code == 200:
+            data = response.json()
+            logging.info(f'Health check successful - Status: {data["status"]}, Memory: {data["metrics"]["memory_usage_mb"]}MB')
+        else:
+            logging.error(f'Health check failed with status code: {response.status_code}')
     except Exception as e:
-        logging.error(f'Keep-alive ping failed: {e}')
-
-# Add before if __name__ == '__main__':
-def init_scheduler():
-    scheduler.add_job(func=keep_alive, trigger="interval", minutes=10)
-    scheduler.start()
-    logging.info('Scheduler started')
+        logging.error(f'Health check failed: {str(e)}')
 
 @app.route('/embed', methods=['POST'])
 def embed_new_question():
@@ -256,6 +276,5 @@ def chat():
         return jsonify({'error': 'AI response failed'}), 500
 
 if __name__ == '__main__':
-    init_scheduler()
     port = int(os.environ.get('PORT', 8000))
     app.run(host='0.0.0.0', port=port, debug=True)
