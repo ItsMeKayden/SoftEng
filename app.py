@@ -11,6 +11,7 @@ import faiss
 import os
 import time
 from datetime import datetime
+from apscheduler.schedulers.background import BackgroundScheduler
 import psutil
 
 app = Flask(__name__)
@@ -80,7 +81,8 @@ def health_check():
             'timestamp': datetime.now().isoformat(),
             'error': str(e)
         }), 500
-    
+
+# Add the keep-alive function
 def keep_alive():
     try:
         response = requests.get('https://gis-chatbot-app.onrender.com/healthz')
@@ -91,6 +93,12 @@ def keep_alive():
             logging.error(f'Health check failed with status code: {response.status_code}')
     except Exception as e:
         logging.error(f'Health check failed: {str(e)}')
+
+# Add before if __name__ == '__main__':
+def init_scheduler():
+    scheduler.add_job(func=keep_alive, trigger="interval", minutes=10)
+    scheduler.start()
+    logging.info('Scheduler started')
 
 @app.route('/embed', methods=['POST'])
 def embed_new_question():
@@ -276,5 +284,6 @@ def chat():
         return jsonify({'error': 'AI response failed'}), 500
 
 if __name__ == '__main__':
+    init_scheduler()
     port = int(os.environ.get('PORT', 8000))
     app.run(host='0.0.0.0', port=port, debug=True)
