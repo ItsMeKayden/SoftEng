@@ -114,14 +114,21 @@ const MapComponent = ({
   const handleLocate = useCallback(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (position) => {
+        async (position) => {
           const { latitude, longitude } = position.coords;
           const location = [latitude, longitude];
-          console.log('Current Location:', location); // Debugging
-          setMarkerPosition(location); // Set the marker position
+          
+          // Fetch location name using the existing getLocationName function
+          const locationName = await getLocationName(latitude, longitude);
+          
+          // Set current location with name
+          setMarkerPosition({
+            position: location,
+            locationName: locationName
+          });
+          
           if (mapRef.current) {
-            console.log('Map Reference:', mapRef.current); // Debugging
-            mapRef.current.flyTo(location, 17); // Fly to the user's location
+            mapRef.current.flyTo(location, 17);
           }
         },
         (error) => {
@@ -313,7 +320,7 @@ const MapComponent = ({
         {/* Render the current location marker if available */}
         {markerPosition && (
           <Marker
-            position={markerPosition}
+            position={markerPosition.position}
             icon={
               new L.Icon({
                 iconUrl:
@@ -327,19 +334,20 @@ const MapComponent = ({
             <Popup>
               <div style={{ minWidth: '200px' }}>
                 <h3 style={{ margin: '0 0 8px 0', fontSize: '16px' }}>
-                  Current Location
+                {markerPosition.locationName}
                 </h3>
                 <div style={{ marginBottom: '8px' }}>
                   <strong>Coordinates:</strong>
                   <br />
-                  Lat: {markerPosition[0].toFixed(4)}
+                  Lat: {markerPosition.position[0].toFixed(4)}
                   <br />
-                  Long: {markerPosition[1].toFixed(4)}
+                  Long: {markerPosition.position[1].toFixed(4)}
                 </div>
                 <button
-                  onClick={() =>
-                    handleLocationSelect({ position: markerPosition })
-                  }
+                  onClick={() => handleLocationSelect({ 
+                    position: markerPosition.position,
+                    locationName: markerPosition.locationName 
+                  })}
                   style={{
                     width: '100%',
                     padding: '8px',

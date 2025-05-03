@@ -174,8 +174,13 @@ const LoginRegister = ({ closeModal }) => {
         // Save user info (email, role, etc.)
         localStorage.setItem("user", JSON.stringify({
           email: res.data.email,
-          role: res.data.role
+          role: res.data.role,
+          userId: res.data.email, // Add userId if provided by backend
+          timestamp: new Date().toISOString() // Add login timestamp
         }));
+
+        const storedUser = JSON.parse(localStorage.getItem("user"));
+        console.log("Stored user data:", storedUser);
 
         // Show success popup instead of alert
         setSuccessMessage("Login successful!");

@@ -232,39 +232,51 @@ app.get('/users', async (req, res) => {
 
 // Save a new submission
 app.get('/submissions', async (req, res) => {
-  const { location, hazards } = req.query;
-
   try {
-    const hazardArray = hazards ? hazards.split(',') : [];
+    const userId = req.headers.userid; // Get userId from headers
+    
+    if (!userId) {
+      return res.status(401).json({ message: 'No user ID provided' });
+    }
 
-    const query = {
-      location: location,
-      hazards: { $in: hazardArray }
-    };
-
-    const submissions = await SubmissionModel.find(query);
+    const submissions = await SubmissionModel.find({ userId })
+      .sort({ timestamp: -1 });
+    
     res.status(200).json(submissions);
-  } catch (err) {
-    console.error('Error fetching submissions:', err);
-    res.status(500).json({ message: 'Server error fetching submissions' });
+  } catch (error) {
+    console.error('Error fetching submissions:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 // POST submissions route
 app.post('/submissions', async (req, res) => {
-  const { location, hazards, timestamp } = req.body;
-
   try {
+    const { userId, location, hazards, timestamp } = req.body;
+
+    // Validate required fields
+    if (!userId || !location || !hazards) {
+      return res.status(400).json({ 
+        message: 'Missing required fields',
+        received: { userId, location, hazards }
+      });
+    }
+
+    // Create new submission with userId
     const submission = new SubmissionModel({
+      userId,
       location,
       hazards,
-      timestamp,
+      timestamp: timestamp || new Date()
     });
 
+    // Save to database
     const savedSubmission = await submission.save();
+    console.log('Submission saved:', savedSubmission); // Debug log
+
     res.status(201).json(savedSubmission);
   } catch (err) {
     console.error('Error saving submission:', err);
-    res.status(500).json({ message: 'Server error saving submission' });
+    res.status(500).json({ message: 'Error saving submission', error: err.message });
   }
 });
   

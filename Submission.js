@@ -1,6 +1,10 @@
 import mongoose from 'mongoose';
 
 const submissionSchema = new mongoose.Schema({
+  userId: {
+    type: String,
+    required: true
+  },
   location: {
     type: String,
     required: true,
