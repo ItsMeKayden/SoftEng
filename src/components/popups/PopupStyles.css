@@ -538,12 +538,12 @@
 }
 
 .cancel-button {
-  background: #c95959;
-  color: var(--text-primary);
+  background: #74c476;
+  color: white;
 }
 
 .cancel-button:hover {
-  background: #c04f4f;
+  background: #64b167;
   transform: translateY(-1px);
 }
 

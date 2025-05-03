@@ -533,6 +533,7 @@ const handleInputChange = (e) => {
       {showLogoutPopup && (
         <div className="modal-overlay" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
           <div className="modal-content" style={{ 
+            backgroundColor: 'var(--sidebar-bg)',
             width: '370px', 
             color: 'var(--text-primary)',
             display: 'flex',

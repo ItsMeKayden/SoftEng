@@ -37,7 +37,6 @@
   scrollbar-width: thin;    /* For Firefox */
   scrollbar-color: #41AB5D #ffffff; /* For Firefox: thumb and track */
   width: 275px;
-  height: auto;
   padding: 0px;
   height: 100vh;
   position: fixed;
@@ -490,7 +489,6 @@ input[type="checkbox"] {
 /* ==================== */
 /* SEARCHBAR STYLES */
 /* ==================== */
-/* Search Bar Container */
 
 .sidebar-suggestions-list {
   position: absolute;

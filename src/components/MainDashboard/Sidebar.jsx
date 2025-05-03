@@ -391,6 +391,7 @@ const Sidebar = ({
               <div
                 className="modal-content"
                 style={{
+                  backgroundColor: 'var(--sidebar-bg)',
                   width: '370px',
                   color: 'var(--text-primary)',
                   display: 'flex',

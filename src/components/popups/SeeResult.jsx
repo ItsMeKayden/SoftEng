@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './PopupStyles.css';
 
-const SeeResult = ({ onClose, onViewResult, setSelectedHazards }) => {
+const SeeResult = ({ onClose }) => {
   const [progress, setProgress] = useState(0);
   const [showButton, setShowButton] = useState(false);
 
@@ -39,19 +39,7 @@ const SeeResult = ({ onClose, onViewResult, setSelectedHazards }) => {
           {showButton && (
             <div className="button-row">
               <button className="cancel-button" onClick={onClose}>
-                Cancel
-              </button>
-
-              <button
-                className="processing-button"
-                onClick={() => {
-                  const all = ['Flooding', 'Rainfall', 'Heat Index'];
-                  setSelectedHazards(all);
-                  onClose();
-                  onViewResult();
-                }}
-              >
-                See Result
+                Done
               </button>
             </div>
           )}
