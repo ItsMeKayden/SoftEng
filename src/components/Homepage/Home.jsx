@@ -877,7 +877,7 @@ const handleInputChange = (e) => {
                   <span className="contact-item-icon">
                     <img src="/icons/phone.png" alt="Logo" className="phone-icon" />
                   </span>
-                  <p className="contact-item-text">123-456-789</p>
+                  <p className="contact-item-text">+63-961-3959093</p>
                 </div>
 
                 <div className="contact-item">

@@ -270,3 +270,40 @@ button.primary {
   color: var(--button-text);
 }
 
+
+
+
+/* ==================== */
+/* Sidebar and topbar responsiveness */
+/* ==================== */
+
+
+@media (max-width: 768px) {
+  .top-bar button span {
+    display: none;
+  }
+
+  .top-bar {
+    justify-content: space-around;
+    padding: 10px;
+  }
+
+  .top-bar button {
+    margin: 0 5px;
+    padding: 6px;
+  }
+
+  .top-bar-right {
+    margin-left: 0;
+    justify-content: center;
+  }
+}
+
+
+
+@media (max-width: 768px) {
+  .top-bar button img {
+    width: 20px;
+    height: 20px;
+  }
+}

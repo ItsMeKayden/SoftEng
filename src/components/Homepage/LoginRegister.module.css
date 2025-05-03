@@ -823,7 +823,7 @@ input::placeholder {
 /* Add these styles to your LoginRegister.module.css file */
 
 .errorMessage {
-  color: #ff3333;
+  color: #ff3333; 
   font-size: 0.85rem;
   text-align: left;
   width: 100%;

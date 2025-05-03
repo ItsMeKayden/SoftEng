@@ -17,6 +17,11 @@ const LoginRegister = ({ closeModal }) => {
   const [role, setRole] = useState('');
   const [focusedField, setFocusedField] = useState(null);
   
+  // Loading states for buttons
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [registerLoading, setRegisterLoading] = useState(false);
+  const [adminLoginLoading, setAdminLoginLoading] = useState(false);
+  
   // Create ref for password popup
   const passwordPopupRef = useRef(null);
 
@@ -160,6 +165,7 @@ const LoginRegister = ({ closeModal }) => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoginError(''); // Clear previous errors
+    setLoginLoading(true); // Start loading
 
     try {
       const res = await axios.post("https://ecourban.onrender.com/login", userCredentials);
@@ -192,12 +198,15 @@ const LoginRegister = ({ closeModal }) => {
     } catch (err) {
       setLoginError("Invalid email or password");
       console.error("Login error:", err);
+    } finally {
+      setLoginLoading(false); // Stop loading regardless of outcome
     }
   };
 
   const handleRegister = async (e) => {
     e.preventDefault();
     setRegisterError(''); // Clear previous errors
+    setRegisterLoading(true); // Start loading
 
     // Check password security requirements
     const passwordIssues = validatePassword(password);
@@ -205,12 +214,14 @@ const LoginRegister = ({ closeModal }) => {
       setPasswordTouched(true);
       setPasswordErrors(passwordIssues);
       setRegisterError("Please fix password security issues before registering.");
+      setRegisterLoading(false); // Stop loading if validation fails
       return;
     }
 
     if (password !== confirmPassword) {
       setConfirmPasswordError(true);
       setRegisterError("Passwords do not match!");
+      setRegisterLoading(false); // Stop loading if validation fails
       return;
     }
 
@@ -240,12 +251,15 @@ const LoginRegister = ({ closeModal }) => {
     } catch (err) {
       console.log("Register error:", err);
       setRegisterError(err.response?.data?.message || "Registration failed. Please try again.");
+    } finally {
+      setRegisterLoading(false); // Stop loading regardless of outcome
     }
   };
 
   const handleAdminLogin = async (e) => {
     e.preventDefault();
     setAdminLoginError('');
+    setAdminLoginLoading(true); // Start loading
   
     try {
       console.log("Admin credentials:", adminCredentials);
@@ -270,6 +284,8 @@ const LoginRegister = ({ closeModal }) => {
     } catch (err) {
       console.error("Admin login error:", err);
       setAdminLoginError("Incorrect Credentials!");
+    } finally {
+      setAdminLoginLoading(false); // Stop loading regardless of outcome
     }
   };
 
@@ -566,13 +582,20 @@ const LoginRegister = ({ closeModal }) => {
             {registerError && <p className={styles.errorMessage}>{registerError}</p>}
 
             <button type="submit" disabled={
+              registerLoading ||
               hasPasswordErrors(passwordErrors) || 
               confirmPasswordError || 
               !email || 
               !password || 
               !confirmPassword || 
               !role
-            }>Sign Up</button>
+            }>
+              {registerLoading ? (
+                <div className={styles.loader}></div>
+              ) : (
+                "Sign Up"
+              )}
+            </button>
           </form>
         </div>
 
@@ -697,11 +720,14 @@ const LoginRegister = ({ closeModal }) => {
             )}
 
             <button type="submit" disabled={
-              isAdminLogin ? 
-              !adminCredentials.username || !adminCredentials.password : 
-              !userCredentials.email || !userCredentials.password
+              (isAdminLogin ? adminLoginLoading : loginLoading) ||
+              (isAdminLogin ? 
+                !adminCredentials.username || !adminCredentials.password : 
+                !userCredentials.email || !userCredentials.password)
             }>
-              {isAdminLogin ? "Sign In" : "Sign In"}
+              {isAdminLogin ? 
+                (adminLoginLoading ? <div className={styles.loader}></div> : "Sign In") : 
+                (loginLoading ? <div className={styles.loader}></div> : "Sign In")}
             </button>
           </form>
         </div>

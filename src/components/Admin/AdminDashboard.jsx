@@ -267,17 +267,6 @@ const AdminDashboard = () => {
                     {users.filter(user => user.status === "Active").length}
                   </p>
                 </div>
-                <div className={styles.statCard}>
-                  <h3>New Sign-ups (Last 7 days)</h3>
-                  <p className={styles.statNumber}>12</p>
-                </div>
-                <div className={styles.statCard}>
-                  <h3>Map Searches (Today)</h3>
-                  <p className={styles.statNumber}>75</p>
-                </div>
-              </div>
-              <div className={styles.chartPlaceholder}>
-                <p>Activity chart would be displayed here</p>
               </div>
             </div>
           )}

@@ -121,7 +121,7 @@ const MapComponent = ({
           setMarkerPosition(location); // Set the marker position
           if (mapRef.current) {
             console.log('Map Reference:', mapRef.current); // Debugging
-            mapRef.current.flyTo(location, 15); // Fly to the user's location
+            mapRef.current.flyTo(location, 17); // Fly to the user's location
           }
         },
         (error) => {
@@ -142,7 +142,7 @@ const MapComponent = ({
   useEffect(() => {
     if (searchLocation && mapRef.current) {
       const map = mapRef.current;
-      map.flyTo(searchLocation, 15);
+      map.flyTo(searchLocation, 17);
     }
   }, [searchLocation]);
 
