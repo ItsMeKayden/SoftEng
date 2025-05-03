@@ -230,56 +230,45 @@ app.get('/users', async (req, res) => {
     }
   });
 
-// Save a new submission
+// GET submissions route
 app.get('/submissions', async (req, res) => {
   try {
-    const userId = req.headers.userid; // Get userId from headers
-    
-    if (!userId) {
-      return res.status(401).json({ message: 'No user ID provided' });
-    }
+    const userId = req.headers.userid;
+    console.log('Fetching submissions for userId:', userId);
 
     const submissions = await SubmissionModel.find({ userId })
       .sort({ timestamp: -1 });
     
+    console.log('Found submissions:', submissions);
     res.status(200).json(submissions);
   } catch (error) {
     console.error('Error fetching submissions:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
+
 // POST submissions route
 app.post('/submissions', async (req, res) => {
   try {
-    const { userId, location, hazards, timestamp } = req.body;
+    const userId = req.headers.userid;
+    console.log('Saving submission for userId:', userId);
+    console.log('Submission data:', req.body);
 
-    // Validate required fields
-    if (!userId || !location || !hazards) {
-      return res.status(400).json({ 
-        message: 'Missing required fields',
-        received: { userId, location, hazards }
-      });
-    }
-
-    // Create new submission with userId
     const submission = new SubmissionModel({
       userId,
-      location,
-      hazards,
-      timestamp: timestamp || new Date()
+      location: req.body.location,
+      hazards: req.body.hazards,
+      timestamp: req.body.timestamp
     });
 
-    // Save to database
     const savedSubmission = await submission.save();
-    console.log('Submission saved:', savedSubmission); // Debug log
-
+    console.log('Saved submission:', savedSubmission);
     res.status(201).json(savedSubmission);
-  } catch (err) {
-    console.error('Error saving submission:', err);
-    res.status(500).json({ message: 'Error saving submission', error: err.message });
+  } catch (error) {
+    console.error('Error saving submission:', error);
+    res.status(500).json({ message: 'Error saving submission' });
   }
 });
-  
   
 // Test Route
 app.get('/api/hello', (req, res) => {

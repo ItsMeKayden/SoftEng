@@ -242,8 +242,14 @@ const getDateRange = () => {
     // Add filterDate to handle dataset availability checking
     filterDate: (date) => {
       const year = date.getFullYear();
-      return year === 2024 || year === 2025;
-    },
+      if (year !== 2024 && year !== 2025) return false;
+      
+      // For current year, only allow up to today
+      if (year === today.getFullYear()) {
+        return date <= today;
+      }
+      return true;
+    }
   };
 };
 
@@ -257,104 +263,48 @@ const getWeatherData = async (location, selectedDate) => {
     };
   }
 
+  // Visual Crossing API configuration
+  const API_KEY = 'ZJUTSWL9XAJ8T5B8QEFD8D82A'; // Get this from Visual Crossing
+  const baseUrl = 'https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline';
+
   try {
     const locationLower = location.toLowerCase();
-    const formattedDate = selectedDate.toISOString().split('T')[0];
-    const year = selectedDate.getFullYear();
-    const month = selectedDate.getMonth() + 1;
+    const today = new Date().toISOString().split('T')[0];
+    const formattedSelectedDate = selectedDate.toISOString().split('T')[0];
+    const formattedDate = formattedSelectedDate;
 
-    // Determine correct period prefix based on date
-    let period = '';
-    if (year === 2025) {
-      period = 'janapril'; // Only Jan-Apr data for 2025
-    } else {
-      // 2024 data uses different period prefixes
-      period =
-        month <= 2
-          ? 'janfeb'
-          : month <= 4
-          ? 'marapril'
-          : month <= 6
-          ? 'mayjune'
-          : month <= 8
-          ? 'julyaug'
-          : month <= 10
-          ? 'sepoct'
-          : 'novdec';
+    const formattedLocation = locationLower.includes('philippines') 
+      ? location 
+      : `${location}, Philippines`;
+
+    // First, get current weather data
+    const url = formattedSelectedDate === today
+      ? `${baseUrl}/${encodeURIComponent(formattedLocation)}/today?unitGroup=metric&include=current&key=${API_KEY}&contentType=json`
+      : `${baseUrl}/${encodeURIComponent(formattedLocation)}/${formattedSelectedDate}?unitGroup=metric&include=current&key=${API_KEY}&contentType=json`;
+
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error('Weather API request failed');
     }
 
-    // Find matching city
-    let matchedCity = null;
-    let bestMatchScore = 0;
-
-    console.log('Looking for datasets with:', {
-      year,
-      period,
-      location: locationLower,
-    });
-
-    for (const [city, variations] of Object.entries(cityMappings)) {
-      // For 2024, don't include the year in the check
-      if (year === 2024 && city.includes('2025')) continue;
-      // For 2025, only look at 2025 datasets
-      if (year === 2025 && !city.includes('2025')) continue;
-
-      // Check if city starts with the correct period
-      if (!city.toLowerCase().startsWith(period.toLowerCase())) continue;
-
-      for (const variant of variations) {
-        if (locationLower.includes(variant.toLowerCase())) {
-          const matchScore = variant.length;
-          if (matchScore > bestMatchScore) {
-            bestMatchScore = matchScore;
-            matchedCity = city;
-          }
-        }
-      }
-    }
-
-    console.log('Search results:', {
-      period,
-      matchedCity,
-      date: formattedDate,
-    });
-
-    console.log('Selected date:', formattedDate);
-    console.log('Period:', period);
-    console.log('Matched city:', matchedCity);
-
-    if (!matchedCity || !weatherDatasets[matchedCity]) {
-      throw new Error('No dataset available for this location and period');
-    }
-
-    const weatherDataRaw = weatherDatasets[matchedCity];
-
-    // Find the specific day in the dataset
-    const selectedDayData = weatherDataRaw.days.find(
-      (day) => day.datetime === formattedDate
-    );
-
-    if (!selectedDayData) {
-      throw new Error('No data available for selected date');
-    }
+    const data = await response.json();
+    console.log('API Response:', data);
 
     return {
       hasData: true,
-      resolvedAddress: location,
-      latitude: weatherDataRaw.latitude,
-      longitude: weatherDataRaw.longitude,
-      days: [
-        {
-          temp: selectedDayData.temp || 0,
-          feelslike: selectedDayData.feelslike || 0,
-          humidity: selectedDayData.humidity || 0,
-          precip: selectedDayData.precip || 0,
-          precipprob: selectedDayData.precipprob || 0,
-          cloudcover: selectedDayData.cloudcover || 0,
-          windspeed: selectedDayData.windspeed || 0,
-          datetime: selectedDayData.datetime,
-        },
-      ],
+      resolvedAddress: data.resolvedAddress,
+      latitude: data.latitude,
+      longitude: data.longitude,
+      days: [{
+        temp: data.days[0]?.temp || 0,
+        feelslike: data.days[0]?.feelslike || 0,
+        humidity: data.days[0]?.humidity || 0,
+        precip: data.days[0]?.precip || 0,
+        precipprob: data.days[0]?.precipprob || 0,
+        cloudcover: data.days[0]?.cloudcover || 0,
+        windspeed: data.days[0]?.windspeed || 0,
+        datetime: formattedSelectedDate,
+      }],
     };
   } catch (error) {
     console.error('Error loading weather data:', error);
@@ -362,6 +312,7 @@ const getWeatherData = async (location, selectedDate) => {
       hasData: false,
       resolvedAddress: location,
       days: [DEFAULT_WEATHER],
+      error: error.message,
     };
   }
 };
@@ -427,17 +378,11 @@ const ResultPopup = ({
         ? selectedLocation.trim()
         : null;
 
-      if (formattedLocation) {
-        console.log(
-          'Loading weather data for:',
-          formattedLocation,
-          'Date:',
-          selectedDate
-        );
-        const data = await getWeatherData(formattedLocation, selectedDate);
-        console.log('Loaded data:', data);
-        setWeatherData(data);
-      } else {
+        if (formattedLocation) {
+          console.log('Loading weather data for:', formattedLocation, 'Date:', selectedDate);
+          const data = await getWeatherData(formattedLocation, selectedDate);
+          setWeatherData(data);
+        } else {
         console.log('No valid location provided');
         setWeatherData({
           hasData: false,
@@ -447,6 +392,8 @@ const ResultPopup = ({
       }
     };
     loadWeatherData();
+    const refreshInterval = setInterval(loadWeatherData, 30 * 60 * 1000);
+    return () => clearInterval(refreshInterval);
   }, [selectedLocation, selectedDate]);
 
   console.log('Selected Location:', location); // Debug log

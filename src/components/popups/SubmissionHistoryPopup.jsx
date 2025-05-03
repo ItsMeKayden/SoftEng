@@ -49,33 +49,37 @@ const SubmissionHistoryPopup = ({
       const [lat, lon] = location;
       const locationName = await getLocationName(lat, lon);
   
-      // Create submission object with userId
       const submission = {
-        userId: user.email,  // Make sure this matches your schema
+        userId: user.email,
         location: locationName,
         hazards: hazards,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        _id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}` // Generate unique ID
       };
   
-      console.log('Sending submission:', submission); // Debug log
+      console.log('Sending submission with userId:', submission);
   
       const response = await fetch('https://ecourban.onrender.com/submissions', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'userId': user.email
         },
         body: JSON.stringify(submission)
       });
   
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.message}`);
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
   
       const savedSubmission = await response.json();
-      console.log('Saved submission:', savedSubmission); // Debug log
-      setSubmissions(prev => [...prev, savedSubmission]);
-  
+      console.log('Submission saved successfully:', savedSubmission);
+      
+       // Immediately fetch updated submissions
+    await fetchSubmissions();
+    
+    // Add the new submission to the current state
+    setSubmissions(prev => [...prev, savedSubmission]);
     } catch (error) {
       console.error('Error saving submission:', error);
     }
@@ -98,42 +102,59 @@ const SubmissionHistoryPopup = ({
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
-  useEffect(() => {
-    const fetchSubmissions = async () => {
-      setIsLoading(true);
-      try {
-        const user = JSON.parse(localStorage.getItem('user'));
-        if (!user?.email) { // Check specifically for user.email
-          console.error('No user email found');
-          setSubmissions([]);
-          setIsLoading(false);
-          return;
-        }
-  
-        const response = await fetch(`https://ecourban.onrender.com/submissions?userId=${user.email}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'userId': user.email
-          }
-        });
-  
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-  
-        const data = await response.json();
-        setSubmissions(data);
-      } catch (error) {
-        console.error('Error fetching submissions:', error);
+  const fetchSubmissions = async () => {
+    console.log('Fetching submissions...');
+    setIsLoading(true);
+    try {
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (!user?.email) {
+        console.error('No user email found');
         setSubmissions([]);
-      } finally {
-        setIsLoading(false);
+        return;
+      }
+  
+      // Remove the query parameter from the URL
+      const response = await fetch('https://ecourban.onrender.com/submissions', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'userId': user.email
+        }
+      });
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+  
+      const data = await response.json();
+      console.log('Raw API response:', data);
+  
+      // Filter submissions for current user
+      const userSubmissions = Array.isArray(data) 
+        ? data.filter(sub => sub.userId === user.email)
+        : [];
+  
+      console.log('Filtered user submissions:', userSubmissions);
+      setSubmissions(userSubmissions);
+  
+    } catch (error) {
+      console.error('Error fetching submissions:', error);
+      setSubmissions([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  // Update useEffect to use the named function
+  useEffect(() => {
+    const loadSubmissions = async () => {
+      if (user?.email) {
+        await fetchSubmissions();
       }
     };
-  
-    fetchSubmissions();
-  }, [user?.email]); // Add specific dependency
+    
+    loadSubmissions();
+  }, [user?.email]); // Add user.email as dependency
   
 
   const formatLocationDisplay = (location) => {
@@ -202,26 +223,30 @@ const SubmissionHistoryPopup = ({
                   </td>
                 </tr>
               ) : submissions && submissions.length > 0 ? (
-                submissions.map((submission) => (
-                  <tr key={submission._id}>
+                submissions.map((submission, index) => (
+                  <tr key={submission._id || submission.timestamp || index}>
                     <td>{submission.location || 'Unknown location'}</td>
-                    <td>{submission.hazards?.join(', ') || 'No hazards'}</td>
                     <td>
-                      <div className="submission-buttons">
-                        <button
-                          className="view-result-button"
-                          onClick={() => handleViewResult(submission)}
-                        >
-                          View Result
-                        </button>
-                      </div>
+                      {Array.isArray(submission.hazards) 
+                        ? submission.hazards.join(', ') 
+                        : typeof submission.hazards === 'string' 
+                          ? submission.hazards
+                          : 'No hazards'}
+                    </td>
+                    <td>
+                      <button
+                        className="view-result-button"
+                        onClick={() => handleViewResult(submission)}
+                      >
+                        View Result
+                      </button>
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
                   <td colSpan="3" style={{ textAlign: 'center' }}>
-                    No submissions found.
+                    {isLoading ? 'Loading...' : 'No submissions found.'}
                   </td>
                 </tr>
               )}
