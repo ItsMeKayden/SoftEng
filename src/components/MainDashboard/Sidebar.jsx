@@ -21,7 +21,7 @@ const Sidebar = ({
   const [showReferenceMapDropdown, setShowReferenceMapDropdown] =
     useState(false);
   const [showHazardsDropdown, setShowHazardsDropdown] = useState(false);
-  const [selectedHazards, setSelectedHazards] = useState([]);
+  const [selectedHazards, setSelectedHazards] = useState([...allHazards]); // Initialize with all hazards selected
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [showProfilePopup, setShowProfilePopup] = useState(false);
   const [showSubmissionHistoryPopup, setShowSubmissionHistoryPopup] =
@@ -339,12 +339,13 @@ const Sidebar = ({
         </button>
 
         <div className="top-bar-right">
+          {/* Changed from Result button to Chatbot button */}
           <button
-            className="result-button"
-            onClick={() => setShowResultPopup(true)}
+            className="chatbot-button"
+            onClick={() => setShowChatbotPopup(true)}
           >
-            <img src="/icons/result.png" alt="Result" />
-            <span>Result</span>
+            <img src="/icons/chatbot.png" alt="Chatbot" />
+            <span>Chatbot</span>
           </button>
           <button className="profile-button" onClick={toggleProfileDropdown}>
             <img src="/icons/profile.png" alt="Profile" />

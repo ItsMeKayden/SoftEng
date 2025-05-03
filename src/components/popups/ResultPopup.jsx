@@ -82,10 +82,7 @@ const pdfStyles = StyleSheet.create({
     marginBottom: 20,
     textAlign: 'center',
   },
-  sectionTitle: {
-    fontSize: 16,
-    marginBottom: 10,
-  },
+  
   noData: {
     textAlign: 'center',
     padding: 20,
@@ -106,10 +103,7 @@ const pdfStyles = StyleSheet.create({
     textAlign: 'center',
     color: '#666',
   },
-  tableHeader: {
-    backgroundColor: '#f0f0f0',
-    fontWeight: 'bold',
-  },
+  
   sectionTitle: {
     fontSize: 16,
     fontWeight: 'bold',
@@ -618,7 +612,6 @@ const ResultPopup = ({
         <div className="result-top-panel">
           <div className="assessment-title">ASSESSMENT RESULTS</div>
           <div className="date-picker-container">
-            <p>Pick a Date</p>
             <DatePicker
               selected={selectedDate}
               onChange={handleDateChange}

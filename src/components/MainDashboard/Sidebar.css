@@ -1,36 +1,41 @@
+
 /* ==================== */
 /* SIDEBAR STYLES */
+/* ==================== */
 /* ==================== */
 /* CUSTOM SCROLLBAR STYLES */
 /* ==================== */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 8px;               /* Thinner scrollbar */
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #ffffff;
-  border-radius: 10px;
+  background: #ffffff;      /* White background as requested */
+  border-radius: 10px;      /* Rounded corners for the track */
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #41AB5D;
-  border-radius: 10px;
-  border: 2px solid #ffffff;
+  background: #41AB5D;      /* Green color matching your app theme */
+  border-radius: 10px;      /* Rounded corners for the thumb */
+  border: 2px solid #ffffff; /* Creates a nice inset effect */
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #3d9957;
+  background: #3d9957;      /* Slightly darker green on hover for feedback */
 }
 
+  
+
+/* Make the scrollbar a bit shorter for aesthetic appeal */
 .sidebar::-webkit-scrollbar-thumb {
-  min-height: 40px;
-  max-height: 10px;
+  min-height: 40px;        /* Ensures minimum height of the thumb */
+  max-height: 10px;       /* Limits maximum height for aesthetic appeal */
 }
 
 .sidebar {
-  scrollbar-width: thin;
-  scrollbar-color: #41AB5D #ffffff;
+  scrollbar-width: thin;    /* For Firefox */
+  scrollbar-color: #41AB5D #ffffff; /* For Firefox: thumb and track */
   width: 275px;
   padding: 0px;
   height: 100vh;
@@ -40,64 +45,10 @@
   overflow-y: auto;
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  transition: all 0.3s ease;
-  z-index: 998;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  z-index: 1000;
 }
 
-/* Responsive sidebar */
-@media screen and (max-width: 768px) {
-  .sidebar {
-    width: 70px;
-    transform: translateX(-100%);
-  }
-
-  .sidebar:not(.collapsed) {
-    width: 250px;
-    transform: translateX(0);
-  }
-
-  .sidebar-title,
-  .sidebar-section-label {
-    display: none;
-  }
-
-  .sidebar.collapsed .sidebar-title,
-  .sidebar.collapsed .sidebar-section-label {
-    display: none;
-  }
-
-  /* Keep menu and home buttons visible */
-  .menu-button,
-  .home-button {
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-    width: 40px !important;
-    padding: 8px !important;
-    position: fixed;
-    z-index: 999;
-  }
-
-  .menu-button {
-    left: 10px;
-  }
-
-  .home-button {
-    left: 60px;
-  }
-
-  .menu-button img,
-  .home-button img {
-    width: 24px !important;
-    height: 24px !important;
-    margin: 0 !important;
-  }
-
-  .menu-button span,
-  .home-button span {
-    display: none !important;
-  }
-}
 
 .sidebar.collapsed {
   width: 70px;
@@ -120,6 +71,7 @@
   margin-top: 15px;
 }
 
+/* Sidebar logo container - side by side layout */
 .sidebar-logo-container {
   display: flex;
   align-items: center;
@@ -127,7 +79,7 @@
 }
 
 .sidebar-logo {
-  height: 50px;
+  height: 50px;         /* Fixed height */
   width: auto;
 }
 
@@ -136,18 +88,19 @@
   font-style: italic;
   font-size: 27px;
   font-weight: bold;
-  white-space: nowrap;
+  white-space: nowrap;     /* Fine-tune vertical alignment */
 }
 
+/* Collapsed state */
 .sidebar-logo-container.collapsed {
   margin-left: 5px;
-  width: 60px;
-  justify-content: center;
-  padding: 0;
+  width: 60px;          /* Collapsed width */
+  justify-content: center; /* Center logo when collapsed */
+  padding: 0;           /* Remove padding when collapsed */
 }
 
 .sidebar-logo-container.collapsed .sidebar-title {
-  display: none;
+  display: none;        /* Hide text when collapsed */
 }
 
 .sidebar-section-label {
@@ -193,13 +146,14 @@
   padding: 10px;
   transition: background 0.3s ease;
   width: 100%;
-  position: relative;
+  position: relative; /* For the green accent bar */
 }
 
 .dropdown-item:hover {
   background: rgba(0, 0, 0, 0.05);
 }
 
+/* Green accent bar (similar to accordion) */
 .dropdown-item::before {
   content: "";
   position: absolute;
@@ -217,6 +171,8 @@
   opacity: 0.8;
 }
 
+/* Arrow icon styling */
+/* Profile dropdown arrow specific styles */
 .profile-button .profile-dropdown-arrow {
   filter: brightness(0) invert(1);
   width: 15px;
@@ -224,9 +180,10 @@
   transition: transform 0.3s ease;
 }
 
+
 .dropdown-arrow {
-  width: 12px;
-  height: 12px;
+  width: 12px; /* Increased from 12px */
+  height: 12px; /* Increased from 12px */
   margin-left: auto;
   transition: transform 0.3s ease;
   filter: var(--dropdown-arrow-filter);
@@ -240,8 +197,8 @@
   list-style: none;
   padding-left: 20px;
   margin-top: 5px;
-  background: var(--sidebar-ul-dropdown-bg);
-  border-radius: 5px;
+  background: var(--sidebar-ul-dropdown-bg); /* Matching accordion background */
+  border-radius: 5px; /* Matching accordion radius */
   padding: 8px;
 }
 
@@ -259,6 +216,7 @@
   background: #d0f0c8;
 }
 
+/* Selection circles (matching your existing style) */
 .selection-circle {
   width: 16px;
   height: 16px;
@@ -277,11 +235,13 @@
   border-radius: 50%;
 }
 
+/* Selected item style */
 .sidebar ul .dropdown li.selected {
   background: var(--sidebar-ul-selected-bg);
   font-weight: 500;
 }
 
+/* Text styling to match accordion */
 .sidebar ul .dropdown li span {
   font-family: 'Inter', Helvetica, sans-serif;
   font-weight: 300;
@@ -289,6 +249,7 @@
   font-size: 15px;
 }
 
+/* Selection Elements */
 .selection-circle {
   width: 16px;
   height: 16px;
@@ -310,6 +271,7 @@
   background-color: rgba(65, 171, 93, 0.1);
 }
 
+/* Hazard Items */
 input[type="checkbox"] {
   margin-right: 8px;
   cursor: pointer;
@@ -320,6 +282,7 @@ input[type="checkbox"] {
   margin-right: 8px;
 }
 
+/* Make hazard items more clickable */
 .dropdown .hazard-item {
   cursor: pointer;
   display: flex;
@@ -332,11 +295,13 @@ input[type="checkbox"] {
   background-color: rgba(0, 0, 0, 0.05);
 }
 
+/* Style the checkbox to look integrated */
 .dropdown .hazard-item input[type="checkbox"] {
   margin-right: 10px;
   cursor: pointer;
 }
 
+/* Hazard icon styling */
 .hazard-icon {
   margin-right: 8px;
   width: 20px;
@@ -348,18 +313,20 @@ input[type="checkbox"] {
 /* ==================== */
 .sidebar.collapsed {
   width: 70px;
+  /* Ensure sidebar has higher z-index than tooltips */
   z-index: 1001;
 }
 
 .sidebar.collapsed li {
   position: relative;
+  /* Prevent tooltip from being clipped */
   overflow: visible;
 }
 
 .sidebar.collapsed li:hover::after {
   content: attr(data-tooltip);
   position: absolute;
-  left: calc(100% + 6px);
+  left: calc(100% + 6px); /* Position outside sidebar */
   top: 50%;
   height: 25px;
   transform: translateY(-50%);
@@ -369,8 +336,9 @@ input[type="checkbox"] {
   border-radius: 4px;
   font-size: 16px;
   white-space: nowrap;
-  z-index: 1000;
+  z-index: 1000; /* Below sidebar */
   animation: fadeIn 0.2s ease-out;
+  /* Add shadow for better visibility */
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
@@ -380,8 +348,10 @@ input[type="checkbox"] {
   left: 100%;
   top: 50%;
   transform: translateY(-50%);
+  
 }
 
+/* Make sure tooltips don't get cut off by viewport */
 .sidebar.collapsed {
   overflow: visible;
 }
@@ -390,6 +360,7 @@ input[type="checkbox"] {
   overflow: visible;
 }
 
+/* Modify the existing hover effect rules to exclude collapsed state */
 .sidebar:not(.collapsed) ul li:not(.dropdown li):hover::before {
   content: "";
   position: absolute;
@@ -405,14 +376,17 @@ input[type="checkbox"] {
   background-color: rgba(116, 196, 118, 0.1);
 }
 
+
+/* Ensure tooltips work properly in collapsed state */
 .sidebar.collapsed li:hover {
   border-radius: 3px;
-  background: #BEF0BF;
+  background: #BEF0BF;  /* Remove any background hover effect */
 }
 
 .sidebar.collapsed li:hover::before {
-  content: none !important;
+  content: none !important; /* Completely remove the green bar */
 }
+
 
 /* ==================== */
 /* TOP BAR STYLES */
@@ -430,48 +404,13 @@ input[type="checkbox"] {
   transition: left 0.3s ease, width 0.3s ease;
   background-color: var(--topbar-bg)
 }
-
-/* Mobile styles for top bar */
-@media screen and (max-width: 768px) {
-  .top-bar {
-    width: 100%;
-    left: 0;
-    padding: 0 120px 0 10px;
-  }
-
-  .top-bar button {
-    padding: 8px;
-    margin: 0 4px;
-  }
-
-  .top-bar button span {
-    display: none;
-  }
-
-  .top-bar button img {
-    width: 24px;
-    height: 24px;
-    margin: 0;
-  }
-
-  .top-bar-right {
-    gap: 8px;
-  }
-
-  .menu-button {
-    margin-left: 0;
-  }
-}
-
 .top-bar.collapsed {
   left: 70px;
   width: calc(100% - 70px);
 }
-
 .top-bar.collapsed .menu-button {
   margin-left: 0px;
 }
-
 .top-bar button {
   display: flex;
   align-items: center;
@@ -488,28 +427,32 @@ input[type="checkbox"] {
   font-weight: bold;
   transition: background 0.3s ease;
 }
-
 .top-bar button:hover {
   background: rgba(255, 255, 255, 0.2);
 }
-
 .top-bar button img {
   width: 24px;
   height: 24px;
 }
-
 .top-bar-right {
   margin-left: auto;
   display: flex;
   align-items: center;
 }
 
+/* Button Variants */
 .menu-button,
 .home-button,
-.result-button,
+.chatbot-button,
 .profile-button {
   background-color: transparent;
   color: white;
+}
+
+.chatbot-button img {
+  width: 24px;
+  height: 24px;
+  filter: brightness(0) invert(1); 
 }
 
 /* ==================== */
@@ -542,13 +485,16 @@ input[type="checkbox"] {
   height: 23px;
 }
 
+
 /* ==================== */
 /* SEARCHBAR STYLES */
 /* ==================== */
+/* Search Bar Container */
+
 .sidebar-suggestions-list {
   position: absolute;
   top: 100%;
-  left: 0px;
+  left: 0px; /* adjust if needed */
   right: 0px;
   background-color: var(--bg-primary);
   border: none;
@@ -572,6 +518,7 @@ input[type="checkbox"] {
   background-color: #f0f0f0;
 }
 
+
 li.search-bar-container {
   height: 50px;
   padding: 10px;
@@ -581,20 +528,22 @@ li.search-bar-container {
   background-color: transparent;
 }
 
+/* Search Bar Wrapper */
 .search-bar-wrapper {
   position: relative;
   width: 100%;
 }
 
+/* Search Input */
 .search-bar-wrapper input.search-input {
   color: var(--text-primary);
-  width: 100%;
+  width: 100%; /* Accounts for clear button space */
   border: none;
   border-radius: 0px;
   border-bottom: 2px solid #6e6e6e;
-  font: inherit;
+  font: inherit; /* Maintains parent font */
   font-size: 15px;
-  padding: 5px 30px 5px 10px;
+  padding: 5px 30px 5px 10px; /* Right padding for clear button */
   background: transparent;
   outline: none;
   justify-content: baseline;
@@ -618,10 +567,11 @@ li.search-bar-container {
   opacity: 0.5;
 }
 
+/* Clear Button */
 .clear-button {
   filter: var(--dropdown-arrow-filter);
   position: absolute;
-  right: 5px;
+  right: 5px; /* Reduced from 10px */
   top: 50%;
   transform: translateY(-50%);
   background: transparent;
@@ -647,12 +597,14 @@ li.search-bar-container {
   height: 100%;
 }
 
+/* Search Icon */
 .search-icon {
   width: 24px;
   height: 24px;
   margin-right: 10px;
 }
 
+/* Loading spinner */
 .search-spinner {
   width: 12px;
   height: 12px;
@@ -666,6 +618,7 @@ li.search-bar-container {
   to { transform: rotate(360deg); }
 }
 
+/* Disabled state */
 .search-input:disabled {
   opacity: 0.7;
   cursor: not-allowed;
