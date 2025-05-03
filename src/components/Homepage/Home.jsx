@@ -18,6 +18,7 @@ const Home = () => {
   const suggestionBoxRef = useRef(null);
   const [showLogoutSuccess, setShowLogoutSuccess] = useState(false);
   const navigate = useNavigate();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   // Refs for scrolling to sections
   const aboutRef = useRef(null);
@@ -542,7 +543,7 @@ const handleInputChange = (e) => {
             <div style={{ 
               display: 'flex', 
               justifyContent: 'space-around', 
-              marginTop: '10px' // Reduced from 20px to 10px for better fit
+              marginTop: '10px'
             }}>
               <button onClick={handleLogoutConfirm} style={{ 
                 backgroundColor: '#d32f2f', 
@@ -564,7 +565,7 @@ const handleInputChange = (e) => {
           </div>
         </div>
       )}
-
+  
       {showLogoutSuccess && (
         <div className="modal-overlay" style={{ backgroundColor: 'rgba(0, 0, 0, 0.4)' }}>
           <div className="modal-content" style={{ 
@@ -582,9 +583,8 @@ const handleInputChange = (e) => {
           </div>
         </div>
       )}
-
-
-      {/* Header Section - Updated login button text */}
+  
+      {/* Header Section - Responsive Layout */}
       <header className={`home-header ${headerScrolled ? 'scrolled' : ''}`}>
         <div className="header-content">
           <div className="home-logo-container">
@@ -594,26 +594,40 @@ const handleInputChange = (e) => {
               <p className="home-subtitle">Shaping Sustainable Urban Landscapes</p>
             </div>
           </div>
-
+  
           <div className="header-navigation">
+            {/* Menu button (visible only on small screens) */}
             <button
-              onClick={() => scrollToSection(aboutRef, 'about')}
-              className={`nav-link ${activeSection === 'about' ? 'active' : ''}`}
+              className="menu-toggle-button"
+              onClick={() => setMenuOpen(!menuOpen)}
+              aria-label="Toggle menu"
             >
-              About
+              <img src="/icons/menu.png" alt="Menu" className="menu-icon" />
             </button>
-            <button
-              onClick={() => scrollToSection(featuresRef, 'features')}
-              className={`nav-link ${activeSection === 'features' ? 'active' : ''}`}
-            >
-              Features
-            </button>
-            <button
-              onClick={() => scrollToSection(contactRef, 'contact')}
-              className={`nav-link ${activeSection === 'contact' ? 'active' : ''}`}
-            >
-              Contact
-            </button>
+  
+            {/* Navigation buttons (always in the DOM, but hidden on small screens via CSS) */}
+            <div className="nav-links">
+              <button
+                onClick={() => scrollToSection(aboutRef, 'about')}
+                className={`nav-link ${activeSection === 'about' ? 'active' : ''}`}
+              >
+                About
+              </button>
+              <button
+                onClick={() => scrollToSection(featuresRef, 'features')}
+                className={`nav-link ${activeSection === 'features' ? 'active' : ''}`}
+              >
+                Features
+              </button>
+              <button
+                onClick={() => scrollToSection(contactRef, 'contact')}
+                className={`nav-link ${activeSection === 'contact' ? 'active' : ''}`}
+              >
+                Contact
+              </button>
+            </div>
+  
+            {/* Login button (always visible) */}
             <button className="home-login-button" onClick={handleLoginClick}>
               <img
                 src={isLoggedIn ? "/icons/login.png" : "/icons/login.png"}
@@ -624,8 +638,26 @@ const handleInputChange = (e) => {
             </button>
           </div>
         </div>
+  
+        {/* Dropdown menu shown only when menuOpen is true */}
+        {menuOpen && (
+          <div className="dropdown-menu">
+            <button onClick={() => {
+              scrollToSection(aboutRef, 'about');
+              setMenuOpen(false);
+            }}>About</button>
+            <button onClick={() => {
+              scrollToSection(featuresRef, 'features');
+              setMenuOpen(false);
+            }}>Features</button>
+            <button onClick={() => {
+              scrollToSection(contactRef, 'contact');
+              setMenuOpen(false);
+            }}>Contact</button>
+          </div>
+        )}
       </header>
-
+  
       {/* Login/Register Modal with updated props */}
       {showLoginRegister && (
         <div className="modal-overlay">
@@ -637,8 +669,8 @@ const handleInputChange = (e) => {
           </div>
         </div>
       )}
-
-      {/* Hero Section */}
+  
+      {/* Hero Section - Responsive Layout */}
       <div className="hero-section">
         <img src="/icons/homepageebg.avif" alt="Background" className="hero-image" />
         <div className="overlay">
@@ -657,6 +689,7 @@ const handleInputChange = (e) => {
                 className="side-search-button"
                 onClick={handleSearch}
                 disabled={isSearching}
+                aria-label="Search"
               >
                 {isSearching ? (
                   <div className="search-spinner"></div>
@@ -664,7 +697,7 @@ const handleInputChange = (e) => {
                   <img src="/icons/search.png" alt="Search" />
                 )}
               </button>
-
+  
               {/* Suggestions dropdown */}
               {suggestions.length > 0 && (
                 <ul className="suggestions-list">
@@ -681,7 +714,7 @@ const handleInputChange = (e) => {
               )}
             </div>
           </div>
-
+  
           <div className="buttons-container">
             <button
               className="location-button"
@@ -700,6 +733,7 @@ const handleInputChange = (e) => {
               Go to Map View
             </button>
           </div>
+          
           {/* Info Section */}
           <div className="info-section">
             <p>
@@ -708,8 +742,8 @@ const handleInputChange = (e) => {
           </div>
         </div>
       </div>
-
-      {/* Footer Section with scroll-to functionality */}
+  
+      {/* Footer Section */}
       <footer className="footer">
         <div className="partners">
           <div className="partner">
@@ -727,6 +761,7 @@ const handleInputChange = (e) => {
         </div>
       </footer>
 
+      
       {/* About Section */}
       <div ref={aboutRef} className="about-section">
         <div className="about-content-container">
@@ -901,7 +936,7 @@ const handleInputChange = (e) => {
         </div>
       </div>
       <div className="copyright">
-        <p>&copy; AI-DrivenGIS</p>
+        <p>&copy; EcoUrban</p>
       </div>
     </div>
   );
