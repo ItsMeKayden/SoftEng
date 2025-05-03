@@ -230,6 +230,7 @@ const MyDocument = ({
 // Update the getWeatherData function
 const getDateRange = () => {
   const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
   // Set wide date range without restrictions
   const startDate = new Date('2024-01-01');
@@ -241,14 +242,15 @@ const getDateRange = () => {
     // Remove maxDate to allow all future dates
     // Add filterDate to handle dataset availability checking
     filterDate: (date) => {
+      const compareDate = new Date(date);
+      compareDate.setHours(0, 0, 0, 0);
+      
+      // Basic year check
       const year = date.getFullYear();
       if (year !== 2024 && year !== 2025) return false;
       
-      // For current year, only allow up to today
-      if (year === today.getFullYear()) {
-        return date <= today;
-      }
-      return true;
+      // Only allow dates up to today
+      return compareDate <= today;
     }
   };
 };
@@ -274,20 +276,22 @@ const getWeatherData = async (location, selectedDate) => {
     const formattedDate = formattedSelectedDate;
 
     const formattedLocation = locationLower.includes('philippines') 
-      ? location 
-      : `${location}, Philippines`;
+      ? encodeURIComponent(location.trim())
+      : encodeURIComponent(`${location.trim()}, Philippines`);
 
     // First, get current weather data
-    const url = formattedSelectedDate === today
-      ? `${baseUrl}/${encodeURIComponent(formattedLocation)}/today?unitGroup=metric&include=current&key=${API_KEY}&contentType=json`
-      : `${baseUrl}/${encodeURIComponent(formattedLocation)}/${formattedSelectedDate}?unitGroup=metric&include=current&key=${API_KEY}&contentType=json`;
+    const url = `${baseUrl}/${formattedLocation}/${formattedSelectedDate}?unitGroup=metric&key=${API_KEY}&contentType=json`;
+
+    console.log('Requesting URL:', url); // Debug log
 
     const response = await fetch(url);
+    const responseText = await response.text();
     if (!response.ok) {
-      throw new Error('Weather API request failed');
+      console.error('API Error Response:', responseText);
+      throw new Error(`Weather API request failed: ${response.status} ${response.statusText}`);
     }
 
-    const data = await response.json();
+    const data = JSON.parse(responseText); // Parse the response text
     console.log('API Response:', data);
 
     return {
@@ -564,7 +568,7 @@ const ResultPopup = ({
               onChange={handleDateChange}
               dateFormat="MMMM d, yyyy"
               minDate={dateRange.minDate}
-              maxDate={dateRange.maxDate}
+              filterDate={dateRange.filterDate}
               showMonthDropdown
               showYearDropdown
               dropdownMode="select"
