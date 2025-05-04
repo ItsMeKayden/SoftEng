@@ -255,29 +255,35 @@ const getDateRange = () => {
   };
 };
 
-const getWeatherData = async (location, selectedDate) => {
-  if (!location || location === 'No location selected') {
-    console.log('No location provided');
-    return {
-      hasData: false,
-      resolvedAddress: 'No location selected',
-      days: [DEFAULT_WEATHER],
-    };
-  }
-
   // Visual Crossing API configuration
-  const API_KEY = '5ZAFN8N4VVFBZ2RZHDYZQZCHC'; // Get this from Visual Crossing
-  const baseUrl = 'https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline';
+  const API_KEYS = [
+    '5ZAFN8N4VVFBZ2RZHDYZQZCHC',
+    'XW7E3XCPVNX8WNAZTMCYHJE8S',
+    'ZJUTSWL9XAJ8T5B8QEFD8D82A',
+    // Add more API keys as needed
+  ];
 
-  try {
+  const getWeatherData = async (location, selectedDate) => {
+    if (!location || location === 'No location selected') {
+      console.log('No location provided');
+      return {
+        hasData: false,
+        resolvedAddress: 'No location selected',
+        days: [DEFAULT_WEATHER],
+      };
+    }  
+  
+    const baseUrl = 'https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline';
     const locationLower = location.toLowerCase();
-    const today = new Date().toISOString().split('T')[0];
-    const formattedSelectedDate = selectedDate.toISOString().split('T')[0];
-    const formattedDate = formattedSelectedDate;
-
+    const formattedSelectedDate = new Date(selectedDate.getTime() - (selectedDate.getTimezoneOffset() * 60000))
+    .toISOString()
+    .split('T')[0];
     const formattedLocation = locationLower.includes('philippines') 
-      ? encodeURIComponent(location.trim())
-      : encodeURIComponent(`${location.trim()}, Philippines`);
+    ? encodeURIComponent(location.trim())
+    : encodeURIComponent(`${location.trim()}, Philippines`);
+
+  for (const API_KEY of API_KEYS) {
+  try {
 
     // First, get current weather data
     const url = `${baseUrl}/${formattedLocation}/${formattedSelectedDate}?unitGroup=metric&key=${API_KEY}&contentType=json`;
@@ -291,6 +297,7 @@ const getWeatherData = async (location, selectedDate) => {
       throw new Error(`Weather API request failed: ${response.status} ${response.statusText}`);
     }
 
+    if (response.ok) {
     const data = JSON.parse(responseText); // Parse the response text
     console.log('API Response:', data);
 
@@ -310,15 +317,21 @@ const getWeatherData = async (location, selectedDate) => {
         datetime: formattedSelectedDate,
       }],
     };
-  } catch (error) {
+  }
+  console.log('API key failed:', API_KEY.substring(0, 5) + '...', responseText);
+} catch (error) {
+  console.error('Error with API key:', API_KEY.substring(0, 5) + '...', error);
+  // Continue to next API key if this one failed
+}
+}
+
     console.error('Error loading weather data:', error);
     return {
       hasData: false,
       resolvedAddress: location,
       days: [DEFAULT_WEATHER],
-      error: error.message,
+      error: 'All API keys exceeded or invalid',
     };
-  }
 };
 
 // 🔗 Main Popup
@@ -414,19 +427,52 @@ const ResultPopup = ({
   const allHazards = [
     {
       name: 'Flooding',
-      description: 'Flooding in low-lying areas',
-      recommendation: 'Use flood barriers and evacuate',
+      description: 'Assessment of flooding risk in low-lying areas',
+      getRiskBasedRecommendation: (risk) => {
+        switch (risk?.toLowerCase()) {
+          case 'high':
+            return 'IMMEDIATE ACTION REQUIRED! Evacuate to higher ground. Avoid flood-prone areas. Follow evacuation orders. Secure important documents and valuables. Monitor PAGASA updates.';
+          case 'medium':
+            return 'Be prepared for possible evacuation. Move vehicles to higher ground. Keep emergency supplies ready. Monitor local flood warnings and PAGASA updates.';
+          case 'low':
+            return 'Stay alert to weather changes. Keep drainage areas clear. Prepare basic emergency supplies. Check local weather updates.';
+          default:
+            return 'Monitor local weather updates and maintain awareness of flood risks.';
+        }
+      }
     },
     {
       name: 'Rainfall',
-      description: 'Heavy rainfall expected',
-      recommendation: 'Stay indoors, avoid flooding zones',
+      description: 'Assessment of rainfall intensity and potential impacts',
+      getRiskBasedRecommendation: (risk) => {
+        switch (risk?.toLowerCase()) {
+          case 'high':
+            return 'STAY INDOORS! Avoid unnecessary travel. Secure loose objects outdoors. Prepare for possible flooding. Keep emergency supplies ready. Monitor PAGASA rainfall advisories.';
+          case 'medium':
+            return 'Carry rain protection. Avoid flood-prone areas. Be prepared for heavy rain. Stay updated with weather alerts. Check drainage systems.';
+          case 'low':
+            return 'Light to moderate rainfall expected. Carry rain protection. Normal activities can continue with usual precautions.';
+          default:
+            return 'Keep updated with weather forecasts and carry rain protection if needed.';
+        }
+      }
     },
     {
       name: 'Heat Index',
-      description: 'High heat risk',
-      recommendation: 'Drink water and stay cool',
-    },
+      description: 'Assessment of heat stress risk based on temperature and humidity',
+      getRiskBasedRecommendation: (risk) => {
+        switch (risk?.toLowerCase()) {
+          case 'high':
+            return 'EXTREME CAUTION! Stay indoors in air-conditioned spaces. Avoid strenuous activities. Drink plenty of water. Watch for heat exhaustion symptoms. Seek immediate medical attention if needed.';
+          case 'medium':
+            return 'Reduce outdoor activities. Stay hydrated. Wear light clothing. Take frequent breaks in shade. Monitor for heat-related symptoms.';
+          case 'low':
+            return 'Maintain normal hydration. Use sun protection. Normal activities can continue with usual heat precautions.';
+          default:
+            return 'Stay hydrated and be aware of heat-related symptoms.';
+        }
+      }
+    }
   ];
 
   const getWeatherMetrics = (hazardType) => {
@@ -434,34 +480,53 @@ const ResultPopup = ({
 
     switch (hazardType) {
       case 'Flooding':
+        // Risk levels based on precipitation amount (mm)
         return {
-          risk: today.precip > 4 ? 'High' : today.precip > 2 ? 'Medium' : 'Low',
+          risk: today.precip > 50 ? 'High' : today.precip > 25 ? 'Medium' : 'Low',
           metrics: {
             'Temperature:': `${today.temp}°C`,
             'Precipitation:': `${today.precip} mm`,
             'Probability:': `${today.precipprob}%`,
           },
-          description: 'Heavy rainfall expected',
+          description: today.precip > 50 
+            ? 'Severe flooding risk detected'
+            : today.precip > 25 
+            ? 'Moderate flooding possible'
+            : 'Low flooding risk',
         };
+
       case 'Rainfall':
+        // Risk levels based on precipitation and cloud cover
         return {
+          risk: today.precip > 30 ? 'High' : today.precip > 15 ? 'Medium' : 'Low',
           metrics: {
             'Amount:': `${today.precip} mm`,
             'Cloud Cover:': `${today.cloudcover}%`,
             'Wind Speed:': `${today.windspeed} km/h`,
           },
-          description: 'High rainfall intensity',
+          description: today.precip > 30
+            ? 'Heavy rainfall expected'
+            : today.precip > 15
+            ? 'Moderate rainfall expected'
+            : 'Light rainfall conditions',
         };
+
       case 'Heat Index':
+        // Risk levels based on temperature (°C)
         return {
-          risk: today.temp > 27 ? 'High' : today.temp > 25 ? 'Moderate' : 'Low',
+          risk: today.temp > 35 ? 'High' : today.temp > 30 ? 'Medium' : 'Low',
           metrics: {
             'Temperature:': `${today.temp}°C`,
             'Feels Like:': `${today.feelslike}°C`,
             'Humidity:': `${today.humidity}%`,
           },
-          description: 'High heat risk',
+          description: today.temp > 35
+            ? 'Extreme heat conditions'
+            : today.temp > 30
+            ? 'High temperature alert'
+            : 'Moderate temperature',
         };
+
       default:
         return null;
     }
@@ -532,14 +597,18 @@ const ResultPopup = ({
   const dynamicHazards = React.useMemo(
     () =>
       Array.isArray(selectedHazards)
-        ? selectedHazards.map((name) => ({
-            name,
-            description: hazardDetails[name]?.description || 'N/A',
-            recommendation: hazardDetails[name]?.recommendation || 'N/A',
-            weather: getWeatherMetrics(name),
-          }))
+        ? selectedHazards.map((name) => {
+            const hazard = allHazards.find(h => h.name === name); 
+            const weatherMetrics = getWeatherMetrics(name); 
+            return {
+              name,
+              description: hazard?.description || 'N/A',
+              recommendation: hazard?.getRiskBasedRecommendation(weatherMetrics?.risk) || 'N/A',
+              weather: weatherMetrics,
+            };
+          })
         : [],
-    [selectedHazards, weatherData, getWeatherMetrics]
+    [selectedHazards, weatherData]
   );
   return (
     <div className="profile-popup-overlay">
