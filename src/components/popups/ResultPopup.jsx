@@ -82,7 +82,7 @@ const pdfStyles = StyleSheet.create({
     marginBottom: 20,
     textAlign: 'center',
   },
-  
+
   noData: {
     textAlign: 'center',
     padding: 20,
@@ -103,7 +103,7 @@ const pdfStyles = StyleSheet.create({
     textAlign: 'center',
     color: '#666',
   },
-  
+
   sectionTitle: {
     fontSize: 16,
     fontWeight: 'bold',
@@ -244,14 +244,14 @@ const getDateRange = () => {
     filterDate: (date) => {
       const compareDate = new Date(date);
       compareDate.setHours(0, 0, 0, 0);
-      
+
       // Basic year check
       const year = date.getFullYear();
       if (year !== 2024 && year !== 2025) return false;
-      
+
       // Only allow dates up to today
       return compareDate <= today;
-    }
+    },
   };
 };
 
@@ -265,50 +265,93 @@ const getWeatherData = async (location, selectedDate) => {
     };
   }
 
-  // Visual Crossing API configuration
-  const API_KEY = 'ZJUTSWL9XAJ8T5B8QEFD8D82A'; // Get this from Visual Crossing
-  const baseUrl = 'https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline';
+  // First try to find data in local datasets
+  const locationLower = location.toLowerCase();
+  let datasetKey = null;
+
+  // Search through city mappings to find matching dataset
+  for (const [key, aliases] of Object.entries(cityMappings)) {
+    if (aliases.some((alias) => locationLower.includes(alias.toLowerCase()))) {
+      datasetKey = key;
+      break;
+    }
+  }
+
+  if (datasetKey && weatherDatasets[datasetKey]) {
+    console.log('Found local dataset:', datasetKey);
+
+    const dataset = weatherDatasets[datasetKey];
+    const formattedDate = selectedDate.toISOString().split('T')[0];
+
+    // Find matching day in dataset
+    const dayData = dataset.days?.find((day) => day.datetime === formattedDate);
+
+    if (dayData) {
+      return {
+        hasData: true,
+        resolvedAddress: location,
+        latitude: dataset.latitude,
+        longitude: dataset.longitude,
+        days: [
+          {
+            temp: dayData.temp,
+            feelslike: dayData.feelslike,
+            humidity: dayData.humidity,
+            precip: dayData.precip,
+            precipprob: dayData.precipprob,
+            cloudcover: dayData.cloudcover,
+            windspeed: dayData.windspeed,
+            datetime: formattedDate,
+          },
+        ],
+      };
+    }
+    console.log('No data found for date:', formattedDate);
+  }
+
+  // If no local data found, fallback to API
+  const API_KEY = 'ZJUTSWL9XAJ8T5B8QEFD8D82A';
+  const baseUrl =
+    'https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline';
 
   try {
-    const locationLower = location.toLowerCase();
-    const today = new Date().toISOString().split('T')[0];
-    const formattedSelectedDate = selectedDate.toISOString().split('T')[0];
-    const formattedDate = formattedSelectedDate;
-
-    const formattedLocation = locationLower.includes('philippines') 
+    const formattedLocation = locationLower.includes('philippines')
       ? encodeURIComponent(location.trim())
       : encodeURIComponent(`${location.trim()}, Philippines`);
 
-    // First, get current weather data
-    const url = `${baseUrl}/${formattedLocation}/${formattedSelectedDate}?unitGroup=metric&key=${API_KEY}&contentType=json`;
+    const url = `${baseUrl}/${formattedLocation}/${
+      selectedDate.toISOString().split('T')[0]
+    }?unitGroup=metric&key=${API_KEY}&contentType=json`;
 
-    console.log('Requesting URL:', url); // Debug log
+    console.log('Falling back to API:', url);
 
     const response = await fetch(url);
     const responseText = await response.text();
+
     if (!response.ok) {
-      console.error('API Error Response:', responseText);
-      throw new Error(`Weather API request failed: ${response.status} ${response.statusText}`);
+      throw new Error(
+        `Weather API request failed: ${response.status} ${response.statusText}`
+      );
     }
 
-    const data = JSON.parse(responseText); // Parse the response text
-    console.log('API Response:', data);
-
+    const data = JSON.parse(responseText);
     return {
       hasData: true,
       resolvedAddress: data.resolvedAddress,
       latitude: data.latitude,
       longitude: data.longitude,
-      days: [{
-        temp: data.days[0]?.temp || 0,
-        feelslike: data.days[0]?.feelslike || 0,
-        humidity: data.days[0]?.humidity || 0,
-        precip: data.days[0]?.precip || 0,
-        precipprob: data.days[0]?.precipprob || 0,
-        cloudcover: data.days[0]?.cloudcover || 0,
-        windspeed: data.days[0]?.windspeed || 0,
-        datetime: formattedSelectedDate,
-      }],
+      days: [
+        {
+          temp: data.days[0]?.temp || 0,
+          feelslike: data.days[0]?.feelslike || 0,
+          humidity: data.days[0]?.humidity || 0,
+          precip: data.days[0]?.precip || 0,
+          precipprob: data.days[0]?.precipprob || 0,
+          cloudcover: data.days[0]?.cloudcover || 0,
+          windspeed: data.days[0]?.windspeed || 0,
+          datetime: selectedDate.toISOString().split('T')[0],
+        },
+      ],
     };
   } catch (error) {
     console.error('Error loading weather data:', error);
@@ -382,11 +425,16 @@ const ResultPopup = ({
         ? selectedLocation.trim()
         : null;
 
-        if (formattedLocation) {
-          console.log('Loading weather data for:', formattedLocation, 'Date:', selectedDate);
-          const data = await getWeatherData(formattedLocation, selectedDate);
-          setWeatherData(data);
-        } else {
+      if (formattedLocation) {
+        console.log(
+          'Loading weather data for:',
+          formattedLocation,
+          'Date:',
+          selectedDate
+        );
+        const data = await getWeatherData(formattedLocation, selectedDate);
+        setWeatherData(data);
+      } else {
         console.log('No valid location provided');
         setWeatherData({
           hasData: false,
