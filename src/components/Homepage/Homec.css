@@ -2235,11 +2235,8 @@
 
 /* Progress bar animation */
 .progress-bar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 3px;
-  background: linear-gradient(to right, #006d2c, #41ab5d);
+  height: 7px;
+  background: linear-gradient(to left, #006d2c, #41ab5d);
   z-index: 1001;
   width: 0%;
   transition: width 0.3s ease;

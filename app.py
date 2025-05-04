@@ -13,24 +13,19 @@ import time
 from datetime import datetime
 from apscheduler.schedulers.background import BackgroundScheduler
 import psutil
+from irrelevant_keywords import irrelevant_keywords  # Import the set
 
-app = Flask(__name__)
+app = Flask(_name_)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
 logging.basicConfig(level=logging.INFO)
 
-API_KEY = 'ZJUTSWL9XAJ8T5B8QEFD8D82A'
+API_KEY = 'FBB8KAYBW6NEP57PELECNHWRV'  # Replace with your actual API key
 
 scheduler = BackgroundScheduler()
 
 with open('qa_data.json', 'r', encoding='utf-8') as f:
     qa_data = json.load(f)
-
-new_qa = {
-    "question": "Who specifically made you?",
-    "answer": "Remuel Bongat Fernan made me."
-}
-qa_data.setdefault('about', []).append(new_qa)
 
 with open('qa_data.json', 'w', encoding='utf-8') as f:
     json.dump(qa_data, f, indent=2, ensure_ascii=False)
@@ -51,6 +46,11 @@ question_embeddings = embed_model.encode(questions)
 index = faiss.IndexFlatL2(question_embeddings.shape[1])
 index.add(np.array(question_embeddings))
 
+def get_wind_direction(degree):
+    directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW']
+    ix = round(degree / 45) % 8
+    return directions[ix]
+
 @app.route('/')
 def home():
     return send_from_directory('.', 'index.html')
@@ -63,7 +63,7 @@ def health_check():
     try:
         memory_usage = psutil.Process().memory_info().rss / 1024 / 1024  # in MB
         uptime = time.time() - psutil.Process().create_time()
-        
+
         health_data = {
             'status': 'healthy',
             'timestamp': datetime.now().isoformat(),
@@ -82,7 +82,6 @@ def health_check():
             'error': str(e)
         }), 500
 
-# Add the keep-alive function
 def keep_alive():
     try:
         response = requests.get('https://gis-chatbot-app.onrender.com/healthz')
@@ -94,7 +93,6 @@ def keep_alive():
     except Exception as e:
         logging.error(f'Health check failed: {str(e)}')
 
-# Add before if __name__ == '__main__':
 def init_scheduler():
     scheduler.add_job(func=keep_alive, trigger="interval", minutes=10)
     scheduler.start()
@@ -136,28 +134,38 @@ def get_weather():
     weather_url = f'https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/{location}'
     params = {
         'key': API_KEY,
-        'include': 'current'
+        'unitGroup': 'metric',
+        'include': 'current,days'
     }
 
     try:
         response = requests.get(weather_url, params=params)
         response.raise_for_status()
         data = response.json()
+        logging.info(f"Weather API Response for '/weather' endpoint, '{location}': {data}")
 
         current = data.get('currentConditions', {})
-        temp_f = current.get('temp')
-        temp_c = (temp_f - 32) * 5 / 9 if temp_f is not None else None
+        temp_c = current.get('temp')
+        humidity = current.get('humidity')
+        wind_speed = current.get('windspeed')
+        wind_dir_deg = current.get('winddir')
+        wind_direction = get_wind_direction(wind_dir_deg) if wind_dir_deg is not None else None
 
         weather_data = {
-            'temperature': temp_c,
-            'conditions': current.get('conditions'),
-            'location': data.get('resolvedAddress')
+            'location': data.get('resolvedAddress'),
+            'status': current.get('conditions'),
+            'averageTemperature': temp_c,
+            'maximumTemperature': data.get('days', [{}])[0].get('tempmax'),
+            'minimumTemperature': data.get('days', [{}])[0].get('tempmin'),
+            'windSpeed': wind_speed,
+            'windDirection': wind_direction,
+            'precipitationProbability': data.get('days', [{}])[0].get('precipprob'),
+            'cloudCover': current.get('cloudcover')
         }
-
         return jsonify(weather_data)
 
     except requests.exceptions.RequestException as e:
-        logging.error(f"Weather API error: {str(e)}")
+        logging.error(f"Weather API error in '/weather': {str(e)}")
         return jsonify({'error': 'Failed to fetch weather data'}), 500
 
 @app.route('/chat', methods=['POST'])
@@ -166,167 +174,130 @@ def chat():
     if not user_input:
         return jsonify({'error': 'Message is required'}), 400
 
-    user_input_lower = user_input.lower().strip()
+    logging.info(f"Received message: {user_input}")
 
-    if not re.match(r'^[\x00-\x7F]+$', user_input_lower):
-        return jsonify({'response': "Sorry, I can only understand English 🚣️"})
+    user_input_lower = user_input.lower().strip()
+    user_input_cleaned = re.sub(r'[^a-z\s]', '', user_input_lower) # Keep only letters and spaces
+    user_words = user_input_cleaned.split()
+
+    logging.info(f"Cleaned user input: '{user_input_cleaned}'")
+    logging.info(f"User input words: {user_words}")
+    logging.info(f"Irrelevant keywords: {irrelevant_keywords}")
 
     greetings = ["hi", "hello", "hey", "good morning", "good evening"]
-    if any(greet in user_input_lower for greet in greetings):
-        return jsonify({'response': "Hello! 😊"})
+    if user_input_lower in [greet for greet in greetings] or any(greet + ' ' in user_input_lower for greet in greetings) or any(' ' + greet in user_input_lower for greet in greetings):
+        return jsonify({'response': "Greetings! How can I assist you today? 😊"})
+
+    for word in user_words:
+        logging.info(f"Checking word '{word}' against irrelevant keywords...")
+        if word in irrelevant_keywords:
+            logging.info(f"Irrelevant keyword '{word}' detected. Declining to answer.")
+            return jsonify({'response': "Let's focus on GIS, weather, and urban planning. 🗺️🌦️"})
+        elif word.endswith('s') and word[:-1] in irrelevant_keywords:
+            singular_word = word[:-1]
+            logging.info(f"Irrelevant (plural) keyword '{word}' (singular: '{singular_word}') detected. Declining to answer.")
+            return jsonify({'response': "Let's focus on GIS, weather, and urban planning. 🗺️🌦️"})
+        else:
+            logging.info(f"Word '{word}' not found (singular or plural) in irrelevant keywords.")
 
     for i, question in enumerate(questions):
-        if question.lower().strip() in user_input_lower:
+        logging.info(f"Checking exact match against: {questions[i]}") # Log exact match attempt
+        if question.lower().strip() == user_input_lower:  # Exact match
+            logging.info(f"Exact match found. Responding with: {answers[i]}")
             return jsonify({'response': answers[i]})
 
-    if any(keyword in user_input_lower for keyword in ["weather", "gis", "meteorology"]):
-        location_query = user_input_lower.split("in")[-1].strip() if "in" in user_input_lower else user_input_lower
-        location_query = location_query.replace("weather", "").strip()
+    if "weather" in user_input_lower or "heat index" in user_input_lower or "wind speed" in user_input_lower or "how hot" in user_input_lower or "how strong is the wind" in user_input_lower:
+        location_parts = user_input_lower.split("in")
+        location_query = location_parts[-1].strip() if len(location_parts) > 1 else user_input_lower.replace("weather", "").replace("heat index", "").replace("wind speed", "").replace("how hot", "").replace("how strong is the wind", "").strip()
+        logging.info(f"Weather query detected. Location: {location_query}")
 
         weather_url = f'https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/{location_query}'
         params = {
             'key': API_KEY,
-            'include': 'current'
+            'unitGroup': 'metric',
+            'include': 'current,days'
         }
 
         try:
             response = requests.get(weather_url, params=params)
             response.raise_for_status()
             data = response.json()
+            logging.info(f"Weather API Response for '/chat', '{location_query}': {data}")
 
             current = data.get('currentConditions', {})
-            temp_f = current.get('temp')
-            temp_c = (temp_f - 32) * 5 / 9 if temp_f is not None else None
+            temp_c = current.get('temp')
+            humidity = current.get('humidity')
+            wind_speed = current.get('windspeed')
+            wind_dir_deg = current.get('winddir')
+            wind_direction = get_wind_direction(wind_dir_deg) if wind_dir_deg is not None else None
+            precip_prob = data.get('days', [{}])[0].get('precipprob')
+            cloud_cover = current.get('cloudcover')
+            temp_max_c = data.get('days', [{}])[0].get('tempmax')
+            temp_min_c = data.get('days', [{}])[0].get('tempmin')
+            conditions = current.get('conditions')
 
-            weather_data = {
-                'temperature': temp_c,
-                'conditions': current.get('conditions'),
-                'humidity': current.get('humidity'),
-                'windSpeed': current.get('windspeed'),
-                'windDirection': current.get('winddirection'),
-                'location': data.get('resolvedAddress')
-            }
+            response_parts = [f"Weather in {data.get('resolvedAddress', location_query)}, Philippines:"]
+            if conditions:
+                response_parts.append(f"Status: {conditions}")
+            if temp_c is not None:
+                response_parts.append(f"Average Temperature: {temp_c:.1f}°C 🌡️")
+            if temp_max_c is not None:
+                response_parts.append(f"Maximum Temperature: {temp_max_c:.1f}°C")
+            if temp_min_c is not None:
+                response_parts.append(f"Minimum Temperature: {temp_min_c:.1f}°C")
+            if wind_speed is not None and wind_direction:
+                response_parts.append(f"Wind: {wind_speed} km/h {wind_direction} 🌬️")
+            elif wind_speed is not None:
+                response_parts.append(f"Wind Speed: {wind_speed} km/h 🌬️")
+            if precip_prob is not None:
+                response_parts.append(f"Precipitation Probability: {precip_prob}%")
+            if cloud_cover is not None:
+                response_parts.append(f"Cloud Cover: {cloud_cover}% ☁️")
 
-            return jsonify({
-                'response': (
-                    f"Current weather in {weather_data['location']}: {weather_data['conditions']}, "
-                    f"{weather_data['temperature']:.1f}°C 🌡️, Wind: {weather_data['windSpeed']} km/h 🌬️"
-                )
-            })
+            weather_response = "\n".join(response_parts).strip()
+            logging.info(f"Weather response: {weather_response}")
+            return jsonify({'response': weather_response})
 
-        except Exception as e:
-            logging.error(f"Weather fetch error: {e}")
+        except requests.exceptions.RequestException as e:
+            logging.error(f"Weather fetch error in '/chat': {e}")
             return jsonify({'response': "Sorry, I couldn't retrieve the weather data."})
 
     if len(user_input.split()) < 3:
         return jsonify({'response': "Please be more specific."})
-
-   irrelevant_keywords = [
-    "tiktok", "facebook", "instagram", "twitter", "snapchat", "reddit", "youtube",
-    "netflix", "hulu", "spotify", "apple music", "soundcloud", "gaming", "fortnite",
-    "minecraft", "valorant", "roblox", "league of legends", "taylor swift", "drake",
-    "bts", "blackpink", "kpop", "celebrity", "gossip", "memes", "jokes", "funny",
-    "movies", "tv shows", "anime", "manga", "fanfic", "romance", "dating", "love",
-    "crush", "relationship", "heartbreak", "breakup", "marriage", "wedding", "divorce",
-    "parenting", "baby", "pets", "dog", "cat", "food", "recipes", "cooking", "baking",
-    "restaurant", "fast food", "shopping", "fashion", "clothing", "makeup", "skincare",
-    "beauty", "fitness", "workout", "exercise", "gym", "diet", "weight loss", "mental health",
-    "therapy", "self-care", "finance", "money", "stocks", "investing", "crypto", "bitcoin",
-    "nft", "real estate", "cars", "motorcycles", "travel", "vacation", "flight", "hotel",
-    "airbnb", "beach", "mountain", "holiday", "birthday", "party", "event", "school",
-    "exam", "homework", "assignment", "teacher", "classmate", "friend", "bullying", "drugs",
-    "alcohol", "smoking", "crime", "murder", "violence", "war", "politics", "president",
-    "election", "government", "law", "religion", "god", "atheism", "philosophy", "history",
-    "art", "music", "book", "novel", "author", "poetry", "literature", "origami", "quantum physics",
-    "beekeeping", "mythology", "conspiracy theories", "tarot cards", "astrology", "zodiac signs",
-    "aliens", "UFOs", "space exploration", "robotics", "quantum computing", 
-    "gardening", "composting", "minimalism", "tiny homes", "DIY crafts", "thrift shopping",
-    "vintage", "antiques", "archaeology", "fossils", "survival skills", "caving", "skydiving",
-    "scuba diving", "chess", "board games", "puzzles", "coin collecting", "stamp collecting",
-    "languages", "sign language", "calligraphy", "3D printing", "graphic design", "cinematography",
-    "voice acting", "puppetry", "mycology", "crystals", "meditation", "lucid dreaming",
-    "sleep paralysis", "time travel", "alternate realities", "parallel universe", "foraging",
-    "sailing", "martial arts", "parkour", "astrophotography", "haunted places",
-    "escape rooms", "karaoke", "fan theories", "barbering", "interior design", "plumbing",
-    "carpentry", "knitting", "sewing", "embroidery", "jewelry making", "leather crafting",
-    "pottery", "ceramics", "blacksmithing", "welding", "glassblowing", "aquariums",
-    "birdwatching", "reptile care", "insect collecting", "model trains", "airsoft", "paintball",
-    "geocaching", "treasure hunting", "metal detecting", "watch repair", "lock picking",
-    "horology", "weather forecasting", "storm chasing", "cartography", "typography",
-    "urban planning", "architecture", "bridge engineering", "forestry", "landscaping",
-    "furniture flipping", "auction hunting", "paleontology", 
-    "deserts", "canyons", "gravity", "magnetism", "friction", "optics", "billiards", "dart games",
-    "speedcubing", "yo-yo tricks", "juggling", "ventriloquism", "improv comedy", "stand-up comedy",
-    "flash mobs", "parades", "renaissance fairs", "cosplay", "LARPing", "fan edits",
-    "bootleg toys", "mascots", "vintage ads", "internet archives", "retro tech", "obsolete software",
-    "typical daydreams", "fictional languages", "imaginary friends", "celebs", "influencer", "streamer", "podcast", "vlogger", "trending", "viral",
-    "luxury", "rich", "poor", "jealousy", "envy", "drama", "scandal",
-    "zodiac", "horoscope", "astrology", "tarot", "witchcraft", "magic", "spells",
-    "dreams", "nightmares", "ghost", "supernatural", "paranormal", "alien", "ufo",
-    "conspiracy", "flat earth", "illuminati", "haunted", "cursed",
-    "makeover", "nails", "hairstyle", "tattoo", "piercing",
-    "dance", "karaoke", "karaoke night", "fan", "stan", "fandom",
-    "drinking", "hangover", "party life", "college party", "frat", "sorority",
-    "gala", "award show", "oscar", "grammy", "met gala",
-    "stream", "livestream", "tournament", "cosplay", "comic con",
-    "celebration", "engagement", "anniversary", "baby shower",
-    "mall", "boutique", "outfit", "trend", "runway", "styling",
-    "hack", "lifehack", "diy", "craft", "interior design", "decor", "furniture",
-    "petsitting", "puppy", "kitten", "hamster", "bird", "reptile",
-    "zoo", "aquarium", "pet shop", "grooming",
-    "karaoke", "idol", "talent show", "competition", "audition",
-    "fan edit", "fyp", "reaction", "duet", "stitch",
-    "emoji", "slang", "abbreviation", "texting", "emoji meaning",
-    "rant", "vent", "overshare", "tea", "spill"
-    ]
-
-
-    if any(re.search(rf'\b{re.escape(k)}\b', user_input) for k in irrelevant_keywords):
-        return jsonify({'response': "Let's focus on GIS, weather, and urban planning. 🗺️🌦️"})
 
     query_embedding = embed_model.encode([user_input])
     D, I = index.search(np.array(query_embedding), k=1)
     retrieved_question = questions[I[0][0]]
     retrieved_answer = answers[I[0][0]]
 
-    logging.info(f"User: {user_input}")
     logging.info(f"Matched (embedding): {retrieved_question} → {retrieved_answer}")
 
     prompt = (
-        "Answer the user's question directly and briefly (maximum 5 words). Do not start your answer with any introductory phrases or acknowledge your identity unless specifically asked.\n"
-        "Your name is Malya\n"
-        "You were developed and made in 2025. \n"
-        "You are a concise AI assistant for a GIS web app. \n"
-        "Do not use aliases.\n"
-        "Do not engage in conversation beyond answering the current question.\n"
-        "Do not mention a 'team' unless specifically describing EcoUrban Initiatives' creation of you.\n"
-        "Do not offer demos or alternatives.\n"
-        "You can use emojis. \n"
-        "Answer only in English.\n"
-        "Do not ask the user any questions.\n"
-        "If asked for future updates, tell them that your developers are currently working on it. \n"
-        "Do not answer private or sensitive questions.\n"
-        "If asked 'What are you?' or similar identity questions, respond with: 'I am Malia, your GIS assistant.'\n"
-        "If asked 'Who made you?' or 'Who specifically made you?', respond with: 'Remuel Bongat Fernan made me.'\n"
-        "If asked about EcoUrban Initiatives, mention they are a dedicated team focused on sustainable urban development.\n"
-        "Be polite.\n"
-        "Decline to answer personal questions.\n"
-        "Provide factual GIS and urban planning info if relevant.\n"
-        f"Question: {user_input}\n"
+        "You are Malia, a helpful AI assistant focused on GIS, weather, and urban planning.\n"
+        "You were created in 2025 by Remuel Bongat Fernan.\n"
+        "Your purpose is to answer user questions concisely (maximum 10 words) if they are related to GIS, weather, or urban planning.\n"
+        "Do not include any information about your development, creators, or purpose in your answer unless the user specifically asks about it.\n"
+        "If the user asks a question outside of GIS, weather, or urban planning, respond with: 'That question is outside my area of expertise. I can help with GIS, weather, and urban planning inquiries. 🗺️🌦️'\n"
+        "If asked 'What are you?', respond with: 'I am Malia, your GIS assistant.'\n"
+        "If asked 'Who made you?', respond with: 'I was created by Remuel Bongat Fernan.'\n"
+        "Be polite and helpful within your defined scope.\n"
+        f"User Question: {user_input}\n"
         "Answer:"
     )
+    logging.info(f"Ollama Prompt being sent: {prompt}") # Log the prompt
 
     start_time = time.time()
     try:
         response = generate("tinyllama", prompt=prompt)
         end_time = time.time()
         logging.info(f"Ollama response time: {end_time - start_time:.2f} seconds")
+        logging.info(f"Ollama Response: {response.response.strip()}") # Log the response
         return jsonify({'response': response.response.strip()})
     except Exception as e:
-        logging.error(f"TinyLlama Error: {e}")
+        logging.error(f"An error occurred during Ollama interaction: {e}")
         return jsonify({'error': 'AI response failed'}), 500
 
-if __name__ == '__main__':
+if _name_ == '_main_':
     init_scheduler()
     port = int(os.environ.get('PORT', 8000))
     app.run(host='0.0.0.0', port=port, debug=True)

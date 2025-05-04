@@ -121,7 +121,7 @@ const ChatbotPopup = ({ onClose, showResultPopup, setShowResultPopup, setShowCha
           {messages.map((msg, index) => (
             <div key={index} className={`chat-message ${msg.sender}`}>
               {msg.sender === "bot" && <img src="/icons/chatbot.png" alt="Bot" className="chat-icon" />}
-              <div className="chat-bubble">{msg.text}</div>
+              <div className="chat-bubble" style={{ whiteSpace: 'pre-line' }}>{msg.text}</div>
             </div>
           ))}
           {loading && (
