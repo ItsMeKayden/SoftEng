@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './PopupStyles.css';
 import {
   Document,
@@ -345,6 +346,9 @@ const ResultPopup = ({
   selectedLocation,
 }) => {
   
+  const [showLoginAlert, setShowLoginAlert] = useState(false);
+  const navigate = useNavigate();
+  
   const saveSubmissionToDatabase = async (hazardData, location) => {
     try {
       // Get user email from localStorage as fallback
@@ -362,7 +366,7 @@ const ResultPopup = ({
         hazards: hazardData.map(h => h.name)
       });
   
-      const response = await fetch('https://ecourban.onrender.com/submissions', {
+      const response = await fetch('http://localhost:5000/submissions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -790,12 +794,12 @@ const ResultPopup = ({
               className="view-report-button"
               style={{ color: 'white' }}
               onClick={async (event) => {
+                const user = JSON.parse(localStorage.getItem('user'));
                 if (!user?.email) {
                   event.preventDefault();
-                  alert('Please log in to save submissions');
+                  setShowLoginAlert(true);
                   return;
                 }
-                
                 try {
                   // Try to save submission first
                   await saveSubmissionToDatabase(dynamicHazards, locationDetails.name);
@@ -817,6 +821,7 @@ const ResultPopup = ({
                 return 'Error generating PDF';
               }
               return 'View Result with AI Recommendation (PDF)';
+              
             }}
           </PDFDownloadLink>
           ) : (
@@ -832,6 +837,21 @@ const ResultPopup = ({
           )}
         </div>
       </div>
+      {showLoginAlert && (
+      <div className="login-alert-overlay">
+        <div className="login-alert">
+          <img src="/icons/warning.png" alt="Warning" className="alert-icon" />
+          <h3>Login Required</h3>
+          <p>Please log in to save submissions and download the report.</p>
+          <button 
+            className="alert-button"
+            onClick={() => navigate('/')}
+          >
+            Got it
+          </button>
+        </div>
+      </div>
+    )}       
     </div>
   );
 };

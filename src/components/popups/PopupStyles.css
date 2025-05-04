@@ -845,3 +845,77 @@
 .result-button:hover {
   background-color: #45a049;
 }
+
+.login-alert-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.login-alert {
+  background-color: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  text-align: center;
+  max-width: 320px;
+  animation: slideUp 0.3s ease-out;
+}
+
+.login-alert h3 {
+  color: #333;
+  margin: 16px 0 8px;
+  font-size: 1.25rem;
+}
+
+.login-alert p {
+  color: #666;
+  margin-bottom: 20px;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.alert-icon {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 8px;
+}
+
+.alert-button {
+  background-color: #41ab5d;
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.alert-button:hover {
+  background-color: #3d8b54;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
