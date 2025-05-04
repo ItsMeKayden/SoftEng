@@ -19,6 +19,7 @@ const Home = () => {
   const [showLogoutSuccess, setShowLogoutSuccess] = useState(false);
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [contentLoaded, setContentLoaded] = useState(false);
 
   // Refs for scrolling to sections
   const aboutRef = useRef(null);
@@ -27,6 +28,15 @@ const Home = () => {
 
   // New state for logout confirmation popup
   const [showLogoutPopup, setShowLogoutPopup] = useState(false);
+
+  useEffect(() => {
+    // Set a small timeout to ensure DOM is fully rendered
+    const timer = setTimeout(() => {
+      setContentLoaded(true);
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   // Check login status on component mount
   useEffect(() => {
@@ -586,7 +596,7 @@ const handleInputChange = (e) => {
       )}
   
       {/* Header Section - Responsive Layout */}
-      <header className={`home-header ${headerScrolled ? 'scrolled' : ''}`}>
+      <header className={`home-header ${headerScrolled ? 'scrolled' : ''} ${contentLoaded ? 'fade-in' : ''}`}>
         <div className="header-content">
           <div className="home-logo-container">
             <img src="/icons/logo.png" alt="Logo" className="home-logo" />
@@ -736,7 +746,7 @@ const handleInputChange = (e) => {
           </div>
           
           {/* Info Section */}
-          <div className="info-section">
+          <div className={`info-section ${contentLoaded ? 'fade-in delay-400' : ''}`}>
             <p>
               This platform utilizes AI-driven GIS for analysis and visualization. Data sources include government agencies, satellite imagery, and research institutions. Results are for informational purposes only.
             </p>

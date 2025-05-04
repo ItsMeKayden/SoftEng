@@ -16,12 +16,16 @@ const LoginRegister = ({ closeModal }) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [role, setRole] = useState('');
   const [focusedField, setFocusedField] = useState(null);
-  
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [hasAcceptedConsent, setHasAcceptedConsent] = useState(false);
+  const [consentError, setConsentError] = useState('');
+  const [showCombinedPolicy, setShowCombinedPolicy] = useState(false);
+
   // Loading states for buttons
   const [loginLoading, setLoginLoading] = useState(false);
   const [registerLoading, setRegisterLoading] = useState(false);
   const [adminLoginLoading, setAdminLoginLoading] = useState(false);
-  
+
   // Create ref for password popup
   const passwordPopupRef = useRef(null);
 
@@ -88,6 +92,18 @@ const LoginRegister = ({ closeModal }) => {
     rightButtonText: 'Sign Up'
   });
 
+  // Listen for window resize to update isMobile state
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
   // Validate password function
   const validatePassword = (password) => {
     return {
@@ -128,9 +144,9 @@ const LoginRegister = ({ closeModal }) => {
   // Add event listener to detect clicks outside password popup
   useEffect(() => {
     function handleClickOutside(event) {
-      if (passwordPopupRef.current && 
-          !passwordPopupRef.current.contains(event.target) && 
-          !event.target.classList.contains('passwordInput')) {
+      if (passwordPopupRef.current &&
+        !passwordPopupRef.current.contains(event.target) &&
+        !event.target.classList.contains('passwordInput')) {
         // Reset the focused field to close password popup
         setFocusedField(null);
       }
@@ -156,6 +172,7 @@ const LoginRegister = ({ closeModal }) => {
     // Clear error messages when switching forms
     setLoginError('');
     setRegisterError('');
+    setConsentError(''); // Clear consent error as well
     // Reset touched states
     setPasswordTouched(false);
     setConfirmPasswordTouched(false);
@@ -210,8 +227,21 @@ const LoginRegister = ({ closeModal }) => {
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    setRegisterError(''); // Clear previous errors
-    setRegisterLoading(true); // Start loading
+    setRegisterError('');
+    setConsentError('');
+    setRegisterLoading(true);
+  
+    if (!email.trim()) {
+      setRegisterError("Please enter your email address.");
+      setRegisterLoading(false);
+      return;
+    }
+  
+    if (!hasAcceptedConsent) {
+      setConsentError("Please agree to the terms and conditions to create an account.");
+      setRegisterLoading(false);
+      return;
+    }
 
     // Check password security requirements
     const passwordIssues = validatePassword(password);
@@ -249,6 +279,7 @@ const LoginRegister = ({ closeModal }) => {
       setPassword('');
       setConfirmPassword('');
       setRole('');
+      setHasAcceptedConsent(false); // Reset consent
       setPasswordTouched(false);
       setConfirmPasswordTouched(false);
 
@@ -265,21 +296,21 @@ const LoginRegister = ({ closeModal }) => {
     e.preventDefault();
     setAdminLoginError('');
     setAdminLoginLoading(true); // Start loading
-  
+
     try {
       console.log("Admin credentials:", adminCredentials);
-  
+
       const res = await axios.post("https://ecourban.onrender.com/admin-login", adminCredentials);
-  
+
       if (res.data.success) {
         localStorage.setItem("admin", JSON.stringify({
           username: res.data.username,
           password: res.data.password
         }));
-  
+
         setSuccessMessage("Admin login successful!");
         setShowSuccessPopup(true);
-  
+
         setTimeout(() => {
           navigate("/admin-dashboard");
         }, 2000);
@@ -376,43 +407,43 @@ const LoginRegister = ({ closeModal }) => {
       },
       body: JSON.stringify(credentialResponseDecoded)
     })
-    .then(res => res.json())
-    .then(data => {
-      console.log("User saved or found:", data);
+      .then(res => res.json())
+      .then(data => {
+        console.log("User saved or found:", data);
 
-      // Store user data in localStorage
-      localStorage.setItem("user", JSON.stringify({
-        email: credentialResponseDecoded.email,
-        name: credentialResponseDecoded.name,
-        role: "user" // Default role for Google sign-in
-      }));
+        // Store user data in localStorage
+        localStorage.setItem("user", JSON.stringify({
+          email: credentialResponseDecoded.email,
+          name: credentialResponseDecoded.name,
+          role: "user" // Default role for Google sign-in
+        }));
 
-      // Show success message
-      setSuccessMessage("Google sign-in successful!");
-      setShowSuccessPopup(true);
+        // Show success message
+        setSuccessMessage("Google sign-in successful!");
+        setShowSuccessPopup(true);
 
-      // Close modal with login status after delay
-      setTimeout(() => {
-        closeModal(true); // Pass true to indicate successful login
-      }, 2000);
-    })
-    .catch(err => {
-      console.error("Error saving Google user:", err);
-      setLoginError("Google sign-in failed");
-    });
+        // Close modal with login status after delay
+        setTimeout(() => {
+          closeModal(true); // Pass true to indicate successful login
+        }, 2000);
+      })
+      .catch(err => {
+        console.error("Error saving Google user:", err);
+        setLoginError("Google sign-in failed");
+      });
   };
 
   const renderPasswordRequirements = (errors, touched, focused) => {
     if (!touched) return null;
-    
+
     // Check if all requirements are met
     const allRequirementsMet = !hasPasswordErrors(errors);
-    
+
     // When all requirements are met, return just a simple success message (no popup)
     if (allRequirementsMet) {
       return <p className={styles.successText}>Strong Password!</p>;
     }
-    
+
     // Only show the requirements popup when focused and there are errors
     if (focused) {
       return (
@@ -440,8 +471,13 @@ const LoginRegister = ({ closeModal }) => {
         </div>
       );
     }
-    
+
     return null;
+  };
+
+  const handleConsentChange = (e) => {
+    setHasAcceptedConsent(e.target.checked);
+    setConsentError(''); // Clear error when consent status changes
   };
 
   return (
@@ -533,20 +569,20 @@ const LoginRegister = ({ closeModal }) => {
 
             <div className={styles.inputGroup}>
               <div className={`${styles.passwordWrapper} ${confirmPasswordTouched && confirmPasswordError ? styles.errorInput : ""}`}>
-              <input
-                type={showPassword.confirmPassword ? "text" : "password"}
-                id="confirm_password"
-                name="confirm_password"
-                placeholder="Confirm Password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                onFocus={() => {
-                  setConfirmPasswordTouched(true);
-                  setFocusedField('confirmPassword');
-                }}
-                required
-                className={`${styles.largerDots} passwordInput ${confirmPasswordTouched && confirmPasswordError ? styles.errorInput : ""}`}
-              />
+                <input
+                  type={showPassword.confirmPassword ? "text" : "password"}
+                  id="confirm_password"
+                  name="confirm_password"
+                  placeholder="Confirm Password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  onFocus={() => {
+                    setConfirmPasswordTouched(true);
+                    setFocusedField('confirmPassword');
+                  }}
+                  required
+                  className={`${styles.largerDots} passwordInput ${confirmPasswordTouched && confirmPasswordError ? styles.errorInput : ""}`}
+                />
                 <button
                   type="button"
                   className={styles.togglePassword}
@@ -583,17 +619,39 @@ const LoginRegister = ({ closeModal }) => {
               </div>
             </div>
 
+            <div className={styles.consent}>
+              <input
+                type="checkbox"
+                id="consentCheckbox"
+                name="consentCheckbox"
+                checked={hasAcceptedConsent}
+                onChange={handleConsentChange}
+                required
+              />
+              <span>By creating an account, you agree to our </span>
+              <button 
+                type="button" 
+                className={styles.consentLink} 
+                onClick={() => setShowCombinedPolicy(true)}
+                style={{ fontSize: '13px', lineHeight: '1.2' }}
+              >
+                Terms of Use & Privacy Policy
+              </button>
+              <span>.</span>
+              {consentError && <p className={styles.errorText}>{consentError}</p>}
+            </div>
             {/* Registration error message */}
             {registerError && <p className={styles.errorMessage}>{registerError}</p>}
 
             <button type="submit" disabled={
               registerLoading ||
-              hasPasswordErrors(passwordErrors) || 
-              confirmPasswordError || 
-              !email || 
-              !password || 
-              !confirmPassword || 
-              !role
+              hasPasswordErrors(passwordErrors) ||
+              confirmPasswordError ||
+              !email ||
+              !password ||
+              !confirmPassword ||
+              !role ||
+              !hasAcceptedConsent
             }>
               {registerLoading ? (
                 <div className={styles.loader}></div>
@@ -601,6 +659,14 @@ const LoginRegister = ({ closeModal }) => {
                 "Sign Up"
               )}
             </button>
+
+            {/* Mobile Form Switch - Show only on mobile */}
+            {isMobile && (
+              <div className={styles.mobileFormSwitch}>
+                <span>Already have an account?</span>
+                <button type="button" onClick={toggleForm}>Sign In</button>
+              </div>
+            )}
           </form>
         </div>
 
@@ -626,9 +692,9 @@ const LoginRegister = ({ closeModal }) => {
                         type="button"
                         className={`${styles.googleBtn} ${styles.customGoogle}`}
                       >
-                        <img 
-                          src="/icons/google.webp" 
-                          alt="Google logo" 
+                        <img
+                          src="/icons/google.webp"
+                          alt="Google logo"
                           className={styles.googleIcon}
                         />
                         Sign in with Google
@@ -641,7 +707,7 @@ const LoginRegister = ({ closeModal }) => {
                 </div>
               </>
             )}
-            
+
             {isAdminLogin ? (
               <>
                 <input
@@ -676,7 +742,7 @@ const LoginRegister = ({ closeModal }) => {
                     </button>
                   </div>
                 </div>
-                
+
                 {adminLoginError && <p className={styles.errorMessage}>{adminLoginError}</p>}
               </>
             ) : (
@@ -712,9 +778,9 @@ const LoginRegister = ({ closeModal }) => {
                     }
                   </button>
                 </div>
-                
+
                 {loginError && <p className={styles.errorMessage}>{loginError}</p>}
-                
+
                 <a href="#" onClick={(e) => {
                   e.preventDefault();
                   handleForgotPassword();
@@ -726,66 +792,106 @@ const LoginRegister = ({ closeModal }) => {
 
             <button type="submit" disabled={
               (isAdminLogin ? adminLoginLoading : loginLoading) ||
-              (isAdminLogin ? 
-                !adminCredentials.username || !adminCredentials.password : 
+              (isAdminLogin ?
+                !adminCredentials.username || !adminCredentials.password :
                 !userCredentials.email || !userCredentials.password)
             }>
-              {isAdminLogin ? 
-                (adminLoginLoading ? <div className={styles.loader}></div> : "Sign In") : 
+              {isAdminLogin ?
+                (adminLoginLoading ? <div className={styles.loader}></div> : "Sign In") :
                 (loginLoading ? <div className={styles.loader}></div> : "Sign In")}
             </button>
+
+            {/* Mobile Form Switch - Show only on mobile */}
+            {isMobile && !isAdminLogin && (
+              <div className={styles.mobileFormSwitch}>
+                <span>Don't have an account yet?</span>
+                <button type="button" onClick={() => setIsActive(true)}>Sign Up</button>
+              </div>
+            )}
           </form>
         </div>
 
-        {/* Toggle Container */}
+        {/* Toggle Container - Will be hidden on mobile */}
         <div className={styles.toggleContainer}>
           <div className={styles.toggle}>
             <div className={`${styles.togglePanel} ${styles.toggleLeft}`}>
               <h1>{toggleContainerContent.leftTitle}</h1>
               <p>{toggleContainerContent.leftDescription}</p>
-              <button className={styles.hidden} id="login" onClick={toggleForm}>
+              <button
+                className={styles.ghost}
+                id="login"
+                onClick={toggleForm}
+              >
                 {toggleContainerContent.leftButtonText}
               </button>
             </div>
             <div className={`${styles.togglePanel} ${styles.toggleRight}`}>
               <h1>{toggleContainerContent.rightTitle}</h1>
               <p>{toggleContainerContent.rightDescription}</p>
-              <button className={styles.hidden} id="register" onClick={() => {
-                if (isAdminLogin) {
-                  toggleAdminMode(); // Switch back to user mode
-                  setIsActive(false); // Show the sign-in side
-                } else {
-                  toggleForm(); // Normal toggle between sign in and sign up
-                }
-              }}>
+              <button
+                className={styles.ghost}
+                id="register"
+                onClick={isAdminLogin ? toggleAdminMode : toggleForm}
+              >
                 {toggleContainerContent.rightButtonText}
               </button>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Success Popup */}
-      {showSuccessPopup && (
-        <div className={styles.successPopupOverlay}>
-          <div className={styles.successPopup}>
-            <div className={styles.successHeader}>
-              <img src="/icons/success.png" alt="Success" className={styles.successIcon} />
-              <h2>Success!</h2>
+        {/* Success Popup */}
+        {showSuccessPopup && (
+          <div className={styles.successPopupOverlay}>
+            <div className={styles.successPopup}>
+              <div className={styles.successHeader}>
+                <img src="/icons/success.png" alt="Success" className={styles.successIcon} />
+                <h2>Success!</h2>
+              </div>
+              <p>{successMessage}</p>
+              <button onClick={closeSuccessPopup} className={styles.successButton}>OK</button>
             </div>
-            <p>{successMessage}</p>
-            <button onClick={closeSuccessPopup} className={styles.successButton}>OK</button>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Render Forgot Password as overlay */}
-      {showForgotPassword && (
-        <ForgotPassword
-          closeModal={closeModal}
-          goBackToLogin={handleBackToLogin}
-        />
-      )}
+{showCombinedPolicy && (
+  <div className={styles.popupOverlay}>
+    <div className={styles.popupContent} style={{ maxHeight: '80vh', overflowY: 'auto', textAlign: 'left' }}>
+      <h2>EcoUrban - Terms of Use & Privacy Policy</h2>
+      <hr className={styles.popupDivider} />
+      <h3>Terms of Use</h3>
+      <p>By using EcoUrban, you agree to these basic terms:</p>
+      <ul>
+        <li>Use our website responsibly and for lawful purposes.</li>
+        <li>We aim for accuracy but don't guarantee all information is error-free.</li>
+        <li>We are not liable for issues arising from your use of the site.</li>
+        <li>These terms may be updated occasionally.</li>
+      </ul>
+      <hr className={styles.popupDivider} />
+      <h3>Privacy Policy</h3>
+      <p>Your privacy matters to EcoUrban. Here's a simple summary:</p>
+      <ul>
+        <li>We may collect necessary information during registration.</li>
+        <li>This information helps us provide and improve our services.</li>
+        <li>We will not share your personal data without your consent, except when legally required.</li>
+        <li>We take reasonable steps to protect your data.</li>
+      </ul>
+      <div className={styles.popupButtons}>
+        <button onClick={() => {
+          setShowCombinedPolicy(false);
+          setHasAcceptedConsent(true); // Add this line to check the consent checkbox
+        }}>Accept</button>
+      </div>
+    </div>
+  </div>
+)}
+        {/* Render Forgot Password as overlay */}
+        {showForgotPassword && (
+          <ForgotPassword
+            closeModal={closeModal}
+            goBackToLogin={handleBackToLogin}
+          />
+        )}
+      </div>
     </>
   );
 };

@@ -37,8 +37,11 @@ const Sidebar = ({
   const [showLogoutPopup, setShowLogoutPopup] = useState(false);
   const [showLogoutSuccess, setShowLogoutSuccess] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // New state to track login status
+
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
+    setIsLoggedIn(!!storedUser); // Set login status based on whether user data exists
     if (storedUser) {
       try {
         const user = JSON.parse(storedUser);
@@ -81,6 +84,7 @@ const Sidebar = ({
 
   const handleLogoutConfirm = () => {
     localStorage.removeItem('user');
+    setIsLoggedIn(false); // Update login status on logout
     setProfileButtonLabel('Profile');
     setShowLogoutPopup(false);
     setShowLogoutSuccess(true);
@@ -126,6 +130,12 @@ const Sidebar = ({
       // Sort the hazards back to the predefined order
       return allHazards.filter((hazard) => updatedHazards.includes(hazard));
     });
+  };
+
+  const handleChatbotClick = () => {
+    if (isLoggedIn) {
+      setShowChatbotPopup(true);
+    }
   };
 
   return (
@@ -339,10 +349,19 @@ const Sidebar = ({
         </button>
 
         <div className="top-bar-right">
-          {/* Changed from Result button to Chatbot button */}
-          <button
-            className="chatbot-button"
-            onClick={() => setShowChatbotPopup(true)}
+          {/* Chatbot button - always rendered but disabled if not logged in */}
+         {/* Chatbot button - always rendered but disabled if not logged in */}
+         <button
+            className={`chatbot-button ${!isLoggedIn ? 'disabled' : ''}`}
+            onClick={handleChatbotClick}
+            {...(!isLoggedIn ? { 'data-tooltips': 'You need to login to access this feature' } : {})}
+            disabled={!isLoggedIn}
+            style={{
+              filter: !isLoggedIn ? 'grayscale(100%)' : 'none',
+              opacity: !isLoggedIn ? '0.6' : '1',
+              cursor: !isLoggedIn ? 'not-allowed' : 'pointer',
+              position: 'relative',
+            }}
           >
             <img src="/icons/chatbot.png" alt="Chatbot" />
             <span>Chatbot</span>
@@ -482,79 +501,79 @@ const Sidebar = ({
       {/* Popup Components */}
       {showSubmissionHistoryPopup && (
         <SubmissionHistoryPopup
-          onClose={() => setShowSubmissionHistoryPopup(false)}
-          showProfilePopup={showProfilePopup}
-          setShowProfilePopup={setShowProfilePopup}
-          setShowSubmissionHistoryPopup={setShowSubmissionHistoryPopup}
-          selectedHazards={selectedHazards}
-          selectedLocation={selectedLocation} // Make sure this prop is passed
-        />
-      )}
+        onClose={() => setShowSubmissionHistoryPopup(false)}
+        showProfilePopup={showProfilePopup}
+        setShowProfilePopup={setShowProfilePopup}
+        setShowSubmissionHistoryPopup={setShowSubmissionHistoryPopup}
+        selectedHazards={selectedHazards}
+        selectedLocation={selectedLocation} // Make sure this prop is passed
+      />
+    )}
 
-      {showProfilePopup && (
-        <ProfilePopup
-          onClose={() => setShowProfilePopup(false)}
-          showSubmissionHistoryPopup={showSubmissionHistoryPopup}
-          setShowSubmissionHistoryPopup={setShowSubmissionHistoryPopup}
-          setShowProfilePopup={setShowProfilePopup}
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          selectedHazards={selectedHazards}
-        />
-      )}
+    {showProfilePopup && (
+      <ProfilePopup
+        onClose={() => setShowProfilePopup(false)}
+        showSubmissionHistoryPopup={showSubmissionHistoryPopup}
+        setShowSubmissionHistoryPopup={setShowSubmissionHistoryPopup}
+        setShowProfilePopup={setShowProfilePopup}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        selectedHazards={selectedHazards}
+      />
+    )}
 
-      {showResultPopup && (
-        <ResultPopup
-          onClose={() => setShowResultPopup(false)}
-          showChatbotPopup={showChatbotPopup}
-          setShowChatbotPopup={setShowChatbotPopup}
-          setShowResultPopup={setShowResultPopup}
-          selectedHazards={selectedHazards}
-        />
-      )}
+    {showResultPopup && (
+      <ResultPopup
+        onClose={() => setShowResultPopup(false)}
+        showChatbotPopup={showChatbotPopup}
+        setShowChatbotPopup={setShowChatbotPopup}
+        setShowResultPopup={setShowResultPopup}
+        selectedHazards={selectedHazards}
+      />
+    )}
 
-      {showChatbotPopup && (
-        <ChatbotPopup
-          onClose={() => setShowChatbotPopup(false)}
-          showResultPopup={showResultPopup}
-          setShowResultPopup={setShowResultPopup}
-          setShowChatbotPopup={setShowChatbotPopup}
-          selectedHazards={selectedHazards}
-        />
-      )}
+    {showChatbotPopup && (
+      <ChatbotPopup
+        onClose={() => setShowChatbotPopup(false)}
+        showResultPopup={showResultPopup}
+        setShowResultPopup={setShowResultPopup}
+        setShowChatbotPopup={setShowChatbotPopup}
+        selectedHazards={selectedHazards}
+      />
+    )}
 
-      {showSeeResult && (
-        <div className="processing-popup-overlay">
-          <div className="processing-popup">
-            <div className="processing-content">
-              <div className="processing-message">
-                Processing Hazard Assessment, Please wait...
-              </div>
-
-              <div className="progress-container">
-                <div
-                  className="progress-bar"
-                  style={{ width: `${progress}%` }}
-                ></div>
-              </div>
-
-              {progress === 100 && (
-                <button
-                  className="processing-button"
-                  onClick={() => {
-                    setShowSeeResult(false);
-                    setShowResultPopup(true);
-                  }}
-                >
-                  See Result
-                </button>
-              )}
+    {showSeeResult && (
+      <div className="processing-popup-overlay">
+        <div className="processing-popup">
+          <div className="processing-content">
+            <div className="processing-message">
+              Processing Hazard Assessment, Please wait...
             </div>
+
+            <div className="progress-container">
+              <div
+                className="progress-bar"
+                style={{ width: `${progress}%` }}
+              ></div>
+            </div>
+
+            {progress === 100 && (
+              <button
+                className="processing-button"
+                onClick={() => {
+                  setShowSeeResult(false);
+                  setShowResultPopup(true);
+                }}
+              >
+                See Result
+              </button>
+            )}
           </div>
         </div>
-      )}
-    </div>
-  );
+      </div>
+    )}
+  </div>
+);
 };
 
 export default Sidebar;
