@@ -35,38 +35,31 @@ const SubmissionHistoryPopup = ({
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem('user'));
-    if (!user) {
-      console.log('No user logged in');
-      // Handle not logged in state
-    }
-  }, []);
-
-  useEffect(() => {
     const handleInitialSubmission = async () => {
-      if (selectedLocation && selectedHazards.length > 0 && globalUserId) {
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (selectedLocation && selectedHazards.length > 0 && user?.email) {
         console.log('Initial submission data:', {
           location: selectedLocation,
           hazards: selectedHazards,
-          userId: globalUserId
+          userId: user.email
         });
         await saveSubmission(selectedLocation, selectedHazards);
       } else {
         console.log('Missing required data:', {
           hasLocation: !!selectedLocation,
           hazardsCount: selectedHazards.length,
-          hasUserId: !!globalUserId
+          hasUser: !!user?.email
         });
       }
     };
     
     handleInitialSubmission();
-  }, [selectedLocation, selectedHazards, globalUserId]); // Added all dependencies
+  }, [selectedLocation, selectedHazards]); // Remove globalUserId dependency
   
   const saveSubmission = async (location, hazards) => {
     try {
       const user = JSON.parse(localStorage.getItem('user'));
-      const userEmail = user?.email || globalUserId;
+      const userEmail = user?.email;
   
       if (!userEmail) {
         console.error('No user email found');
@@ -82,7 +75,7 @@ const SubmissionHistoryPopup = ({
         timestamp: new Date().toISOString()
       };
   
-      const response = await fetch('https://ecourban.onrender.com/submissions', {
+      const response = await fetch('http://localhost:5000/submissions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -116,18 +109,19 @@ const SubmissionHistoryPopup = ({
     setIsLoading(true);
     try {
       const user = JSON.parse(localStorage.getItem('user'));
-      const userEmail = user?.email || globalUserId;
-  
-      if (!userEmail) {
-        console.error('No user email found');
+      
+      // Check if user is logged in
+      if (!user || !user.email) {
+        console.log('No user logged in');
         setSubmissions([]);
         setIsLoading(false);
         return;
       }
   
+      const userEmail = user.email;
       console.log('Fetching submissions for user:', userEmail);
   
-      const response = await fetch('https://ecourban.onrender.com/submissions', {
+      const response = await fetch('http://localhost:5000/submissions', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -142,9 +136,9 @@ const SubmissionHistoryPopup = ({
       const data = await response.json();
       console.log('Received submissions:', data);
   
-      // Update filter to use email instead of userId
+      // Only show submissions for currently logged in user
       const userSubmissions = Array.isArray(data) 
-        ? data.filter(sub => sub.email === userEmail || sub.userId === userEmail) // Handle both old and new data
+        ? data.filter(sub => sub.email === userEmail)
         : [];
       
       console.log('Filtered user submissions:', userSubmissions);
@@ -160,13 +154,17 @@ const SubmissionHistoryPopup = ({
   // Update useEffect to use the named function
   useEffect(() => {
     const loadSubmissions = async () => {
-      if (globalUserId) {
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (user && user.email) {
         await fetchSubmissions();
+      } else {
+        setSubmissions([]);
+        setIsLoading(false); // Make sure to stop loading state
       }
     };
     
     loadSubmissions();
-  }, [globalUserId]);
+  }, [localStorage.getItem('user')]); // Add dependency to react to user changes
 
   const formatLocationDisplay = (location) => {
     if (!location) return '';

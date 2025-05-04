@@ -297,7 +297,7 @@ def chat():
         logging.error(f"An error occurred during Ollama interaction: {e}")
         return jsonify({'error': 'AI response failed'}), 500
 
-if _name_ == '_main_':
+if __name__ == '_main_':
     init_scheduler()
     port = int(os.environ.get('PORT', 8000))
     app.run(host='0.0.0.0', port=port, debug=True)

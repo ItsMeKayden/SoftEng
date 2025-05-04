@@ -364,7 +364,7 @@ const ResultPopup = ({
         hazards: hazardData.map(h => h.name)
       });
   
-      const response = await fetch('https://ecourban.onrender.com/submissions', {
+      const response = await fetch('http://localhost:5000/submissions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
