@@ -480,23 +480,23 @@ const ResultPopup = ({
 
     switch (hazardType) {
       case 'Flooding':
-        // Risk levels based on precipitation amount (mm)
+        // Based on PAGASA's rainfall intensity scale
         return {
-          risk: today.precip > 50 ? 'High' : today.precip > 25 ? 'Medium' : 'Low',
+          risk: today.precip > 30 ? 'High' : today.precip > 15 ? 'Medium' : 'Low',
           metrics: {
             'Temperature:': `${today.temp}°C`,
             'Precipitation:': `${today.precip} mm`,
             'Probability:': `${today.precipprob}%`,
           },
-          description: today.precip > 50 
-            ? 'Severe flooding risk detected'
-            : today.precip > 25 
-            ? 'Moderate flooding possible'
-            : 'Low flooding risk',
+          description: today.precip > 30 
+            ? 'Heavy rainfall may cause severe flooding'
+            : today.precip > 15 
+            ? 'Moderate flooding possible in low-lying areas'
+            : 'Minor flood risk in flood-prone areas',
         };
 
       case 'Rainfall':
-        // Risk levels based on precipitation and cloud cover
+        // Based on PAGASA's 24-hour rainfall warning system
         return {
           risk: today.precip > 30 ? 'High' : today.precip > 15 ? 'Medium' : 'Low',
           metrics: {
@@ -505,26 +505,26 @@ const ResultPopup = ({
             'Wind Speed:': `${today.windspeed} km/h`,
           },
           description: today.precip > 30
-            ? 'Heavy rainfall expected'
+            ? 'Heavy rainfall warning (Red)'
             : today.precip > 15
-            ? 'Moderate rainfall expected'
-            : 'Light rainfall conditions',
+            ? 'Moderate rainfall warning (Orange)'
+            : 'Light to moderate rainfall (Yellow)',
         };
 
       case 'Heat Index':
-        // Risk levels based on temperature (°C)
+        // Based on PAGASA's heat index categories
         return {
-          risk: today.temp > 35 ? 'High' : today.temp > 30 ? 'Medium' : 'Low',
+          risk: today.temp > 41 ? 'High' : today.temp > 33 ? 'Medium' : 'Low',
           metrics: {
             'Temperature:': `${today.temp}°C`,
             'Feels Like:': `${today.feelslike}°C`,
             'Humidity:': `${today.humidity}%`,
           },
-          description: today.temp > 35
-            ? 'Extreme heat conditions'
-            : today.temp > 30
-            ? 'High temperature alert'
-            : 'Moderate temperature',
+          description: today.temp > 41
+            ? 'Danger: Heat cramps and exhaustion likely'
+            : today.temp > 33
+            ? 'Extreme caution: Heat exhaustion possible'
+            : 'Caution: Fatigue possible with prolonged exposure',
         };
 
       default:
