@@ -15,7 +15,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import psutil
 from irrelevant_keywords import irrelevant_keywords  # Import the set
 
-app = Flask(_name_)
+app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
 logging.basicConfig(level=logging.INFO)
