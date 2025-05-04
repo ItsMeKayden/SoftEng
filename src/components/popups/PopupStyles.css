@@ -487,6 +487,11 @@
   }
 }
 
+.submission-popup {
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
 /* ==================== */
 /* PANEL BUTTON STYLES */
 /* ==================== */

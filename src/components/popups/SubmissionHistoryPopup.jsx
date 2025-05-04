@@ -212,6 +212,7 @@ const SubmissionHistoryPopup = ({
         </div>
 
         <div className="my-profile-section">
+          <div className="submission-popup">
           <table className="submission-history-table">
             <thead>
               <tr>
@@ -259,6 +260,7 @@ const SubmissionHistoryPopup = ({
               )}
             </tbody>
           </table>
+          </div>
         </div>
       </div>
 
