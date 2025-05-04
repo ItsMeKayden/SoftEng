@@ -15,7 +15,6 @@ import {
 } from '../Datasets/Index.js';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { useUser } from '../../Context/UserContext';  // Add this line
 
 const formatLocation = (location) => {
   if (!location) return 'No location selected';
@@ -345,13 +344,12 @@ const ResultPopup = ({
   selectedHazards = [],
   selectedLocation,
 }) => {
-  const { globalUserId } = useUser();  // Add this line
   
   const saveSubmissionToDatabase = async (hazardData, location) => {
     try {
       // Get user email from localStorage as fallback
       const user = JSON.parse(localStorage.getItem('user'));
-      const userEmail = user?.email || globalUserId;
+      const userEmail = user?.email;
   
       if (!userEmail) {
         console.error('No user email found');
@@ -792,7 +790,7 @@ const ResultPopup = ({
               className="view-report-button"
               style={{ color: 'white' }}
               onClick={async (event) => {
-                if (!globalUserId) {
+                if (!user?.email) {
                   event.preventDefault();
                   alert('Please log in to save submissions');
                   return;
@@ -801,7 +799,7 @@ const ResultPopup = ({
                 try {
                   // Try to save submission first
                   await saveSubmissionToDatabase(dynamicHazards, locationDetails.name);
-                  console.log('Submission saved successfully for user:', globalUserId);
+                  console.log('Submission saved successfully for user:', user?.email);
                   // Don't prevent default - let the PDF download happen
                 } catch (error) {
                   event.preventDefault(); // Only prevent download if there's an error

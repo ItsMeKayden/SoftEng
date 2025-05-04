@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import ResultPopup from "./ResultPopup"; // Add this line
-import { useUser } from '../../Context/UserContext';
 import '../popups/PopupStyles.css';
 
 const getLocationName = async (lat, lon) => {
@@ -27,7 +26,6 @@ const SubmissionHistoryPopup = ({
   selectedHazards = [],
   selectedLocation = "",
 }) => {
-  const { globalUserId } = useUser();
   const [submissions, setSubmissions] = useState([]);
   const [showResultPopup, setShowResultPopup] = useState(false);
   const [activeSubmission, setActiveSubmission] = useState(null);
@@ -54,7 +52,7 @@ const SubmissionHistoryPopup = ({
     };
     
     handleInitialSubmission();
-  }, [selectedLocation, selectedHazards]); // Remove globalUserId dependency
+  }, [selectedLocation, selectedHazards]); 
   
   const saveSubmission = async (location, hazards) => {
     try {
