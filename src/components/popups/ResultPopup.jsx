@@ -659,9 +659,28 @@ const ResultPopup = ({
         : [],
     [selectedHazards, weatherData]
   );
+
+  const handleWheel = React.useCallback((e) => {
+    // Stop propagation of wheel events to the map
+    e.stopPropagation();
+  }, []);
+  
+  // Attach the event listener in a useEffect hook
+  React.useEffect(() => {
+    const contentElement = document.querySelector('.result-content');
+    if (contentElement) {
+      contentElement.addEventListener('wheel', handleWheel, { passive: false });
+      
+      // Cleanup function to remove the event listener
+      return () => {
+        contentElement.removeEventListener('wheel', handleWheel);
+      };
+    }
+  }, [handleWheel]);
+
   return (
-    <div className="profile-popup-overlay">
-      <div className={`profile-popup ${darkMode ? 'dark-mode' : ''}`}>
+    <div className="profile-popup-overlay" onClick={(e) => e.stopPropagation()}>
+    <div className={`profile-popup ${darkMode ? 'dark-mode' : ''}`} onClick={(e) => e.stopPropagation()}>
         {/* Panel */}
         <div className="profile-panel">
           <div className="panel-left">

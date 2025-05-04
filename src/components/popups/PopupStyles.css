@@ -47,7 +47,9 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 2000; /* Ensure it's above the sidebar */
+  z-index: 2000;
+  pointer-events: all;
+  overflow: hidden; /* Ensure it's above the sidebar */
 }
 
 /* ==================== */
@@ -59,12 +61,14 @@
   color: var(--text-primary);
   border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
   width: 700px;
   height: 550px;
-  max-height: 90vh; /* Prevent it from being too tall on smaller screens */
+  max-height: 90vh;
+  position: relative; /* Ensure position context for children */
+  pointer-events: auto; /* Ensure clicks are captured */ /* Prevent it from being too tall on smaller screens */
 }
 
 /* Panel Styles - Shared Across All Popups */
@@ -649,8 +653,9 @@
   padding: 15px 40px;
   background-color: var(--modal-bg);
   border-top: 1px solid rgba(0, 0, 0, 0.1);
-  position: relative; /* Keep it in the flow but allow z-index */
-  z-index: 5; /* Ensure it stays above content when scrolling */
+  position: sticky; /* Changed from relative to sticky */
+  bottom: 0;
+  z-index: 6; /* Higher than content */
 }
 
 /* Make sure the top panel stays at the top */
@@ -664,8 +669,8 @@
   border-radius: 5px;
   margin: 5px auto 0;
   width: 550px;
-  position: relative; /* Keep it in the flow but allow z-index */
-  z-index: 5; /* Ensure it stays above content when scrolling */
+  position: sticky; /* Keep it in the flow but allow z-index */
+  z-index: 6; /* Ensure it stays above content when scrolling */
 }
 
 /* Fix the result-content to properly scroll within its container */
@@ -680,6 +685,34 @@
   overflow-y: auto; /* This enables scrolling */
   flex: 1; /* Take remaining space in the flex container */
   max-height: calc(100% - 170px); /* Account for header and footer areas */
+  overflow-y: auto; /* This enables scrolling */
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+  flex: 1; /* Take remaining space in the flex container */
+  max-height: calc(100% - 170px); /* Account for header and footer areas */
+  /* Add these properties */
+  position: relative;
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  scroll-behavior: smooth; /* Smooth scrolling */
+  /* Stop propagation of wheel events */
+  will-change: transform; /* Optimization for scroll performance */
+}
+
+.result-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.result-content::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+}
+
+.result-content::-webkit-scrollbar-thumb {
+  background: rgba(65, 171, 93, 0.5);
+  border-radius: 4px;
+}
+
+.result-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(65, 171, 93, 0.7);
 }
 
 .result-content-panel {
