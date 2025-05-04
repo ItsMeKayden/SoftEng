@@ -141,7 +141,7 @@ const MapComponent = ({
     }
   }, []);
   useEffect(() => {
-    if (onLocate) {
+    if (onLocate === true) {
       handleLocate();
     }
   }, [onLocate, handleLocate]);
@@ -150,6 +150,7 @@ const MapComponent = ({
     if (searchLocation && mapRef.current) {
       const map = mapRef.current;
       map.flyTo(searchLocation, 17);
+      setMarkerPosition(null);
     }
   }, [searchLocation]);
 
