@@ -65,7 +65,7 @@ const Sidebar = ({
 
   const handleCurrentLocationClick = () => {
     if (onLocate) {
-      onLocate(); // Trigger the function passed from MapComponent
+      onLocate(true); // Pass true to indicate an explicit request
     }
   };
 

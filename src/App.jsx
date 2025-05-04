@@ -25,6 +25,7 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userInfo, setUserInfo] = useState(null);
   const [selectedLocation, setSelectedLocation] = useState('');
+  const [locateFlag, setLocateFlag] = useState(false);
   
 
   // Check for login status on app mount
@@ -35,6 +36,12 @@ function App() {
       setUserInfo(JSON.parse(user));
     }
   }, []);
+
+  const handleLocateRequest = () => {
+    // This creates a new boolean value each time, ensuring the reference changes
+    setLocateFlag(prev => !prev);
+    setShowSeeResult(true);
+  };
 
   // Function to handle logout across the app
   const handleLogout = () => {
@@ -134,7 +141,7 @@ function App() {
             >
               <Sidebar
                 onSearch={handleSearch}
-                onLocate={handleLocate}
+                onLocate={handleLocateRequest}
                 onClearSearch={handleClearSearch}
                 updateSidebarState={setIsSidebarCollapsed}
                 onBasemapChange={handleBasemapChange}
@@ -148,7 +155,7 @@ function App() {
                   searchLocation={searchLocation}
                   isSidebarCollapsed={isSidebarCollapsed}
                   selectedBasemap={selectedBasemap}
-                  onLocate={locateTrigger}
+                  onLocate={locateFlag}
                 />
               </div>
 
