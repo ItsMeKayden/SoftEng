@@ -86,7 +86,6 @@ const MapComponent = ({
   const [showChatbotPopup, setShowChatbotPopup] = useState(false);
   const [showSubmissionHistoryPopup, setShowSubmissionHistoryPopup] = useState(false);
   const [showResultPopup, setShowResultPopup] = useState(false);
-  const [locationRequestCounter, setLocationRequestCounter] = useState(0);
   const [selectedHazards, setSelectedHazards] = useState([
     'Flooding',
     'Rainfall',
@@ -141,17 +140,10 @@ const MapComponent = ({
       alert('Geolocation is not supported by your browser');
     }
   }, []);
-
-  const onLocateCountRef = useRef(0);
-
   useEffect(() => {
-    // Only call handleLocate if onLocate is explicitly called
-    // and not on the initial component mount
-    if (onLocate && onLocateCountRef.current > 0) {
+    if (onLocate) {
       handleLocate();
     }
-    // Increment the counter each time onLocate changes
-    onLocateCountRef.current += 1;
   }, [onLocate, handleLocate]);
 
   useEffect(() => {
@@ -160,11 +152,6 @@ const MapComponent = ({
       map.flyTo(searchLocation, 17);
     }
   }, [searchLocation]);
-
-  const requestCurrentLocation = () => {
-    setLocationRequestCounter(prev => prev + 1);
-    handleLocate();
-  };
 
   const getLocationName = async (lat, lng) => {
     try {
