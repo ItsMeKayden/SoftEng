@@ -15,6 +15,7 @@ import {
 } from '../Datasets/Index.js';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { useUser } from '../../Context/UserContext';  // Add this line
 
 const formatLocation = (location) => {
   if (!location) return 'No location selected';
@@ -344,6 +345,52 @@ const ResultPopup = ({
   selectedHazards = [],
   selectedLocation,
 }) => {
+  const { globalUserId } = useUser();  // Add this line
+  
+  const saveSubmissionToDatabase = async (hazardData, location) => {
+    try {
+      // Get user email from localStorage as fallback
+      const user = JSON.parse(localStorage.getItem('user'));
+      const userEmail = user?.email || globalUserId;
+  
+      if (!userEmail) {
+        console.error('No user email found');
+        throw new Error('User not logged in');
+      }
+  
+      console.log('Saving submission with data:', {
+        userId: userEmail,
+        location,
+        hazards: hazardData.map(h => h.name)
+      });
+  
+      const response = await fetch('https://ecourban.onrender.com/submissions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'userId': userEmail
+        },
+        body: JSON.stringify({
+          userId: userEmail,
+          location: location,
+          hazards: hazardData.map(h => h.name),
+          timestamp: new Date().toISOString()
+        })
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.text();
+        throw new Error(`Failed to save submission: ${errorData}`);
+      }
+  
+      const savedSubmission = await response.json();
+      console.log('Submission saved:', savedSubmission);
+      return true;
+    } catch (error) {
+      console.error('Error saving submission:', error);
+      throw error; // Let the onClick handler deal with the error
+    }
+  };
 
   const [isPdfLoading, setIsPdfLoading] = React.useState(false);
 
@@ -744,6 +791,24 @@ const ResultPopup = ({
               fileName={`Assessment_Results_${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}.pdf`}
               className="view-report-button"
               style={{ color: 'white' }}
+              onClick={async (event) => {
+                if (!globalUserId) {
+                  event.preventDefault();
+                  alert('Please log in to save submissions');
+                  return;
+                }
+                
+                try {
+                  // Try to save submission first
+                  await saveSubmissionToDatabase(dynamicHazards, locationDetails.name);
+                  console.log('Submission saved successfully for user:', globalUserId);
+                  // Don't prevent default - let the PDF download happen
+                } catch (error) {
+                  event.preventDefault(); // Only prevent download if there's an error
+                  console.error('Error saving submission:', error);
+                  alert('Failed to save submission: ' + error.message);
+                }
+              }}
             >
               {({ blob, url, loading, error }) => {
               if (loading) {

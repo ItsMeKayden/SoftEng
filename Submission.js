@@ -1,10 +1,11 @@
 import mongoose from 'mongoose';
 
 const submissionSchema = new mongoose.Schema({
-  userId: {
+  email: {  // Changed from userId to email
     type: String,
     required: true,
-    index: true
+    index: true,
+    trim: true
   },
   location: {
     type: String,

@@ -233,42 +233,76 @@ app.get('/users', async (req, res) => {
 // GET submissions route
 app.get('/submissions', async (req, res) => {
   try {
-    const userId = req.headers.userid;
-    console.log('Fetching submissions for userId:', userId);
+    const email = req.headers.userid; // Keep header name same for backward compatibility
+    console.log('Fetching submissions for email:', email);
 
-    const submissions = await SubmissionModel.find({ userId })
+    if (!email) {
+      return res.status(400).json({ message: 'No email provided' });
+    }
+
+    const submissions = await SubmissionModel.find({ email }) // Changed from userId to email
       .sort({ timestamp: -1 });
     
-    console.log('Found submissions:', submissions);
-    res.status(200).json(submissions);
+    console.log(`Found ${submissions.length} submissions for ${email}`);
+    res.json(submissions);
   } catch (error) {
     console.error('Error fetching submissions:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 
 // POST submissions route
 app.post('/submissions', async (req, res) => {
   try {
-    const userId = req.headers.userid;
-    console.log('Saving submission for userId:', userId);
-    console.log('Submission data:', req.body);
+    const email = req.headers.userid; // This is the user's email
+    console.log('Received POST request to /submissions');
+    console.log('Headers:', req.headers);
+    console.log('Body:', req.body);
+
+    if (!email) {
+      console.log('No email provided in headers');
+      return res.status(400).json({ message: 'No email provided' });
+    }
+
+    if (!req.body.location || !req.body.hazards) {
+      console.log('Missing required fields');
+      return res.status(400).json({ message: 'Missing required fields' });
+    }
 
     const submission = new SubmissionModel({
-      userId,
+      email, // Changed from userId to email
       location: req.body.location,
       hazards: req.body.hazards,
-      timestamp: req.body.timestamp
+      timestamp: req.body.timestamp || new Date()
     });
 
+    console.log('Attempting to save submission:', submission);
     const savedSubmission = await submission.save();
-    console.log('Saved submission:', savedSubmission);
+    console.log('Successfully saved submission:', savedSubmission);
+    
     res.status(201).json(savedSubmission);
   } catch (error) {
     console.error('Error saving submission:', error);
-    res.status(500).json({ message: 'Error saving submission' });
+    res.status(500).json({ 
+      message: 'Error saving submission', 
+      error: error.message
+    });
   }
 });
+
+const migrateData = async () => {
+  try {
+    const oldSubmissions = await SubmissionModel.find({ userId: { $exists: true } });
+    for (let submission of oldSubmissions) {
+      submission.email = submission.userId;
+      delete submission.userId;
+      await submission.save();
+    }
+    console.log('Migration completed');
+  } catch (error) {
+    console.error('Migration failed:', error);
+  }
+};
   
 // Test Route
 app.get('/api/hello', (req, res) => {

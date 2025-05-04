@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import ResultPopup from "./ResultPopup"; // Add this line
+import { useUser } from '../../Context/UserContext';
 import '../popups/PopupStyles.css';
 
 const getLocationName = async (lat, lon) => {
@@ -26,44 +27,66 @@ const SubmissionHistoryPopup = ({
   selectedHazards = [],
   selectedLocation = "",
 }) => {
+  const { globalUserId } = useUser();
   const [submissions, setSubmissions] = useState([]);
   const [showResultPopup, setShowResultPopup] = useState(false);
   const [activeSubmission, setActiveSubmission] = useState(null);
   const [currentLocation, setCurrentLocation] = useState(selectedLocation);
   const [isLoading, setIsLoading] = useState(true);
-  const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (!user) {
+      console.log('No user logged in');
+      // Handle not logged in state
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleInitialSubmission = async () => {
+      if (selectedLocation && selectedHazards.length > 0 && globalUserId) {
+        console.log('Initial submission data:', {
+          location: selectedLocation,
+          hazards: selectedHazards,
+          userId: globalUserId
+        });
+        await saveSubmission(selectedLocation, selectedHazards);
+      } else {
+        console.log('Missing required data:', {
+          hasLocation: !!selectedLocation,
+          hazardsCount: selectedHazards.length,
+          hasUserId: !!globalUserId
+        });
+      }
+    };
+    
+    handleInitialSubmission();
+  }, [selectedLocation, selectedHazards, globalUserId]); // Added all dependencies
   
   const saveSubmission = async (location, hazards) => {
-    if (!location || !hazards?.length) {
-      console.log('Missing location or hazards');
-      return;
-    }
-  
     try {
       const user = JSON.parse(localStorage.getItem('user'));
-      if (!user?.email) {
+      const userEmail = user?.email || globalUserId;
+  
+      if (!userEmail) {
         console.error('No user email found');
         return;
       }
   
-      const [lat, lon] = location;
-      const locationName = await getLocationName(lat, lon);
+      console.log('Saving submission for user:', userEmail);
   
       const submission = {
-        userId: user.email,
-        location: locationName,
+        email: userEmail, // Changed from userId to email to match schema
+        location: location,
         hazards: hazards,
-        timestamp: new Date().toISOString(),
-        _id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}` // Generate unique ID
+        timestamp: new Date().toISOString()
       };
-  
-      console.log('Sending submission with userId:', submission);
   
       const response = await fetch('https://ecourban.onrender.com/submissions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'userId': user.email
+          'userId': userEmail // Keep this as userId for backward compatibility
         },
         body: JSON.stringify(submission)
       });
@@ -75,11 +98,7 @@ const SubmissionHistoryPopup = ({
       const savedSubmission = await response.json();
       console.log('Submission saved successfully:', savedSubmission);
       
-       // Immediately fetch updated submissions
-    await fetchSubmissions();
-    
-    // Add the new submission to the current state
-    setSubmissions(prev => [...prev, savedSubmission]);
+      await fetchSubmissions();
     } catch (error) {
       console.error('Error saving submission:', error);
     }
@@ -92,33 +111,27 @@ const SubmissionHistoryPopup = ({
     }
   }, [selectedLocation, selectedHazards]);
 
-  useEffect(() => {
-    // Update user state when localStorage changes
-    const handleStorageChange = () => {
-      setUser(JSON.parse(localStorage.getItem('user')));
-    };
-  
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
-
   const fetchSubmissions = async () => {
     console.log('Fetching submissions...');
     setIsLoading(true);
     try {
       const user = JSON.parse(localStorage.getItem('user'));
-      if (!user?.email) {
+      const userEmail = user?.email || globalUserId;
+  
+      if (!userEmail) {
         console.error('No user email found');
         setSubmissions([]);
+        setIsLoading(false);
         return;
       }
   
-      // Remove the query parameter from the URL
+      console.log('Fetching submissions for user:', userEmail);
+  
       const response = await fetch('https://ecourban.onrender.com/submissions', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'userId': user.email
+          'userId': userEmail
         }
       });
   
@@ -127,16 +140,15 @@ const SubmissionHistoryPopup = ({
       }
   
       const data = await response.json();
-      console.log('Raw API response:', data);
+      console.log('Received submissions:', data);
   
-      // Filter submissions for current user
+      // Update filter to use email instead of userId
       const userSubmissions = Array.isArray(data) 
-        ? data.filter(sub => sub.userId === user.email)
+        ? data.filter(sub => sub.email === userEmail || sub.userId === userEmail) // Handle both old and new data
         : [];
-  
+      
       console.log('Filtered user submissions:', userSubmissions);
       setSubmissions(userSubmissions);
-  
     } catch (error) {
       console.error('Error fetching submissions:', error);
       setSubmissions([]);
@@ -148,14 +160,13 @@ const SubmissionHistoryPopup = ({
   // Update useEffect to use the named function
   useEffect(() => {
     const loadSubmissions = async () => {
-      if (user?.email) {
+      if (globalUserId) {
         await fetchSubmissions();
       }
     };
     
     loadSubmissions();
-  }, [user?.email]); // Add user.email as dependency
-  
+  }, [globalUserId]);
 
   const formatLocationDisplay = (location) => {
     if (!location) return '';

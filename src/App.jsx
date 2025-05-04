@@ -9,6 +9,7 @@ import AdminDashboard from "./components/Admin/AdminDashboard"; // Import the ne
 import "./index.css";
 import ChatbotPopup from "./components/popups/ChatbotPopup0";
 import SubmissionHistoryPopup from "./components/popups/SubmissionHistoryPopup";
+import { UserProvider } from './Context/UserContext';
 
 
 function App() {
@@ -111,6 +112,7 @@ function App() {
   };
 
   return (
+    <UserProvider>
     <Router>
       <Routes>
         <Route
@@ -199,6 +201,7 @@ function App() {
         />
       </Routes>
     </Router>
+    </UserProvider>
   );
 }
 
