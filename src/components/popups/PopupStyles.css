@@ -61,7 +61,7 @@
   color: var(--text-primary);
   border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
   width: 700px;
@@ -625,13 +625,14 @@
   font-weight: bold;
 }
 
+
 .location-name p {
-  font-size: 14px;
+  font-size: 13px;
   color: #666;
 }
 
 .location-coordinates {
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   margin-top: 0.5rem;
   color: #555;
 }
@@ -653,9 +654,8 @@
   padding: 15px 40px;
   background-color: var(--modal-bg);
   border-top: 1px solid rgba(0, 0, 0, 0.1);
-  position: sticky; /* Changed from relative to sticky */
-  bottom: 0;
-  z-index: 6; /* Higher than content */
+  position: relative; /* Keep it in the flow but allow z-index */
+  z-index: 5; /* Ensure it stays above content when scrolling */
 }
 
 /* Make sure the top panel stays at the top */
@@ -726,15 +726,17 @@
 }
 
 .result-content-panel h3 {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 500;
   color: #000;
   margin-bottom: 20px;
 }
 
 .description {
+  font-size: 13px;
   color: #666;
   margin-bottom: 15px;
+  line-height: 1.4;
 }
 
 .metrics-grid {
@@ -760,12 +762,22 @@
 }
 
 .metric-item span {
+  font-size: 13px;
   color: #000;
   font-weight: 500;
 }
 
+.metric-item label,
+.metric-item span {
+  font-size: 13px;
+}
+
+.profile-popup .profile-panel .panel-center {
+  font-size: 15px;
+}
+
 .risk-level {
-  font-size: 16px;
+  font-size: 14px;
   margin-bottom: 15px;
   font-weight: 500;
 }
@@ -787,6 +799,7 @@
   padding-top: 15px;
   border-top: 1px solid #eee;
   color: #666;
+  font-size: 13px;
 }
 
 .recommendation strong {
@@ -800,7 +813,7 @@
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 13px;
   width: 100%;
   text-align: center;
   text-decoration: none;
@@ -834,7 +847,7 @@
   padding: 8px 12px;
   border: 1px solid #ccc;
   border-radius: 50px;
-  font-size: 14px;
+  font-size: 13px;
   background-color: white;
   cursor: pointer;
   color: black;
