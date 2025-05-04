@@ -75,7 +75,7 @@ const SubmissionHistoryPopup = ({
         timestamp: new Date().toISOString()
       };
   
-      const response = await fetch('http://localhost:5000/submissions', {
+      const response = await fetch('https://ecourban.onrender.com/submissions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -121,7 +121,7 @@ const SubmissionHistoryPopup = ({
       const userEmail = user.email;
       console.log('Fetching submissions for user:', userEmail);
   
-      const response = await fetch('http://localhost:5000/submissions', {
+      const response = await fetch('https://ecourban.onrender.com/submissions', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
