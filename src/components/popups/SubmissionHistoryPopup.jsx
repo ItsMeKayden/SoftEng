@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import ResultPopup from "./ResultPopup"; // Add this line
-import { useUser } from '../../context/UserContext';
+import { useUser } from '../../Context/UserContext';
 import '../popups/PopupStyles.css';
 
 const getLocationName = async (lat, lon) => {

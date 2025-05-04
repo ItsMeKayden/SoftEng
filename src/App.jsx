@@ -9,7 +9,7 @@ import AdminDashboard from "./components/Admin/AdminDashboard"; // Import the ne
 import "./index.css";
 import ChatbotPopup from "./components/popups/ChatbotPopup0";
 import SubmissionHistoryPopup from "./components/popups/SubmissionHistoryPopup";
-import { UserProvider } from './context/UserContext';
+import { UserProvider } from './Context/UserContext';
 
 
 function App() {

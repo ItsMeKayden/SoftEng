@@ -6,7 +6,7 @@ import ProfilePopup from '../popups/ProfilePopup';
 import ResultPopup from '../popups/ResultPopup';
 import SubmissionHistoryPopup from '../popups/SubmissionHistoryPopup';
 import SearchBar from './SearchBar';
-import { useTheme } from '../../context/ThemeContext';
+import { useTheme } from '../../Context/ThemeContext';
 
 const allHazards = ['Flooding', 'Rainfall', 'Heat Index'];
 const Sidebar = ({
