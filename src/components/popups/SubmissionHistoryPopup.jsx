@@ -172,17 +172,72 @@ const SubmissionHistoryPopup = ({
     return `${lat}, ${lng}`;
   };
 
-  const handleViewResult = (submission) => {
-    setActiveSubmission({
-      ...submission,
-      location: submission.location,
-      hazards: submission.hazards,
-      timestamp: submission.timestamp
-    });
-    setShowResultPopup(true);
+  const handleViewResult = async (submission) => {
+    try {
+      const user = JSON.parse(localStorage.getItem('user'));
+      const userEmail = user?.email;
+      
+      if (!userEmail) {
+        console.error('No user email found');
+        return;
+      }
+      
+      // Get the specific location from the submission
+      const submissionLocation = submission.location;
+      const submissionHazards = Array.isArray(submission.hazards) 
+        ? submission.hazards 
+        : typeof submission.hazards === 'string'
+          ? [submission.hazards]
+          : [];
+      
+      console.log('Viewing results for location:', submissionLocation);
+      console.log('Hazards for this submission:', submissionHazards);
+      
+      // First set active submission with what we have
+      setActiveSubmission({
+        ...submission,
+        location: submissionLocation,
+        hazards: submissionHazards,
+        timestamp: submission.timestamp
+      });
+      
+      // Fetch results for this specific location and hazards
+      try {
+        const resultResponse = await fetch(`https://ecourban.onrender.com/results`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'userId': userEmail
+          },
+          body: JSON.stringify({
+            location: submissionLocation,
+            hazards: submissionHazards
+          })
+        });
+        
+        if (resultResponse.ok) {
+          const resultData = await resultResponse.json();
+          console.log('Fetched results:', resultData);
+          
+          // Update active submission with results
+          setActiveSubmission(prevState => ({
+            ...prevState,
+            results: resultData
+          }));
+        } else {
+          console.error('Failed to fetch results:', resultResponse.status);
+        }
+      } catch (resultError) {
+        console.error('Error fetching results:', resultError);
+      }
+      
+      // Show result popup regardless of whether result fetching succeeded
+      setShowResultPopup(true);
+      
+    } catch (error) {
+      console.error('Error processing view result:', error);
+    }
   };
-
-
 
   return (
     <div className="profile-popup-overlay">
@@ -267,8 +322,8 @@ const SubmissionHistoryPopup = ({
       {showResultPopup && activeSubmission && (
         <ResultPopup
           onClose={() => setShowResultPopup(false)}
-          selectedLocation={currentLocation}
-          selectedHazards={selectedHazards}
+          selectedLocation={activeSubmission.location}
+          selectedHazards={activeSubmission.hazards}
           submission={activeSubmission}
         />
       )}
