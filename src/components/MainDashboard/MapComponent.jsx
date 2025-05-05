@@ -8,7 +8,6 @@ import ResultPopup from '../popups/ResultPopup';
 import ChatbotPopup from '../popups/ChatbotPopup0';
 import SubmissionHistoryPopup from '../popups/SubmissionHistoryPopup';
 
-
 // Fix default marker icon issue
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -84,7 +83,8 @@ const MapComponent = ({
   const [showSeeResult, setShowSeeResult] = useState(false);
   const [progress, setProgress] = useState(0);
   const [showChatbotPopup, setShowChatbotPopup] = useState(false);
-  const [showSubmissionHistoryPopup, setShowSubmissionHistoryPopup] = useState(false);
+  const [showSubmissionHistoryPopup, setShowSubmissionHistoryPopup] =
+    useState(false);
   const [showResultPopup, setShowResultPopup] = useState(false);
   const [selectedHazards, setSelectedHazards] = useState([
     'Flooding',
@@ -117,16 +117,16 @@ const MapComponent = ({
         async (position) => {
           const { latitude, longitude } = position.coords;
           const location = [latitude, longitude];
-          
+
           // Fetch location name using the existing getLocationName function
           const locationName = await getLocationName(latitude, longitude);
-          
+
           // Set current location with name
           setMarkerPosition({
             position: location,
-            locationName: locationName
+            locationName: locationName,
           });
-          
+
           if (mapRef.current) {
             mapRef.current.flyTo(location, 17);
           }
@@ -246,15 +246,14 @@ const MapComponent = ({
             </div>
           </div>
         )}
-        // Replace the existing ResultPopup component
         {showResultPopup && (
           <ResultPopup
             selectedLocation={selectedLocationState}
-            selectedHazards={selectedHazards} // Using the existing selectedHazards state
+            selectedHazards={selectedHazards}
             showChatbotPopup={showChatbotPopup}
             setShowChatbotPopup={setShowChatbotPopup}
             setShowResultPopup={setShowResultPopup}
-            darkMode={false} // You can add state for this if needed
+            darkMode={false}
             onClose={() => {
               setShowResultPopup(false);
               setProgress(0);
@@ -271,16 +270,16 @@ const MapComponent = ({
           />
         )}
         {showSubmissionHistoryPopup && (
-              <SubmissionHistoryPopup
-                onClose={() => setShowSubmissionHistoryPopup(false)}
-                showProfilePopup={showProfilePopup}
-                setShowProfilePopup={setShowProfilePopup}
-                setShowSubmissionHistoryPopup={setShowSubmissionHistoryPopup}
-                setShowResultPopup={setShowResultPopup}
-                selectedHazards={selectedHazards} // Example hazards
-                selectedLocation={selectedLocationState} // Use the correct prop name // Example location
-              />
-        )}          
+          <SubmissionHistoryPopup
+            onClose={() => setShowSubmissionHistoryPopup(false)}
+            showProfilePopup={showProfilePopup}
+            setShowProfilePopup={setShowProfilePopup}
+            setShowSubmissionHistoryPopup={setShowSubmissionHistoryPopup}
+            setShowResultPopup={setShowResultPopup}
+            selectedHazards={selectedHazards}
+            selectedLocation={selectedLocationState}
+          />
+        )}
         <MapEvents onDoubleClick={handleMapDoubleClick} />
         <MapTools />
         {/* Render all markers */}
@@ -317,7 +316,7 @@ const MapComponent = ({
             </Popup>
           </Marker>
         ))}
-        {/* Render the current location marker if available */}
+        {/* Render the current location marker */}
         {markerPosition && (
           <Marker
             position={markerPosition.position}
@@ -334,7 +333,7 @@ const MapComponent = ({
             <Popup>
               <div style={{ minWidth: '200px' }}>
                 <h3 style={{ margin: '0 0 8px 0', fontSize: '16px' }}>
-                {markerPosition.locationName}
+                  {markerPosition.locationName}
                 </h3>
                 <div style={{ marginBottom: '8px' }}>
                   <strong>Coordinates:</strong>
@@ -344,10 +343,12 @@ const MapComponent = ({
                   Long: {markerPosition.position[1].toFixed(4)}
                 </div>
                 <button
-                  onClick={() => handleLocationSelect({ 
-                    position: markerPosition.position,
-                    locationName: markerPosition.locationName 
-                  })}
+                  onClick={() =>
+                    handleLocationSelect({
+                      position: markerPosition.position,
+                      locationName: markerPosition.locationName,
+                    })
+                  }
                   style={{
                     width: '100%',
                     padding: '8px',
@@ -365,13 +366,6 @@ const MapComponent = ({
             </Popup>
           </Marker>
         )}
-        {/* Marker for locations */}
-        {/* Marker for the user's current location */}
-        {/* {markerPosition && (
-          <Marker position={markerPosition}>
-            <Popup>Currently here</Popup>
-          </Marker>
-        )} */}
       </MapContainer>
 
       <div
@@ -391,7 +385,6 @@ const MapComponent = ({
         {selectedBasemap}
       </div>
 
-      {/* Floating instruction banner - persistent until closed or map is double-clicked */}
       {showInstructions && (
         <div
           style={{
@@ -443,8 +436,6 @@ const MapComponent = ({
           </button>
         </div>
       )}
-
-      {/* Add CSS for animation */}
       <style>
         {`
           @keyframes fadeInUp {

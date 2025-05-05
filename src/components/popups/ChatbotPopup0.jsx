@@ -1,29 +1,34 @@
-import React, { useState, useEffect, useRef } from "react";
-import axios from "axios";
-import "./PopupStyles.css"; // Make sure to create this CSS file for styles
+import React, { useState, useEffect, useRef } from 'react';
+import axios from 'axios';
+import './PopupStyles.css';
 
-const ChatbotPopup = ({ onClose, showResultPopup, setShowResultPopup, setShowChatbotPopup, darkMode }) => {
+const ChatbotPopup = ({
+  onClose,
+  showResultPopup,
+  setShowResultPopup,
+  setShowChatbotPopup,
+  darkMode,
+}) => {
   const chatContentRef = useRef(null);
 
   const getGreeting = () => {
     const greetings = [
-      "Hello! 👋 How can I help you today?",
-      "Hi there! 😊 What would you like to know?",
+      'Hello! 👋 How can I help you today?',
+      'Hi there! 😊 What would you like to know?',
       "Greetings! 🌟 I'm here to assist you.",
-      "Hey! 🙌 Feel free to ask me anything.",
-      "Welcome! 🎉 How can I assist you?"
+      'Hey! 🙌 Feel free to ask me anything.',
+      'Welcome! 🎉 How can I assist you?',
     ];
     return greetings[Math.floor(Math.random() * greetings.length)];
   };
 
   const [messages, setMessages] = useState([
-    { sender: "bot", text: getGreeting() }
+    { sender: 'bot', text: getGreeting() },
   ]);
-  const [newMessage, setNewMessage] = useState("");
-  const [loading, setLoading] = useState(false); // Loading state
+  const [newMessage, setNewMessage] = useState('');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Scroll to the bottom of the chat content on message update
     if (chatContentRef.current) {
       chatContentRef.current.scrollTop = chatContentRef.current.scrollHeight;
     }
@@ -49,14 +54,19 @@ const ChatbotPopup = ({ onClose, showResultPopup, setShowResultPopup, setShowCha
   ];
 
   const handleSendMessage = async () => {
-    if (newMessage.trim() === "") return;
-  
-    const userMessage = { sender: "user", text: newMessage };
+    if (newMessage.trim() === '') return;
+
+    const userMessage = { sender: 'user', text: newMessage };
     setMessages((prevMessages) => [...prevMessages, userMessage]);
+<<<<<<< Updated upstream
     setNewMessage("");
+=======
+    setNewMessage('');
+>>>>>>> Stashed changes
     setLoading(true);
-  
+
     try {
+<<<<<<< Updated upstream
       // Check for recommendation request
       if (newMessage.toLowerCase().match(/(recommend|suggest|best|suitable) (locations?|places?) for green infrastructure/i)) {
         const response = await axios.get(
@@ -155,11 +165,27 @@ Last Updated: ${timestamp}
         const timestamp = new Date(response.data.timestamp).toLocaleString();
         const botMessage = `${suitabilityEmoji} ${response.data.message}\n(Assessment based on data from: ${timestamp})`;
         
+=======
+      if (newMessage.toLowerCase().includes('green infrastructure')) {
+        const risks = {
+          flooding: 'low',
+          rainfall: 'medium',
+          heat_index: 'low',
+        };
+
+        const response = await axios.post(
+          'https://gis-chatbot-app.onrender.com/predict-location',
+          { location: 'Philippines', risks }
+        );
+
+        const botMessage = response.data.message;
+>>>>>>> Stashed changes
         setMessages((prevMessages) => [
           ...prevMessages,
-          { sender: "bot", text: botMessage },
+          { sender: 'bot', text: botMessage },
         ]);
 
+<<<<<<< Updated upstream
         if (response.data.current_conditions) {
           const conditions = `Current Weather Conditions:\n` +
             `Temperature: ${response.data.current_conditions.temperature}°C\n` +
@@ -192,17 +218,28 @@ Last Updated: ${timestamp}
         }
       } else {
         // Default chatbot behavior for other questions
+=======
+        if (!response.data.suitable) {
+          const reasons = response.data.reasons.join('\n');
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            { sender: 'bot', text: `Reasons:\n${reasons}` },
+          ]);
+        }
+      } else {
+>>>>>>> Stashed changes
         const response = await axios.post(
-          "https://gis-chatbot-app.onrender.com/chat",
+          'https://gis-chatbot-app.onrender.com/chat',
           { message: newMessage }
         );
         const botMessage = response.data.response;
         setMessages((prevMessages) => [
           ...prevMessages,
-          { sender: "bot", text: botMessage },
+          { sender: 'bot', text: botMessage },
         ]);
       }
     } catch (error) {
+<<<<<<< Updated upstream
       console.error("Error:", error);
       const errorMessage = error.response?.status === 404 
         ? `Sorry, I couldn't find data for that location. Please check the spelling or try another location.`
@@ -211,6 +248,12 @@ Last Updated: ${timestamp}
       setMessages((prevMessages) => [
         ...prevMessages,
         { sender: "bot", text: errorMessage },
+=======
+      console.error('Error:', error);
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { sender: 'bot', text: 'Sorry, something went wrong.' },
+>>>>>>> Stashed changes
       ]);
     } finally {
       setLoading(false);
@@ -219,19 +262,19 @@ Last Updated: ${timestamp}
 
   return (
     <div className="profile-popup-overlay">
-      <div className={`profile-popup ${darkMode ? "dark-mode" : ""}`}>
-        <div className="profile-panel" style={{ backgroundColor: "#41AB5D" }}>
+      <div className={`profile-popup ${darkMode ? 'dark-mode' : ''}`}>
+        <div className="profile-panel" style={{ backgroundColor: '#41AB5D' }}>
           <div className="panel-left">
             <button
-              className={showResultPopup ? "active" : ""}
-              onClick={() => { setShowResultPopup(true); setShowChatbotPopup(false); }}
+              className={showResultPopup ? 'active' : ''}
+              onClick={() => {
+                setShowResultPopup(true);
+                setShowChatbotPopup(false);
+              }}
             >
               <img src="/icons/result.png" alt="Assessment Result" />
             </button>
-            <button
-              className="active" // Always active since we're in chatbot
-              onClick={() => {}}
-            >
+            <button className="active" onClick={() => {}}>
               <img src="/icons/chatbot.png" alt="Chat Bot" />
             </button>
           </div>
@@ -242,21 +285,31 @@ Last Updated: ${timestamp}
           </div>
         </div>
 
-        <div className="chatbot-top-panel">
-          CHATBOT
-        </div>
+        <div className="chatbot-top-panel">CHATBOT</div>
 
         <div className="chat-content" ref={chatContentRef}>
           {messages.map((msg, index) => (
             <div key={index} className={`chat-message ${msg.sender}`}>
-              {msg.sender === "bot" && <img src="/icons/chatbot.png" alt="Bot" className="chat-icon" />}
-              <div className="chat-bubble" style={{ whiteSpace: 'pre-line' }}>{msg.text}</div>
+              {msg.sender === 'bot' && (
+                <img src="/icons/chatbot.png" alt="Bot" className="chat-icon" />
+              )}
+              <div className="chat-bubble" style={{ whiteSpace: 'pre-line' }}>
+                {msg.text}
+              </div>
             </div>
           ))}
           {loading && (
             <div className="chat-message bot">
               <div className="chat-bubble bouncing-animation">
-                <span>T</span><span>y</span><span>p</span><span>i</span><span>n</span><span>g</span><span>.</span><span>.</span><span>.</span>
+                <span>T</span>
+                <span>y</span>
+                <span>p</span>
+                <span>i</span>
+                <span>n</span>
+                <span>g</span>
+                <span>.</span>
+                <span>.</span>
+                <span>.</span>
               </div>
             </div>
           )}
@@ -269,8 +322,8 @@ Last Updated: ${timestamp}
               placeholder="Enter your message..."
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
-              onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
-              disabled={loading} // Disable input while loading
+              onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+              disabled={loading}
             />
             <button onClick={handleSendMessage} disabled={loading}>
               ➤

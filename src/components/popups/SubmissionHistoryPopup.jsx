@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import ResultPopup from "./ResultPopup"; // Add this line
+import React, { useState, useEffect } from 'react';
+import ResultPopup from './ResultPopup';
 import '../popups/PopupStyles.css';
 
 const getLocationName = async (lat, lon) => {
@@ -14,7 +14,7 @@ const getLocationName = async (lat, lon) => {
     return data.display_name;
   } catch (error) {
     console.error('Error getting location name:', error);
-    return `${lat}, ${lon}`; // Fallback to coordinates if geocoding fails
+    return `${lat}, ${lon}`;
   }
 };
 
@@ -24,7 +24,7 @@ const SubmissionHistoryPopup = ({
   setShowProfilePopup,
   setShowSubmissionHistoryPopup,
   selectedHazards = [],
-  selectedLocation = "",
+  selectedLocation = '',
 }) => {
   const [submissions, setSubmissions] = useState([]);
   const [showResultPopup, setShowResultPopup] = useState(false);
@@ -36,59 +36,42 @@ const SubmissionHistoryPopup = ({
     const handleInitialSubmission = async () => {
       const user = JSON.parse(localStorage.getItem('user'));
       if (selectedLocation && selectedHazards.length > 0 && user?.email) {
-        console.log('Initial submission data:', {
-          location: selectedLocation,
-          hazards: selectedHazards,
-          userId: user.email
-        });
         await saveSubmission(selectedLocation, selectedHazards);
-      } else {
-        console.log('Missing required data:', {
-          hasLocation: !!selectedLocation,
-          hazardsCount: selectedHazards.length,
-          hasUser: !!user?.email
-        });
       }
     };
-    
     handleInitialSubmission();
-  }, [selectedLocation, selectedHazards]); 
-  
+  }, [selectedLocation, selectedHazards]);
+
   const saveSubmission = async (location, hazards) => {
     try {
       const user = JSON.parse(localStorage.getItem('user'));
       const userEmail = user?.email;
-  
-      if (!userEmail) {
-        console.error('No user email found');
-        return;
-      }
-  
-      console.log('Saving submission for user:', userEmail);
-  
+
+      if (!userEmail) return;
+
       const submission = {
-        email: userEmail, // Changed from userId to email to match schema
+        email: userEmail,
         location: location,
         hazards: hazards,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
-  
-      const response = await fetch('https://ecourban.onrender.com/submissions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'userId': userEmail // Keep this as userId for backward compatibility
-        },
-        body: JSON.stringify(submission)
-      });
-  
+
+      const response = await fetch(
+        'https://ecourban.onrender.com/submissions',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            userId: userEmail,
+          },
+          body: JSON.stringify(submission),
+        }
+      );
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-  
-      const savedSubmission = await response.json();
-      console.log('Submission saved successfully:', savedSubmission);
-      
+
       await fetchSubmissions();
     } catch (error) {
       console.error('Error saving submission:', error);
@@ -103,43 +86,36 @@ const SubmissionHistoryPopup = ({
   }, [selectedLocation, selectedHazards]);
 
   const fetchSubmissions = async () => {
-    console.log('Fetching submissions...');
     setIsLoading(true);
     try {
       const user = JSON.parse(localStorage.getItem('user'));
-      
-      // Check if user is logged in
+
       if (!user || !user.email) {
-        console.log('No user logged in');
         setSubmissions([]);
-        setIsLoading(false);
         return;
       }
-  
+
       const userEmail = user.email;
-      console.log('Fetching submissions for user:', userEmail);
-  
-      const response = await fetch('https://ecourban.onrender.com/submissions', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'userId': userEmail
+      const response = await fetch(
+        'https://ecourban.onrender.com/submissions',
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            userId: userEmail,
+          },
         }
-      });
-  
+      );
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-  
+
       const data = await response.json();
-      console.log('Received submissions:', data);
-  
-      // Only show submissions for currently logged in user
-      const userSubmissions = Array.isArray(data) 
-        ? data.filter(sub => sub.email === userEmail)
+      const userSubmissions = Array.isArray(data)
+        ? data.filter((sub) => sub.email === userEmail)
         : [];
-      
-      console.log('Filtered user submissions:', userSubmissions);
+
       setSubmissions(userSubmissions);
     } catch (error) {
       console.error('Error fetching submissions:', error);
@@ -148,8 +124,7 @@ const SubmissionHistoryPopup = ({
       setIsLoading(false);
     }
   };
-  
-  // Update useEffect to use the named function
+
   useEffect(() => {
     const loadSubmissions = async () => {
       const user = JSON.parse(localStorage.getItem('user'));
@@ -157,16 +132,15 @@ const SubmissionHistoryPopup = ({
         await fetchSubmissions();
       } else {
         setSubmissions([]);
-        setIsLoading(false); // Make sure to stop loading state
+        setIsLoading(false);
       }
     };
-    
     loadSubmissions();
-  }, [localStorage.getItem('user')]); // Add dependency to react to user changes
+  }, [localStorage.getItem('user')]);
 
   const formatLocationDisplay = (location) => {
     if (!location) return '';
-    const [lat, lng] = location.includes(',') 
+    const [lat, lng] = location.includes(',')
       ? location.split(',')
       : [location.slice(0, 9), location.slice(9)];
     return `${lat}, ${lng}`;
@@ -176,64 +150,51 @@ const SubmissionHistoryPopup = ({
     try {
       const user = JSON.parse(localStorage.getItem('user'));
       const userEmail = user?.email;
-      
-      if (!userEmail) {
-        console.error('No user email found');
-        return;
-      }
-      
-      // Get the specific location from the submission
+
+      if (!userEmail) return;
+
       const submissionLocation = submission.location;
-      const submissionHazards = Array.isArray(submission.hazards) 
-        ? submission.hazards 
+      const submissionHazards = Array.isArray(submission.hazards)
+        ? submission.hazards
         : typeof submission.hazards === 'string'
-          ? [submission.hazards]
-          : [];
-      
-      console.log('Viewing results for location:', submissionLocation);
-      console.log('Hazards for this submission:', submissionHazards);
-      
-      // First set active submission with what we have
+        ? [submission.hazards]
+        : [];
+
       setActiveSubmission({
         ...submission,
         location: submissionLocation,
         hazards: submissionHazards,
-        timestamp: submission.timestamp
+        timestamp: submission.timestamp,
       });
-      
-      // Fetch results for this specific location and hazards
+
       try {
-        const resultResponse = await fetch(`https://ecourban.onrender.com/results`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'userId': userEmail
-          },
-          body: JSON.stringify({
-            location: submissionLocation,
-            hazards: submissionHazards
-          })
-        });
-        
+        const resultResponse = await fetch(
+          `https://ecourban.onrender.com/results`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              userId: userEmail,
+            },
+            body: JSON.stringify({
+              location: submissionLocation,
+              hazards: submissionHazards,
+            }),
+          }
+        );
+
         if (resultResponse.ok) {
           const resultData = await resultResponse.json();
-          console.log('Fetched results:', resultData);
-          
-          // Update active submission with results
-          setActiveSubmission(prevState => ({
+          setActiveSubmission((prevState) => ({
             ...prevState,
-            results: resultData
+            results: resultData,
           }));
-        } else {
-          console.error('Failed to fetch results:', resultResponse.status);
         }
       } catch (resultError) {
         console.error('Error fetching results:', resultError);
       }
-      
-      // Show result popup regardless of whether result fetching succeeded
+
       setShowResultPopup(true);
-      
     } catch (error) {
       console.error('Error processing view result:', error);
     }
@@ -242,7 +203,6 @@ const SubmissionHistoryPopup = ({
   return (
     <div className="profile-popup-overlay">
       <div className="profile-popup">
-        {/* Panel */}
         <div className="profile-panel" style={{ backgroundColor: '#41AB5D' }}>
           <div className="panel-left">
             <button
@@ -268,53 +228,53 @@ const SubmissionHistoryPopup = ({
 
         <div className="my-profile-section">
           <div className="submission-popup">
-          <table className="submission-history-table">
-            <thead>
-              <tr>
-                <th>Location</th>
-                <th>Hazard Type</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {isLoading ? (
+            <table className="submission-history-table">
+              <thead>
                 <tr>
-                  <td colSpan="3">
-                    <div className="loader-container">
-                      <div className="loader"></div>
-                    </div>
-                  </td>
+                  <th>Location</th>
+                  <th>Hazard Type</th>
+                  <th>Action</th>
                 </tr>
-              ) : submissions && submissions.length > 0 ? (
-                submissions.map((submission, index) => (
-                  <tr key={submission._id || submission.timestamp || index}>
-                    <td>{submission.location || 'Unknown location'}</td>
-                    <td>
-                      {Array.isArray(submission.hazards) 
-                        ? submission.hazards.join(', ') 
-                        : typeof submission.hazards === 'string' 
-                          ? submission.hazards
-                          : 'No hazards'}
-                    </td>
-                    <td>
-                      <button
-                        className="view-result-button"
-                        onClick={() => handleViewResult(submission)}
-                      >
-                        View Result
-                      </button>
+              </thead>
+              <tbody>
+                {isLoading ? (
+                  <tr>
+                    <td colSpan="3">
+                      <div className="loader-container">
+                        <div className="loader"></div>
+                      </div>
                     </td>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="3" style={{ textAlign: 'center' }}>
-                    {isLoading ? 'Loading...' : 'No submissions found.'}
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                ) : submissions && submissions.length > 0 ? (
+                  submissions.map((submission, index) => (
+                    <tr key={submission._id || submission.timestamp || index}>
+                      <td>{submission.location || 'Unknown location'}</td>
+                      <td>
+                        {Array.isArray(submission.hazards)
+                          ? submission.hazards.join(', ')
+                          : typeof submission.hazards === 'string'
+                          ? submission.hazards
+                          : 'No hazards'}
+                      </td>
+                      <td>
+                        <button
+                          className="view-result-button"
+                          onClick={() => handleViewResult(submission)}
+                        >
+                          View Result
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="3" style={{ textAlign: 'center' }}>
+                      {isLoading ? 'Loading...' : 'No submissions found.'}
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>

@@ -9,6 +9,7 @@ import SearchBar from './SearchBar';
 import { useTheme } from '../../Context/ThemeContext';
 
 const allHazards = ['Flooding', 'Rainfall', 'Heat Index'];
+
 const Sidebar = ({
   onSearch,
   onLocate,
@@ -21,39 +22,38 @@ const Sidebar = ({
   const [showReferenceMapDropdown, setShowReferenceMapDropdown] =
     useState(false);
   const [showHazardsDropdown, setShowHazardsDropdown] = useState(false);
-  const [selectedHazards, setSelectedHazards] = useState([...allHazards]); // Initialize with all hazards selected
+  const [selectedHazards, setSelectedHazards] = useState([...allHazards]);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [showProfilePopup, setShowProfilePopup] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [profileButtonLabel, setProfileButtonLabel] = useState('Profile');
   const [showSubmissionHistoryPopup, setShowSubmissionHistoryPopup] =
     useState(false);
   const [showResultPopup, setShowResultPopup] = useState(false);
   const [showChatbotPopup, setShowChatbotPopup] = useState(false);
+  const [showLogoutPopup, setShowLogoutPopup] = useState(false);
+  const [showLogoutSuccess, setShowLogoutSuccess] = useState(false);
   const [activeTab, setActiveTab] = useState('myProfile');
   const [showSeeResult, setShowSeeResult] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [profileButtonLabel, setProfileButtonLabel] = useState('Profile'); // Default label
-  const navigate = useNavigate();
-  const { isDarkMode, toggleTheme } = useTheme(); // Get theme from context
-  const [showLogoutPopup, setShowLogoutPopup] = useState(false);
-  const [showLogoutSuccess, setShowLogoutSuccess] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState('');
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // New state to track login status
+
+  const navigate = useNavigate();
+  const { isDarkMode, toggleTheme } = useTheme();
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
-    setIsLoggedIn(!!storedUser); // Set login status based on whether user data exists
+    setIsLoggedIn(!!storedUser);
+
     if (storedUser) {
       try {
         const user = JSON.parse(storedUser);
-        // Assuming your user object has 'username' or you want to extract it from 'email'
         setProfileButtonLabel(user.username || user.email.split('@')[0]);
       } catch (error) {
-        console.error('Error parsing user data from localStorage:', error);
+        console.error('Error parsing user data:', error);
       }
-    } else {
-      setProfileButtonLabel('Profile'); // Revert to default if no user is logged in
     }
-  }, []); // Empty dependency array ensures this runs only once after the initial render
+  }, []);
 
   const handleLocationChange = (location) => {
     setSelectedLocation(location);
@@ -65,7 +65,7 @@ const Sidebar = ({
 
   const handleCurrentLocationClick = () => {
     if (onLocate) {
-      onLocate(true); // Pass true to indicate an explicit request
+      onLocate(true);
     }
   };
 
@@ -79,19 +79,19 @@ const Sidebar = ({
   };
 
   const handleLogout = () => {
-    setShowLogoutPopup(true); // Show confirmation popup
+    setShowLogoutPopup(true);
   };
 
   const handleLogoutConfirm = () => {
     localStorage.removeItem('user');
-    setIsLoggedIn(false); // Update login status on logout
+    setIsLoggedIn(false);
     setProfileButtonLabel('Profile');
     setShowLogoutPopup(false);
     setShowLogoutSuccess(true);
 
     setTimeout(() => {
       setShowLogoutSuccess(false);
-      navigate('/'); // Go to login/home after popup disappears
+      navigate('/');
     }, 2000);
   };
 
@@ -109,9 +109,8 @@ const Sidebar = ({
     setShowHazardsDropdown(false);
   };
 
-  // Modified reference map handler
   const handleReferenceMapSelect = (option) => {
-    onBasemapChange(option); // Notify parent component
+    onBasemapChange(option);
     setShowReferenceMapDropdown(true);
   };
 
@@ -122,12 +121,10 @@ const Sidebar = ({
 
   const handleHazardSelect = (hazardName) => {
     setSelectedHazards((prev) => {
-      // Toggle the hazard on or off
       const updatedHazards = prev.includes(hazardName)
         ? prev.filter((h) => h !== hazardName)
         : [...prev, hazardName];
 
-      // Sort the hazards back to the predefined order
       return allHazards.filter((hazard) => updatedHazards.includes(hazard));
     });
   };
@@ -350,11 +347,13 @@ const Sidebar = ({
 
         <div className="top-bar-right">
           {/* Chatbot button - always rendered but disabled if not logged in */}
-         {/* Chatbot button - always rendered but disabled if not logged in */}
-         <button
+          {/* Chatbot button - always rendered but disabled if not logged in */}
+          <button
             className={`chatbot-button ${!isLoggedIn ? 'disabled' : ''}`}
             onClick={handleChatbotClick}
-            {...(!isLoggedIn ? { 'data-tooltips': 'You need to login to access this feature' } : {})}
+            {...(!isLoggedIn
+              ? { 'data-tooltips': 'You need to login to access this feature' }
+              : {})}
             disabled={!isLoggedIn}
             style={{
               filter: !isLoggedIn ? 'grayscale(100%)' : 'none',
@@ -501,79 +500,79 @@ const Sidebar = ({
       {/* Popup Components */}
       {showSubmissionHistoryPopup && (
         <SubmissionHistoryPopup
-        onClose={() => setShowSubmissionHistoryPopup(false)}
-        showProfilePopup={showProfilePopup}
-        setShowProfilePopup={setShowProfilePopup}
-        setShowSubmissionHistoryPopup={setShowSubmissionHistoryPopup}
-        selectedHazards={selectedHazards}
-        selectedLocation={selectedLocation} // Make sure this prop is passed
-      />
-    )}
+          onClose={() => setShowSubmissionHistoryPopup(false)}
+          showProfilePopup={showProfilePopup}
+          setShowProfilePopup={setShowProfilePopup}
+          setShowSubmissionHistoryPopup={setShowSubmissionHistoryPopup}
+          selectedHazards={selectedHazards}
+          selectedLocation={selectedLocation} // Make sure this prop is passed
+        />
+      )}
 
-    {showProfilePopup && (
-      <ProfilePopup
-        onClose={() => setShowProfilePopup(false)}
-        showSubmissionHistoryPopup={showSubmissionHistoryPopup}
-        setShowSubmissionHistoryPopup={setShowSubmissionHistoryPopup}
-        setShowProfilePopup={setShowProfilePopup}
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        selectedHazards={selectedHazards}
-      />
-    )}
+      {showProfilePopup && (
+        <ProfilePopup
+          onClose={() => setShowProfilePopup(false)}
+          showSubmissionHistoryPopup={showSubmissionHistoryPopup}
+          setShowSubmissionHistoryPopup={setShowSubmissionHistoryPopup}
+          setShowProfilePopup={setShowProfilePopup}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          selectedHazards={selectedHazards}
+        />
+      )}
 
-    {showResultPopup && (
-      <ResultPopup
-        onClose={() => setShowResultPopup(false)}
-        showChatbotPopup={showChatbotPopup}
-        setShowChatbotPopup={setShowChatbotPopup}
-        setShowResultPopup={setShowResultPopup}
-        selectedHazards={selectedHazards}
-      />
-    )}
+      {showResultPopup && (
+        <ResultPopup
+          onClose={() => setShowResultPopup(false)}
+          showChatbotPopup={showChatbotPopup}
+          setShowChatbotPopup={setShowChatbotPopup}
+          setShowResultPopup={setShowResultPopup}
+          selectedHazards={selectedHazards}
+        />
+      )}
 
-    {showChatbotPopup && (
-      <ChatbotPopup
-        onClose={() => setShowChatbotPopup(false)}
-        showResultPopup={showResultPopup}
-        setShowResultPopup={setShowResultPopup}
-        setShowChatbotPopup={setShowChatbotPopup}
-        selectedHazards={selectedHazards}
-      />
-    )}
+      {showChatbotPopup && (
+        <ChatbotPopup
+          onClose={() => setShowChatbotPopup(false)}
+          showResultPopup={showResultPopup}
+          setShowResultPopup={setShowResultPopup}
+          setShowChatbotPopup={setShowChatbotPopup}
+          selectedHazards={selectedHazards}
+        />
+      )}
 
-    {showSeeResult && (
-      <div className="processing-popup-overlay">
-        <div className="processing-popup">
-          <div className="processing-content">
-            <div className="processing-message">
-              Processing Hazard Assessment, Please wait...
+      {showSeeResult && (
+        <div className="processing-popup-overlay">
+          <div className="processing-popup">
+            <div className="processing-content">
+              <div className="processing-message">
+                Processing Hazard Assessment, Please wait...
+              </div>
+
+              <div className="progress-container">
+                <div
+                  className="progress-bar"
+                  style={{ width: `${progress}%` }}
+                ></div>
+              </div>
+
+              {progress === 100 && (
+                <button
+                  className="processing-button"
+                  onClick={() => {
+                    setShowSeeResult(false);
+                    setShowResultPopup(true);
+                  }}
+                >
+                  See Result
+                </button>
+              )}
             </div>
-
-            <div className="progress-container">
-              <div
-                className="progress-bar"
-                style={{ width: `${progress}%` }}
-              ></div>
-            </div>
-
-            {progress === 100 && (
-              <button
-                className="processing-button"
-                onClick={() => {
-                  setShowSeeResult(false);
-                  setShowResultPopup(true);
-                }}
-              >
-                See Result
-              </button>
-            )}
           </div>
         </div>
-      </div>
-    )}
-  </div>
-);
+      )}
+    </div>
+  );
 };
 
 export default Sidebar;
