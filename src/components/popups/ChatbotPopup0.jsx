@@ -34,38 +34,66 @@ const ChatbotPopup = ({ onClose, showResultPopup, setShowResultPopup, setShowCha
   
     const userMessage = { sender: "user", text: newMessage };
     setMessages((prevMessages) => [...prevMessages, userMessage]);
-    setNewMessage(""); // Clear input immediately
+    setNewMessage("");
     setLoading(true);
   
     try {
-      // Check if the user is asking about green infrastructure
-      if (newMessage.toLowerCase().includes("green infrastructure")) {
-        const risks = {
-          flooding: "low", // Replace with actual risk data from ResultPopup
-          rainfall: "medium",
-          heat_index: "low",
-        };
+      const locationPatterns = [
+        /is (.*?) suitable for green infrastructure/i,
+        /can we build green infrastructure in (.*?)\??/i,
+        /assess (.*?) for green development/i,
+        /evaluate (.*?) for infrastructure/i,
+        /check (.*?) for green infrastructure/i,
+        /analyze (.*?) for development/i,
+        /how suitable is (.*?) for green infrastructure/i
+      ];
   
+      let location = null;
+      for (const pattern of locationPatterns) {
+        const match = newMessage.match(pattern);
+        if (match) {
+          location = match[1];
+          break;
+        }
+      }
+  
+      if (location) {
         const response = await axios.post(
           "https://gis-chatbot-app.onrender.com/predict-location",
-          { location: "Philippines", risks }
+          { 
+            location: location.charAt(0).toUpperCase() + location.slice(1),
+            risks 
+          }
         );
   
-        const botMessage = response.data.message;
+        // Enhanced response formatting
+        const suitabilityEmoji = response.data.suitable ? '✅' : '⚠️';
+        const botMessage = `${suitabilityEmoji} ${response.data.message}`;
         setMessages((prevMessages) => [
           ...prevMessages,
           { sender: "bot", text: botMessage },
         ]);
   
-        if (!response.data.suitable) {
-          const reasons = response.data.reasons.join("\n");
+        // Detailed weather conditions
+        if (response.data.thresholds) {
+          const riskEmojis = {
+            low: '🟢',
+            medium: '🟡',
+            high: '🔴'
+          };
+  
+          const conditions = `Current Risk Levels:\n` +
+            `${riskEmojis[response.data.thresholds.flooding]} Flooding: ${response.data.thresholds.flooding}\n` +
+            `${riskEmojis[response.data.thresholds.rainfall]} Rainfall: ${response.data.thresholds.rainfall}\n` +
+            `${riskEmojis[response.data.thresholds.heat_index]} Heat Index: ${response.data.thresholds.heat_index}`;
+          
           setMessages((prevMessages) => [
             ...prevMessages,
-            { sender: "bot", text: `Reasons:\n${reasons}` },
+            { sender: "bot", text: conditions },
           ]);
         }
       } else {
-        // Default chatbot behavior
+        // Default chatbot behavior for other questions
         const response = await axios.post(
           "https://gis-chatbot-app.onrender.com/chat",
           { message: newMessage }
@@ -78,9 +106,13 @@ const ChatbotPopup = ({ onClose, showResultPopup, setShowResultPopup, setShowCha
       }
     } catch (error) {
       console.error("Error:", error);
+      const errorMessage = error.response?.status === 404 
+        ? `Sorry, I couldn't find data for that location. Please check the spelling or try another location.`
+        : `Sorry, I couldn't assess that location. Please try again later.`;
+      
       setMessages((prevMessages) => [
         ...prevMessages,
-        { sender: "bot", text: "Sorry, something went wrong." },
+        { sender: "bot", text: errorMessage },
       ]);
     } finally {
       setLoading(false);
