@@ -168,6 +168,43 @@ def get_weather():
         logging.error(f"Weather API error in '/weather': {str(e)}")
         return jsonify({'error': 'Failed to fetch weather data'}), 500
 
+@app.route('/predict-location', methods=['POST'])
+def predict_location():
+    data = request.json
+    location = data.get('location')
+    risks = data.get('risks', {})
+
+    if not location or not risks:
+        return jsonify({'error': 'Location and risks data are required'}), 400
+
+    # Example risk thresholds (adjust as needed)
+    risk_thresholds = {
+        'flooding': 'low',  # Only allow "low" risk for flooding
+        'rainfall': 'medium',  # Allow "medium" or lower for rainfall
+        'heat_index': 'medium',  # Allow "medium" or lower for heat index
+    }
+
+    # Evaluate risks
+    suitability = True
+    reasons = []
+    for risk_type, risk_level in risks.items():
+        allowed_level = risk_thresholds.get(risk_type)
+        if allowed_level and risk_level.lower() not in ['low', allowed_level]:
+            suitability = False
+            reasons.append(f"{risk_type.capitalize()} risk is too high ({risk_level}).")
+
+    if suitability:
+        return jsonify({
+            'suitable': True,
+            'message': f"{location} is suitable for green infrastructure development."
+        })
+    else:
+        return jsonify({
+            'suitable': False,
+            'message': f"{location} is not suitable for green infrastructure development.",
+            'reasons': reasons
+        })       
+
 @app.route('/chat', methods=['POST'])
 def chat():
     user_input = request.json.get('message')

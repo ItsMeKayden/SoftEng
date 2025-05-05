@@ -31,50 +31,57 @@ const ChatbotPopup = ({ onClose, showResultPopup, setShowResultPopup, setShowCha
 
   const handleSendMessage = async () => {
     if (newMessage.trim() === "") return;
-
-    // Add user message to chat
+  
     const userMessage = { sender: "user", text: newMessage };
-    setMessages(prevMessages => [...prevMessages, userMessage]);
+    setMessages((prevMessages) => [...prevMessages, userMessage]);
     setNewMessage(""); // Clear input immediately
     setLoading(true);
-
+  
     try {
-      // Changed API endpoint to localhost for local development
-      const response = await axios.post('https://gis-chatbot-app.onrender.com/chat', { message: newMessage });
-      const botMessage = response.data.response;
-      setMessages(prevMessages => [...prevMessages, { sender: "bot", text: botMessage }]);
-    } catch (error) {
-      console.error("Error details:", {
-        message: error.message,
-        response: error.response,
-        status: error?.response?.status
-      });
-
-      let errorMessage = "Sorry, something unexpected went wrong.";
-      if (error.response) {
-        switch (error.response.status) {
-          case 500:
-            errorMessage = "Sorry, the server encountered an error while processing your request.";
-            break;
-          case 502:
-            errorMessage = "Sorry, the chatbot service is temporarily unavailable. Please try again later.";
-            break;
-          case 400:
-            errorMessage = "Sorry, your request was not understood by the server.";
-            break;
-          case 404:
-            errorMessage = "Sorry, the chatbot service endpoint could not be found.";
-            break;
-          default:
-            errorMessage = `Sorry, an error occurred (HTTP status ${error.response.status}).`;
+      // Check if the user is asking about green infrastructure
+      if (newMessage.toLowerCase().includes("green infrastructure")) {
+        const risks = {
+          flooding: "low", // Replace with actual risk data from ResultPopup
+          rainfall: "medium",
+          heat_index: "low",
+        };
+  
+        const response = await axios.post(
+          "https://gis-chatbot-app.onrender.com/predict-location",
+          { location: "Philippines", risks }
+        );
+  
+        const botMessage = response.data.message;
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { sender: "bot", text: botMessage },
+        ]);
+  
+        if (!response.data.suitable) {
+          const reasons = response.data.reasons.join("\n");
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            { sender: "bot", text: `Reasons:\n${reasons}` },
+          ]);
         }
-      } else if (error.request) {
-        errorMessage = "Sorry, there was a network error. Please check your internet connection and try again.";
       } else {
-        errorMessage = `Sorry, an error occurred: ${error.message}`;
+        // Default chatbot behavior
+        const response = await axios.post(
+          "https://gis-chatbot-app.onrender.com/chat",
+          { message: newMessage }
+        );
+        const botMessage = response.data.response;
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { sender: "bot", text: botMessage },
+        ]);
       }
-
-      setMessages(prevMessages => [...prevMessages, { sender: "bot", text: errorMessage }]);
+    } catch (error) {
+      console.error("Error:", error);
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { sender: "bot", text: "Sorry, something went wrong." },
+      ]);
     } finally {
       setLoading(false);
     }
