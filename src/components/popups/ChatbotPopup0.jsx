@@ -59,6 +59,7 @@ const ChatbotPopup = ({
     const userMessage = { sender: 'user', text: newMessage };
     setMessages((prevMessages) => [...prevMessages, userMessage]);
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     setNewMessage("");
 =======
     setNewMessage('');
@@ -228,6 +229,38 @@ Last Updated: ${timestamp}
         }
       } else {
 >>>>>>> Stashed changes
+=======
+    setNewMessage('');
+    setLoading(true);
+
+    try {
+      if (newMessage.toLowerCase().includes('green infrastructure')) {
+        const risks = {
+          flooding: 'low',
+          rainfall: 'medium',
+          heat_index: 'low',
+        };
+
+        const response = await axios.post(
+          'https://gis-chatbot-app.onrender.com/predict-location',
+          { location: 'Philippines', risks }
+        );
+
+        const botMessage = response.data.message;
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { sender: 'bot', text: botMessage },
+        ]);
+
+        if (!response.data.suitable) {
+          const reasons = response.data.reasons.join('\n');
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            { sender: 'bot', text: `Reasons:\n${reasons}` },
+          ]);
+        }
+      } else {
+>>>>>>> Stashed changes
         const response = await axios.post(
           'https://gis-chatbot-app.onrender.com/chat',
           { message: newMessage }
@@ -240,6 +273,7 @@ Last Updated: ${timestamp}
       }
     } catch (error) {
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
       console.error("Error:", error);
       const errorMessage = error.response?.status === 404 
         ? `Sorry, I couldn't find data for that location. Please check the spelling or try another location.`
@@ -248,6 +282,12 @@ Last Updated: ${timestamp}
       setMessages((prevMessages) => [
         ...prevMessages,
         { sender: "bot", text: errorMessage },
+=======
+      console.error('Error:', error);
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { sender: 'bot', text: 'Sorry, something went wrong.' },
+>>>>>>> Stashed changes
 =======
       console.error('Error:', error);
       setMessages((prevMessages) => [
