@@ -356,43 +356,38 @@ def chat():
     if len(user_input.split()) < 3:
         return jsonify({'response': "Please be more specific."})
 
-try:
-    query_embedding = embed_model.encode([user_input])
-    if query_embedding.size == 0:
-        logging.error("Failed to generate embedding for user input")
-        return jsonify({'response': "I couldn't process your question. Please try rephrasing it."})
-    D, I = index.search(np.array(query_embedding), k=1)
-    retrieved_question = questions[I[0][0]]
-    retrieved_answer = answers[I[0][0]]
-
-    logging.info(f"Matched (embedding): {retrieved_question} → {retrieved_answer}")
-
-    prompt = (
-        "You are Malia, a helpful AI assistant focused on GIS, weather, and urban planning.\n"
-        "You were created in 2025 by Remuel Bongat Fernan.\n"
-        "Your purpose is to answer user questions concisely (maximum 10 words) if they are related to GIS, weather, or urban planning.\n"
-        "Do not include any information about your development, creators, or purpose in your answer unless the user specifically asks about it.\n"
-        "If the user asks a question outside of GIS, weather, or urban planning, respond with: 'That question is outside my area of expertise. I can help with GIS, weather, and urban planning inquiries. 🗺️🌦️'\n"
-        "If asked 'What are you?', respond with: 'I am Malia, your GIS assistant.'\n"
-        "If asked 'Who made you?', respond with: 'I was created by Remuel Bongat Fernan.'\n"
-        "Be polite and helpful within your defined scope.\n"
-        f"User Question: {user_input}\n"
-        "Answer:"
-    )
-    logging.info(f"Ollama Prompt being sent: {prompt}") # Log the prompt
-
-    start_time = time.time()
     try:
-        response = generate("tinyllama", prompt=prompt)
-        end_time = time.time()
-        logging.info(f"Ollama response time: {end_time - start_time:.2f} seconds")
-        logging.info(f"Ollama Response: {response.response.strip()}") # Log the response
-        return jsonify({'response': response.response.strip()})
-    except Exception as e:
-        logging.error(f"An error occurred during Ollama interaction: {e}")
-        return jsonify({'error': 'AI response failed'}), 500
+        query_embedding = embed_model.encode([user_input])
+        if query_embedding.size == 0:
+            logging.error("Failed to generate embedding for user input")
+            return jsonify({'response': "I couldn't process your question. Please try rephrasing it."})
+        
+        D, I = index.search(np.array(query_embedding), k=1)
+        
+        if len(I) == 0 or len(I[0]) == 0:
+            logging.error("No matching question found")
+            return jsonify({'response': "I couldn't find a relevant answer. Please try rephrasing your question."})
+            
+        retrieved_question = questions[I[0][0]]
+        retrieved_answer = answers[I[0][0]]
 
-if __name__ == '_main_':
+        logging.info(f"Matched (embedding): {retrieved_question} → {retrieved_answer}")
+
+        start_time = time.time()
+        try:
+            response = generate("tinyllama", prompt=retrieved_question)
+            end_time = time.time()
+            logging.info(f"Ollama response time: {end_time - start_time:.2f} seconds")
+            logging.info(f"Ollama Response: {response.response.strip()}")
+            return jsonify({'response': response.response.strip()})
+        except Exception as e:
+            logging.error(f"An error occurred during Ollama interaction: {e}")
+            return jsonify({'error': 'AI response failed'}), 500
+    except Exception as e:
+        logging.error(f"Error processing chat request: {str(e)}")
+        return jsonify({'error': 'Failed to process request'}), 500
+
+if __name__ == '__main__':
     init_scheduler()
     port = int(os.environ.get('PORT', 8000))
     app.run(host='0.0.0.0', port=port, debug=True)
