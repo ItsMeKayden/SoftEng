@@ -20,6 +20,12 @@ default_thresholds = {
     'heat_index': 'medium'
 }
 
+PRIORITY_LOCATIONS = [
+    "Quezon City", "Manila", "Makati", "Pasig", "Taguig",
+    "Mandaluyong", "San Juan", "Marikina", "Caloocan", "Pasay"
+]
+
+
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
@@ -50,6 +56,48 @@ embed_model = SentenceTransformer('all-MiniLM-L6-v2')
 question_embeddings = embed_model.encode(questions)
 index = faiss.IndexFlatL2(question_embeddings.shape[1])
 index.add(np.array(question_embeddings))
+
+def analyze_multiple_locations():
+    """Analyze multiple locations for green infrastructure suitability"""
+    results = []
+    
+    for location in PRIORITY_LOCATIONS:
+        try:
+            weather_data = get_weather_data(location)
+            if not weather_data:
+                continue
+                
+            risk_assessment = get_risk_thresholds(weather_data)
+            
+            # Calculate suitability score (0-100)
+            score = 100
+            high_risks = sum(1 for risk in risk_assessment.values() if risk == 'high')
+            medium_risks = sum(1 for risk in risk_assessment.values() if risk == 'medium')
+            
+            score -= (high_risks * 40)  # Deduct 40 points for each high risk
+            score -= (medium_risks * 20)  # Deduct 20 points for each medium risk
+            
+            current = weather_data.get('currentConditions', {})
+            daily = weather_data.get('days', [{}])[0]
+            
+            results.append({
+                'location': location,
+                'score': max(0, score),
+                'risks': risk_assessment,
+                'current_conditions': {
+                    'temperature': current.get('temp'),
+                    'humidity': current.get('humidity'),
+                    'precipitation': daily.get('precip'),
+                    'precipProbability': daily.get('precipprob')
+                },
+                'timestamp': current.get('datetime', datetime.now().isoformat())
+            })
+            
+        except Exception as e:
+            logging.error(f"Error analyzing {location}: {str(e)}")
+            continue
+    
+    return sorted(results, key=lambda x: x['score'], reverse=True)
 
 def get_wind_direction(degree):
     directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW']
@@ -129,6 +177,40 @@ def embed_new_question():
     index.add(np.array(new_embedding))
 
     return jsonify({'message': f'New Q&A added to "{category}" and embedded.'})
+
+@app.route('/recommend-locations', methods=['GET'])
+def recommend_locations():
+    """Get recommended locations for green infrastructure"""
+    try:
+        results = analyze_multiple_locations()
+        
+        if not results:
+            return jsonify({
+                'error': 'Could not analyze locations'
+            }), 500
+            
+        recommendations = []
+        for result in results:
+            if result['score'] >= 60:  # Only recommend locations with good scores
+                recommendations.append({
+                    'location': result['location'],
+                    'score': result['score'],
+                    'recommendation': 'Highly Recommended' if result['score'] >= 80 
+                                    else 'Recommended',
+                    'risks': result['risks'],
+                    'current_conditions': result['current_conditions'],
+                    'timestamp': result['timestamp']
+                })
+        
+        return jsonify({
+            'recommendations': recommendations,
+            'timestamp': datetime.now().isoformat(),
+            'message': f"Found {len(recommendations)} suitable locations for green infrastructure"
+        })
+        
+    except Exception as e:
+        logging.error(f"Error getting recommendations: {str(e)}")
+        return jsonify({'error': 'Failed to generate recommendations'}), 500
 
 @app.route('/weather', methods=['GET'])
 def weather_route():

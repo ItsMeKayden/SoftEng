@@ -29,6 +29,25 @@ const ChatbotPopup = ({ onClose, showResultPopup, setShowResultPopup, setShowCha
     }
   }, [messages]);
 
+  const locationPatterns = [
+    /is (.*?) suitable for green infrastructure/i,
+    /can we build green infrastructure in (.*?)\??/i,
+    /assess (.*?) for green development/i,
+    /evaluate (.*?) for infrastructure/i,
+    /check (.*?) for green infrastructure/i,
+    /analyze (.*?) for development/i,
+    /how suitable is (.*?) for green infrastructure/i,
+    /is (.*?) good for green infrastructure/i,
+    /can (.*?) support green infrastructure/i,
+    /green infrastructure in (.*?)(?:\?|$)/i,
+    /green infrastructure of (.*?)(?:\?|$)/i,
+    /suggest locations for green infrastructure/i,
+    /recommend places for green infrastructure/i,
+    /where (can|should) we build green infrastructure/i,
+    /best (places|locations) for green infrastructure/i,
+    /suitable (places|locations) for green development/i
+  ];
+
   const handleSendMessage = async () => {
     if (newMessage.trim() === "") return;
   
@@ -38,35 +57,87 @@ const ChatbotPopup = ({ onClose, showResultPopup, setShowResultPopup, setShowCha
     setLoading(true);
   
     try {
-      const locationPatterns = [
-        /is (.*?) suitable for green infrastructure/i,
-        /can we build green infrastructure in (.*?)\??/i,
-        /assess (.*?) for green development/i,
-        /evaluate (.*?) for infrastructure/i,
-        /check (.*?) for green infrastructure/i,
-        /analyze (.*?) for development/i,
-        /how suitable is (.*?) for green infrastructure/i,
-        /is (.*?) good for green infrastructure/i,
-        /can (.*?) support green infrastructure/i,
-        /green infrastructure in (.*?)(?:\?|$)/i,
-        /green infrastructure of (.*?)(?:\?|$)/i
-      ];
+      // Check for recommendation request
+      if (newMessage.toLowerCase().match(/(recommend|suggest|best|suitable) (locations?|places?) for green infrastructure/i)) {
+        const response = await axios.get(
+          "https://gis-chatbot-app.onrender.com/recommend-locations"
+        );
   
+        if (response.data.recommendations && response.data.recommendations.length > 0) {
+          // Initial response
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            { 
+              sender: "bot", 
+              text: "Based on current weather conditions, here are the recommended locations for green infrastructure:" 
+            }
+          ]);
+  
+          // Format recommendations with icons and details
+          const recommendationsText = response.data.recommendations
+  .map(rec => {
+    const scoreEmoji = rec.score >= 80 ? '🌟' : '✅';
+    const riskIcons = {
+      low: '🟢',
+      medium: '🟡',
+      high: '🔴'
+    };
+    
+    const timestamp = new Date(rec.timestamp).toLocaleTimeString('en-PH', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+    
+    return `${scoreEmoji} ${rec.location} (Score: ${rec.score}/100)
+${rec.score >= 80 ? '⭐ Highly Recommended' : '✔️ Recommended'}
+
+Risk Assessment:
+${riskIcons[rec.risks.flooding]} Flooding Risk: ${rec.risks.flooding}
+${riskIcons[rec.risks.rainfall]} Rainfall Risk: ${rec.risks.rainfall}
+${riskIcons[rec.risks.heat_index]} Heat Index Risk: ${rec.risks.heat_index}
+
+Current Weather:
+🌡️ Temperature: ${rec.current_conditions.temperature}°C
+💧 Humidity: ${rec.current_conditions.humidity}%
+🌧️ Rain: ${rec.current_conditions.precipitation}mm (${rec.current_conditions.precipProbability}% chance)
+
+Last Updated: ${timestamp}
+───────────────`;
+  })
+  .join('\n\n');
+  
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            { sender: "bot", text: recommendationsText }
+          ]);
+        } else {
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            { 
+              sender: "bot", 
+              text: "I couldn't find any suitable locations at the moment. Please try again later." 
+            }
+          ]);
+        }
+        return; // Exit after handling recommendations
+      }
+  
+      // Handle location assessment
       let location = null;
       for (const pattern of locationPatterns) {
         const match = newMessage.match(pattern);
         if (match) {
-          // Clean and format multi-word locations
           location = match[1].trim()
-          .split(' ')
-          .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-          .join(' ')
-          .replace(/\s+/g, ' '); // Remove extra spaces
-        break;
+            .split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+            .join(' ')
+            .replace(/\s+/g, ' ');
+          break;
+        }
       }
-    }
   
-    if (location) {
+      if (location) {
       const response = await axios.post(
         "https://gis-chatbot-app.onrender.com/predict-location",
         { 
