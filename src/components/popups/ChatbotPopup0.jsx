@@ -66,27 +66,41 @@ const ChatbotPopup = ({ onClose, showResultPopup, setShowResultPopup, setShowCha
       }
     }
   
-      if (location) {
-        const response = await axios.post(
-          "https://gis-chatbot-app.onrender.com/predict-location",
-          { 
-            location: location,
-            risks: {
-              flooding: "low",
-              rainfall: "medium",
-              heat_index: "medium"
-            }
+    if (location) {
+      const response = await axios.post(
+        "https://gis-chatbot-app.onrender.com/predict-location",
+        { 
+          location: location,
+          risks: {
+            flooding: "low",
+            rainfall: "medium", 
+            heat_index: "medium"
           }
-        );
+        }
+      );
   
         // Enhanced response formatting
         const suitabilityEmoji = response.data.suitable ? '✅' : '⚠️';
-        const botMessage = `${suitabilityEmoji} ${response.data.message}`;
+        const timestamp = new Date(response.data.timestamp).toLocaleString();
+        const botMessage = `${suitabilityEmoji} ${response.data.message}\n(Assessment based on data from: ${timestamp})`;
+        
         setMessages((prevMessages) => [
           ...prevMessages,
           { sender: "bot", text: botMessage },
         ]);
-  
+
+        if (response.data.current_conditions) {
+          const conditions = `Current Weather Conditions:\n` +
+            `Temperature: ${response.data.current_conditions.temperature}°C\n` +
+            `Humidity: ${response.data.current_conditions.humidity}%\n` +
+            `Precipitation: ${response.data.current_conditions.precipitation}mm\n` +
+            `Precipitation Probability: ${response.data.current_conditions.precipProbability}%`;
+          
+            setMessages((prevMessages) => [
+              ...prevMessages,
+              { sender: "bot", text: conditions },
+            ]);
+          }
         // Detailed weather conditions
         if (response.data.thresholds) {
           const riskEmojis = {

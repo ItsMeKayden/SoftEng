@@ -167,40 +167,40 @@ def get_weather_data(location):
 def get_risk_thresholds(weather_data):
     if not weather_data or 'currentConditions' not in weather_data:
         logging.error("Invalid or missing weather data")
-        return {
-            'flooding': 'low',
-            'rainfall': 'medium',
-            'heat_index': 'medium'
-        }
+        return default_thresholds
 
     try:
         current = weather_data.get('currentConditions', {})
         daily = weather_data.get('days', [{}])[0]
 
-        # Dynamic flooding threshold based on precipitation and ground conditions
-        precip = daily.get('precip', 0)
+        # Get current values
+        precip = daily.get('precip', 0)          # mm per day
+        precip_prob = daily.get('precipprob', 0) # percentage
+        temp = current.get('temp', 0)            # Celsius
+        humidity = current.get('humidity', 0)     # percentage
+
+        # PAGASA-based flooding risk (mm/day)
         flooding_risk = (
-            'high' if precip > 30 else
-            'medium' if precip > 15 else
+            'high' if precip > 30 or (precip > 20 and precip_prob > 85) else  # Heavy rainfall >30mm
+            'medium' if precip > 15 or (precip > 7.5 and precip_prob > 65) else  # Moderate rainfall
             'low'
         )
 
-        # Dynamic rainfall threshold based on precipitation probability and intensity
-        precip_prob = daily.get('precipprob', 0)
+        # PAGASA rainfall warning system
         rainfall_risk = (
-            'high' if precip_prob > 70 or precip > 30 else
-            'medium' if precip_prob > 40 or precip > 15 else
+            'high' if precip_prob > 75 or precip > 25 else    # Red warning
+            'medium' if precip_prob > 45 or precip > 12.5 else # Orange warning
+            'low'                                              # Yellow warning
+        )
+
+        # PAGASA heat index danger levels
+        heat_index_risk = (
+            'high' if temp > 41 or (temp > 35 and humidity > 80) else   # Danger level
+            'medium' if temp > 33 or (temp > 32 and humidity > 70) else # Caution required
             'low'
         )
 
-        # Dynamic heat index threshold based on temperature and humidity
-        temp = current.get('temp', 0)
-        humidity = current.get('humidity', 0)
-        heat_index_risk = (
-            'high' if temp > 35 or (temp > 32 and humidity > 70) else
-            'medium' if temp > 30 or (temp > 28 and humidity > 60) else
-            'low'
-        )
+        logging.info(f"PH-based risk assessment - Temp: {temp}°C, Humidity: {humidity}%, Precip: {precip}mm")
 
         return {
             'flooding': flooding_risk,
@@ -224,31 +224,49 @@ def predict_location():
 
     try:
         # Get current weather data for the location
-        weather_data = get_weather_data(location)  # Implement this function to fetch weather data
+        weather_data = get_weather_data(location)
+        if not weather_data:
+            return jsonify({'error': 'Could not fetch weather data'}), 500
         
         # Get dynamic thresholds based on current conditions
-        risk_thresholds = get_risk_thresholds(weather_data)
+        risk_assessment = get_risk_thresholds(weather_data)
+        
+        # Add timestamp to response
+        current_time = weather_data.get('currentConditions', {}).get('datetime', 
+            datetime.now().isoformat())
 
-        # Evaluate risks
+        # Evaluate risks using current weather data
         suitability = True
         reasons = []
-        for risk_type, risk_level in risks.items():
-            threshold = risk_thresholds.get(risk_type)
-            if threshold:
-                current_risk = risk_level.lower()
-                max_allowed = threshold.lower()
-                
-                # Compare risk levels (low < medium < high)
-                risk_order = {'low': 0, 'medium': 1, 'high': 2}
-                if risk_order[current_risk] > risk_order[max_allowed]:
-                    suitability = False
-                    reasons.append(f"{risk_type.capitalize()} risk is too high ({risk_level}).")
+        
+        # Update risk evaluation logic
+        current_conditions = weather_data.get('currentConditions', {})
+        daily_forecast = weather_data.get('days', [{}])[0]
+
+        # Determine suitability based on risk levels
+        high_risks = sum(1 for risk in risk_assessment.values() if risk == 'high')
+        medium_risks = sum(1 for risk in risk_assessment.values() if risk == 'medium')
+        
+        suitability = high_risks == 0 and medium_risks <= 1  # Suitable only if no high risks and at most one medium risk
+        
+        reasons = []
+        if high_risks > 0:
+            reasons.append("High risk levels detected")
+        if medium_risks > 1:
+            reasons.append("Multiple medium risk factors present")
 
         return jsonify({
             'suitable': suitability,
             'message': f"{location} is {'suitable' if suitability else 'not suitable'} for green infrastructure development.",
             'reasons': reasons,
-            'thresholds': risk_thresholds  # Include current thresholds in response
+            'thresholds': risk_assessment,
+            'timestamp': current_time,
+            'current_conditions': {
+                'temperature': current_conditions.get('temp'),
+                'humidity': current_conditions.get('humidity'),
+                'precipitation': daily_forecast.get('precip'),
+                'precipProbability': daily_forecast.get('precipprob')
+            }
         })
 
     except Exception as e:
