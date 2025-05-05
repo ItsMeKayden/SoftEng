@@ -125,7 +125,9 @@ const ChatbotPopup = ({ onClose, showResultPopup, setShowResultPopup, setShowCha
           ))}
           {loading && (
             <div className="chat-message bot">
-              <div className="chat-bubble">Typing...</div>
+              <div className="chat-bubble bouncing-animation">
+                <span>T</span><span>y</span><span>p</span><span>i</span><span>n</span><span>g</span><span>.</span><span>.</span><span>.</span>
+              </div>
             </div>
           )}
         </div>
