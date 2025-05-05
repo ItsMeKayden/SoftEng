@@ -14,6 +14,11 @@ from datetime import datetime
 from apscheduler.schedulers.background import BackgroundScheduler
 import psutil
 from irrelevant_keywords import irrelevant_keywords  # Import the set
+default_thresholds = {
+    'flooding': 'low',
+    'rainfall': 'medium',
+    'heat_index': 'medium'
+}
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -126,11 +131,16 @@ def embed_new_question():
     return jsonify({'message': f'New Q&A added to "{category}" and embedded.'})
 
 @app.route('/weather', methods=['GET'])
-def get_weather():
+def weather_route():
     location = request.args.get('location')
-    if not location:
-        return jsonify({'error': 'Location parameter is required'}), 400
+    return jsonify(get_weather_data(location))
 
+def get_weather_data(location):
+    """Fetch weather data for a location"""
+    if not location:
+        logging.error("No location provided")
+        return None
+        
     weather_url = f'https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/{location}'
     params = {
         'key': API_KEY,
@@ -142,32 +152,67 @@ def get_weather():
         response = requests.get(weather_url, params=params)
         response.raise_for_status()
         data = response.json()
-        logging.info(f"Weather API Response for '/weather' endpoint, '{location}': {data}")
-
-        current = data.get('currentConditions', {})
-        temp_c = current.get('temp')
-        humidity = current.get('humidity')
-        wind_speed = current.get('windspeed')
-        wind_dir_deg = current.get('winddir')
-        wind_direction = get_wind_direction(wind_dir_deg) if wind_dir_deg is not None else None
-
-        weather_data = {
-            'location': data.get('resolvedAddress'),
-            'status': current.get('conditions'),
-            'averageTemperature': temp_c,
-            'maximumTemperature': data.get('days', [{}])[0].get('tempmax'),
-            'minimumTemperature': data.get('days', [{}])[0].get('tempmin'),
-            'windSpeed': wind_speed,
-            'windDirection': wind_direction,
-            'precipitationProbability': data.get('days', [{}])[0].get('precipprob'),
-            'cloudCover': current.get('cloudcover')
-        }
-        return jsonify(weather_data)
-
+        
+        # Validate required fields
+        if 'currentConditions' not in data or 'days' not in data:
+            logging.error(f"Missing required fields in weather data for {location}")
+            return None
+            
+        logging.info(f"Weather data fetched for {location}")
+        return data
     except requests.exceptions.RequestException as e:
-        logging.error(f"Weather API error in '/weather': {str(e)}")
-        return jsonify({'error': 'Failed to fetch weather data'}), 500
+        logging.error(f"Failed to fetch weather data for {location}: {str(e)}")
+        return None
 
+def get_risk_thresholds(weather_data):
+    if not weather_data or 'currentConditions' not in weather_data:
+        logging.error("Invalid or missing weather data")
+        return {
+            'flooding': 'low',
+            'rainfall': 'medium',
+            'heat_index': 'medium'
+        }
+
+    try:
+        current = weather_data.get('currentConditions', {})
+        daily = weather_data.get('days', [{}])[0]
+
+        # Dynamic flooding threshold based on precipitation and ground conditions
+        precip = daily.get('precip', 0)
+        flooding_risk = (
+            'high' if precip > 30 else
+            'medium' if precip > 15 else
+            'low'
+        )
+
+        # Dynamic rainfall threshold based on precipitation probability and intensity
+        precip_prob = daily.get('precipprob', 0)
+        rainfall_risk = (
+            'high' if precip_prob > 70 or precip > 30 else
+            'medium' if precip_prob > 40 or precip > 15 else
+            'low'
+        )
+
+        # Dynamic heat index threshold based on temperature and humidity
+        temp = current.get('temp', 0)
+        humidity = current.get('humidity', 0)
+        heat_index_risk = (
+            'high' if temp > 35 or (temp > 32 and humidity > 70) else
+            'medium' if temp > 30 or (temp > 28 and humidity > 60) else
+            'low'
+        )
+
+        return {
+            'flooding': flooding_risk,
+            'rainfall': rainfall_risk,
+            'heat_index': heat_index_risk
+        }
+
+    except Exception as e:
+        logging.error(f"Error calculating risk thresholds: {str(e)}")
+        return default_thresholds
+
+# Update the predict-location route
 @app.route('/predict-location', methods=['POST'])
 def predict_location():
     data = request.json
@@ -177,33 +222,38 @@ def predict_location():
     if not location or not risks:
         return jsonify({'error': 'Location and risks data are required'}), 400
 
-    # Example risk thresholds (adjust as needed)
-    risk_thresholds = {
-        'flooding': 'low',  # Only allow "low" risk for flooding
-        'rainfall': 'medium',  # Allow "medium" or lower for rainfall
-        'heat_index': 'medium',  # Allow "medium" or lower for heat index
-    }
+    try:
+        # Get current weather data for the location
+        weather_data = get_weather_data(location)  # Implement this function to fetch weather data
+        
+        # Get dynamic thresholds based on current conditions
+        risk_thresholds = get_risk_thresholds(weather_data)
 
-    # Evaluate risks
-    suitability = True
-    reasons = []
-    for risk_type, risk_level in risks.items():
-        allowed_level = risk_thresholds.get(risk_type)
-        if allowed_level and risk_level.lower() not in ['low', allowed_level]:
-            suitability = False
-            reasons.append(f"{risk_type.capitalize()} risk is too high ({risk_level}).")
+        # Evaluate risks
+        suitability = True
+        reasons = []
+        for risk_type, risk_level in risks.items():
+            threshold = risk_thresholds.get(risk_type)
+            if threshold:
+                current_risk = risk_level.lower()
+                max_allowed = threshold.lower()
+                
+                # Compare risk levels (low < medium < high)
+                risk_order = {'low': 0, 'medium': 1, 'high': 2}
+                if risk_order[current_risk] > risk_order[max_allowed]:
+                    suitability = False
+                    reasons.append(f"{risk_type.capitalize()} risk is too high ({risk_level}).")
 
-    if suitability:
         return jsonify({
-            'suitable': True,
-            'message': f"{location} is suitable for green infrastructure development."
+            'suitable': suitability,
+            'message': f"{location} is {'suitable' if suitability else 'not suitable'} for green infrastructure development.",
+            'reasons': reasons,
+            'thresholds': risk_thresholds  # Include current thresholds in response
         })
-    else:
-        return jsonify({
-            'suitable': False,
-            'message': f"{location} is not suitable for green infrastructure development.",
-            'reasons': reasons
-        })       
+
+    except Exception as e:
+        logging.error(f"Error in predict_location: {str(e)}")
+        return jsonify({'error': 'Failed to evaluate location suitability'}), 500
 
 @app.route('/chat', methods=['POST'])
 def chat():
@@ -261,6 +311,10 @@ def chat():
             data = response.json()
             logging.info(f"Weather API Response for '/chat', '{location_query}': {data}")
 
+            if not data or 'currentConditions' not in data:
+                logging.error(f"Invalid weather data received for {location_query}")
+                return jsonify({'response': "Sorry, I couldn't get valid weather data for that location."})
+
             current = data.get('currentConditions', {})
             temp_c = current.get('temp')
             humidity = current.get('humidity')
@@ -302,7 +356,11 @@ def chat():
     if len(user_input.split()) < 3:
         return jsonify({'response': "Please be more specific."})
 
+try:
     query_embedding = embed_model.encode([user_input])
+    if query_embedding.size == 0:
+        logging.error("Failed to generate embedding for user input")
+        return jsonify({'response': "I couldn't process your question. Please try rephrasing it."})
     D, I = index.search(np.array(query_embedding), k=1)
     retrieved_question = questions[I[0][0]]
     retrieved_answer = answers[I[0][0]]
@@ -334,7 +392,7 @@ def chat():
         logging.error(f"An error occurred during Ollama interaction: {e}")
         return jsonify({'error': 'AI response failed'}), 500
 
-if __name__ == '_main_':
+if __name__ == '__main__':
     init_scheduler()
     port = int(os.environ.get('PORT', 8000))
     app.run(host='0.0.0.0', port=port, debug=True)
