@@ -45,24 +45,37 @@ const ChatbotPopup = ({ onClose, showResultPopup, setShowResultPopup, setShowCha
         /evaluate (.*?) for infrastructure/i,
         /check (.*?) for green infrastructure/i,
         /analyze (.*?) for development/i,
-        /how suitable is (.*?) for green infrastructure/i
+        /how suitable is (.*?) for green infrastructure/i,
+        /is (.*?) good for green infrastructure/i,
+        /can (.*?) support green infrastructure/i,
+        /green infrastructure in (.*?)(?:\?|$)/i,
+        /green infrastructure of (.*?)(?:\?|$)/i
       ];
   
       let location = null;
       for (const pattern of locationPatterns) {
         const match = newMessage.match(pattern);
         if (match) {
-          location = match[1];
-          break;
-        }
+          // Clean and format multi-word locations
+          location = match[1].trim()
+          .split(' ')
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+          .join(' ')
+          .replace(/\s+/g, ' '); // Remove extra spaces
+        break;
       }
+    }
   
       if (location) {
         const response = await axios.post(
           "https://gis-chatbot-app.onrender.com/predict-location",
           { 
-            location: location.charAt(0).toUpperCase() + location.slice(1),
-            risks 
+            location: location,
+            risks: {
+              flooding: "low",
+              rainfall: "medium",
+              heat_index: "medium"
+            }
           }
         );
   
