@@ -712,14 +712,16 @@ const ResultPopup = ({
               selected={selectedDate}
               onChange={handleDateChange}
               dateFormat="MMMM d, yyyy"
-              minDate={dateRange.minDate}
-              filterDate={dateRange.filterDate}
+              minDate={new Date('2019-01-01')}
+              maxDate={new Date('2025-12-31')}
               showMonthDropdown
               showYearDropdown
               dropdownMode="select"
               className={`date-picker ${darkMode ? 'dark-mode' : ''}`}
               placeholderText="Select a date"
               todayButton="Today"
+              yearDropdownItemNumber={7}
+              scrollableYearDropdown
             />
           </div>
         </div>
