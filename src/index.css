@@ -179,7 +179,7 @@ body {
   color: var(--text-primary);
 }
 .light-theme .top-bar {
-  background: #41AB5D;
+  background: var(--topbar-bg);
   color: #fff;
 }
 
@@ -206,12 +206,15 @@ body {
   --text-primary: #222;
   --sidebar-bg: #fdfdfd;
   --topbar-bg: #41AB5D;
+  --sidebar-section-label: #41AB5D;
   --modal-bg: #f5f5f5;
   --input-bg: #eee;
   --button-primary: #41AB5D;
   --button-text: #fff;
   --result-panel-bg: #ececec;
   --result-panel-border: 1px #ccc solid;
+  --border-green: none;
+  --text-green: #327243;
   --result-panel-text: #000;
   --panel-button-active-bg: white;
   --table-row-hover: #eeeeee;
@@ -230,13 +233,16 @@ body {
   --bg-primary: #181516;
   --text-primary: #fff;
   --sidebar-bg: #2d2d2d;
-  --topbar-bg: #41AB5D;
+  --topbar-bg: #327243;
+  --sidebar-section-label: #327243;
   --modal-bg: #2a2a2a;
   --input-bg: #444;
   --button-primary: #2d7a3d;
   --result-panel-bg: #0D0D0D;
   --result-panel-text: #fff;
   --result-panel-border: none;
+  --border-green: #327243;
+  --text-green: #7bc77b;
   --panel-button-active-bg: var(--modal-bg);
   --table-row-hover: rgba(116, 196, 118, 0.1);
   --dropdown-arrow-filter: brightness(0) invert(1);

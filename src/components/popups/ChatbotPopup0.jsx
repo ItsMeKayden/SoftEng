@@ -58,16 +58,10 @@ const ChatbotPopup = ({
 
     const userMessage = { sender: 'user', text: newMessage };
     setMessages((prevMessages) => [...prevMessages, userMessage]);
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
     setNewMessage("");
-=======
-    setNewMessage('');
->>>>>>> Stashed changes
     setLoading(true);
 
     try {
-<<<<<<< Updated upstream
       // Check for recommendation request
       if (newMessage.toLowerCase().match(/(recommend|suggest|best|suitable) (locations?|places?) for green infrastructure/i)) {
         const response = await axios.get(
@@ -166,27 +160,11 @@ Last Updated: ${timestamp}
         const timestamp = new Date(response.data.timestamp).toLocaleString();
         const botMessage = `${suitabilityEmoji} ${response.data.message}\n(Assessment based on data from: ${timestamp})`;
         
-=======
-      if (newMessage.toLowerCase().includes('green infrastructure')) {
-        const risks = {
-          flooding: 'low',
-          rainfall: 'medium',
-          heat_index: 'low',
-        };
-
-        const response = await axios.post(
-          'https://gis-chatbot-app.onrender.com/predict-location',
-          { location: 'Philippines', risks }
-        );
-
-        const botMessage = response.data.message;
->>>>>>> Stashed changes
         setMessages((prevMessages) => [
           ...prevMessages,
           { sender: 'bot', text: botMessage },
         ]);
 
-<<<<<<< Updated upstream
         if (response.data.current_conditions) {
           const conditions = `Current Weather Conditions:\n` +
             `Temperature: ${response.data.current_conditions.temperature}°C\n` +
@@ -219,48 +197,6 @@ Last Updated: ${timestamp}
         }
       } else {
         // Default chatbot behavior for other questions
-=======
-        if (!response.data.suitable) {
-          const reasons = response.data.reasons.join('\n');
-          setMessages((prevMessages) => [
-            ...prevMessages,
-            { sender: 'bot', text: `Reasons:\n${reasons}` },
-          ]);
-        }
-      } else {
->>>>>>> Stashed changes
-=======
-    setNewMessage('');
-    setLoading(true);
-
-    try {
-      if (newMessage.toLowerCase().includes('green infrastructure')) {
-        const risks = {
-          flooding: 'low',
-          rainfall: 'medium',
-          heat_index: 'low',
-        };
-
-        const response = await axios.post(
-          'https://gis-chatbot-app.onrender.com/predict-location',
-          { location: 'Philippines', risks }
-        );
-
-        const botMessage = response.data.message;
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          { sender: 'bot', text: botMessage },
-        ]);
-
-        if (!response.data.suitable) {
-          const reasons = response.data.reasons.join('\n');
-          setMessages((prevMessages) => [
-            ...prevMessages,
-            { sender: 'bot', text: `Reasons:\n${reasons}` },
-          ]);
-        }
-      } else {
->>>>>>> Stashed changes
         const response = await axios.post(
           'https://gis-chatbot-app.onrender.com/chat',
           { message: newMessage }
@@ -272,8 +208,6 @@ Last Updated: ${timestamp}
         ]);
       }
     } catch (error) {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       console.error("Error:", error);
       const errorMessage = error.response?.status === 404 
         ? `Sorry, I couldn't find data for that location. Please check the spelling or try another location.`
@@ -282,18 +216,6 @@ Last Updated: ${timestamp}
       setMessages((prevMessages) => [
         ...prevMessages,
         { sender: "bot", text: errorMessage },
-=======
-      console.error('Error:', error);
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { sender: 'bot', text: 'Sorry, something went wrong.' },
->>>>>>> Stashed changes
-=======
-      console.error('Error:', error);
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { sender: 'bot', text: 'Sorry, something went wrong.' },
->>>>>>> Stashed changes
       ]);
     } finally {
       setLoading(false);
